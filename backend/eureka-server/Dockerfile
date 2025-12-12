@@ -5,6 +5,7 @@ COPY common/pom.xml common/pom.xml
 COPY eureka-server/pom.xml eureka-server/pom.xml
 COPY api-gateway/pom.xml api-gateway/pom.xml
 COPY user-service/pom.xml user-service/pom.xml
+COPY market-service/pom.xml market-service/pom.xml
 RUN mvn dependency:go-offline -pl eureka-server -am
 COPY common/src common/src
 COPY eureka-server/src eureka-server/src
