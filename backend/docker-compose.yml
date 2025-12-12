@@ -8,6 +8,15 @@ services:
       - "8761:8761"
     networks:
       - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8761/actuator/health" ]
       interval: 30s
@@ -24,6 +33,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      user-service:
+        condition: service_started
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -54,6 +65,28 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - RABBITMQ_HOST=rabbitmq
       - SPRING_REDIS_HOST=redis
+    networks:
+      - app-network
+
+  market-service:
+    build:
+      context: .
+      dockerfile: market-service/Dockerfile
+    container_name: market-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - SPRING_DATA_REDIS_HOST=redis
     networks:
       - app-network
 

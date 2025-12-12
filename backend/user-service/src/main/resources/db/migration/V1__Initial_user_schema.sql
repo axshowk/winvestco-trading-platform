@@ -8,7 +8,7 @@ CREATE TABLE users (
     password_hash VARCHAR(100) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
-    client_id VARCHAR(10) NOT NULL UNIQUE,
+    client_id VARCHAR(20) NOT NULL UNIQUE,
     phone_number VARCHAR(20),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -17,21 +17,16 @@ spring:
   # JPA/Hibernate properties
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # OAuth2 Resource Server Configuration
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${AUTH_SERVER_ISSUER_URI:http://localhost:9000}
-          jwk-set-uri: ${AUTH_SERVER_JWK_SET_URI:http://localhost:9000/oauth2/jwks}
-          jws-algorithms: RS256
+  # OAuth2 Resource Server Configuration (Handled manually in SecurityConfig)
+
+
 
   # Jackson Configuration
   jackson:

@@ -23,6 +23,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 @Import(PasswordConfig.class)
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${jwt.secret}")
+    private String secretKey;
+
     @Bean
     @org.springframework.core.annotation.Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,6 +49,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return http.build();
@@ -62,9 +66,16 @@ public class SecurityConfig {
     }
 
     @Bean
+    public org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder() {
+        byte[] keyBytes = secretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        javax.crypto.SecretKey key = io.jsonwebtoken.security.Keys.hmacShaKeyFor(keyBytes);
+        return org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey(key).build();
+    }
+
+    @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
         grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

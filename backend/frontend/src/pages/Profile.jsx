@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Calendar, LogOut, Shield, CreditCard, Settings, TrendingUp, Globe } from 'lucide-react';
 import './Profile.css';
 import Navbar from '../components/Navbar';
 
 const Profile = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const handleLogout = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        navigate('/login');
+    };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -115,63 +123,54 @@ const Profile = () => {
                         <p className="profile-type">{user.accountType}</p>
                     </div>
 
-                    <div className="profile-sections">
-                        <div className="section-header">
-                            <h3>Personal Information</h3>
-                        </div>
-                        <div className="profile-details">
-                            <div className="detail-item">
-                                <div className="detail-icon">
-                                    <Mail size={20} />
-                                </div>
-                                <div className="detail-info">
-                                    <span className="label">Email</span>
-                                    <span className="value">{user.email}</span>
-                                </div>
+                    <div className="info-grid">
+                        <div className="detail-item">
+                            <div className="detail-icon">
+                                <Mail size={18} />
                             </div>
-
-                            <div className="detail-item">
-                                <div className="detail-icon">
-                                    <Calendar size={20} />
-                                </div>
-                                <div className="detail-info">
-                                    <span className="label">Member Since</span>
-                                    <span className="value">{user.joinDate}</span>
-                                </div>
-                            </div>
-
-                            <div className="detail-item">
-                                <div className="detail-icon">
-                                    <User size={20} />
-                                </div>
-                                <div className="detail-info">
-                                    <span className="label">Username</span>
-                                    <span className="value">@alexmorgan_invest</span>
-                                </div>
+                            <div className="detail-info">
+                                <span className="label">Email</span>
+                                <span className="value">{user.email}</span>
                             </div>
                         </div>
 
-                        <div className="section-header">
-                            <h3>Investment Profile</h3>
-                        </div>
-                        <div className="profile-details">
-                            <div className="detail-item">
-                                <div className="detail-icon">
-                                    <TrendingUp size={20} />
-                                </div>
-                                <div className="detail-info">
-                                    <span className="label">Risk Tolerance</span>
-                                    <span className="value">Moderate - Aggressive</span>
-                                </div>
+                        <div className="detail-item">
+                            <div className="detail-icon">
+                                <User size={18} />
                             </div>
-                            <div className="detail-item">
-                                <div className="detail-icon">
-                                    <Globe size={20} />
-                                </div>
-                                <div className="detail-info">
-                                    <span className="label">Primary Market</span>
-                                    <span className="value">NSE / BSE</span>
-                                </div>
+                            <div className="detail-info">
+                                <span className="label">Username</span>
+                                <span className="value">@alexmorgan_invest</span>
+                            </div>
+                        </div>
+
+                        <div className="detail-item">
+                            <div className="detail-icon">
+                                <Calendar size={18} />
+                            </div>
+                            <div className="detail-info">
+                                <span className="label">Joined</span>
+                                <span className="value">{user.joinDate}</span>
+                            </div>
+                        </div>
+
+                        <div className="detail-item">
+                            <div className="detail-icon">
+                                <TrendingUp size={18} />
+                            </div>
+                            <div className="detail-info">
+                                <span className="label">Risk Profile</span>
+                                <span className="value">Moderate - Aggressive</span>
+                            </div>
+                        </div>
+
+                        <div className="detail-item full-width">
+                            <div className="detail-icon">
+                                <Globe size={18} />
+                            </div>
+                            <div className="detail-info">
+                                <span className="label">Markets</span>
+                                <span className="value">NSE / BSE</span>
                             </div>
                         </div>
                     </div>
@@ -192,7 +191,7 @@ const Profile = () => {
                     </div>
 
                     <div className="profile-footer">
-                        <button className="logout-btn">
+                        <button className="logout-btn" onClick={handleLogout}>
                             <LogOut size={18} />
                             <span>Sign Out</span>
                         </button>

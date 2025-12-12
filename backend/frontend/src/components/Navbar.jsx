@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, TrendingUp } from 'lucide-react';
+import { Menu, X, TrendingUp, User } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ onLogin }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
+        // Check login status
+        const token = localStorage.getItem('accessToken');
+        setIsLoggedIn(!!token);
+
         const controlNavbar = () => {
             if (typeof window !== 'undefined') {
                 if (window.scrollY > lastScrollY && window.scrollY > 100) { // if scroll down and past 100px
@@ -49,8 +54,17 @@ const Navbar = ({ onLogin }) => {
 
                     {/* Auth Buttons */}
                     <div className="auth-buttons">
-                        <button type="button" className="btn-text" onClick={onLogin}>Log In</button>
-                        <button type="button" className="btn-primary" onClick={onLogin}>Get Started</button>
+                        {isLoggedIn ? (
+                            <a href="/profile" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+                                <User size={18} />
+                                <span>Profile</span>
+                            </a>
+                        ) : (
+                            <>
+                                <button type="button" className="btn-text" onClick={onLogin}>Log In</button>
+                                <button type="button" className="btn-primary" onClick={onLogin}>Get Started</button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -72,8 +86,17 @@ const Navbar = ({ onLogin }) => {
                         <a href="#" className="nav-link mobile">Learn</a>
                         <a href="#" className="nav-link mobile">Company</a>
                         <hr className="divider" />
-                        <button className="btn-text mobile" onClick={onLogin}>Log In</button>
-                        <button className="btn-primary mobile" onClick={onLogin}>Get Started</button>
+                        {isLoggedIn ? (
+                            <a href="/profile" className="btn-primary mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+                                <User size={18} />
+                                <span>Profile</span>
+                            </a>
+                        ) : (
+                            <>
+                                <button className="btn-text mobile" onClick={onLogin}>Log In</button>
+                                <button className="btn-primary mobile" onClick={onLogin}>Get Started</button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

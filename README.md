@@ -191,13 +191,16 @@ winvestco-trading-platform/
 │   │   ├── 📁 service/          # Market data processing
 │   │   ├── 📁 scheduler/        # Scheduled data fetching
 │   │   ├── 📁 messaging/        # Kafka publisher
-│   │   └── 📁 config/           # NSE & Kafka config
+│   │   ├── 📁 config/           # NSE & Kafka config
+│   │   └── 📄 Dockerfile        # Container definition
 │   │
 │   └── 📁 frontend/             # React Frontend
 │       ├── 📁 src/
 │       │   ├── 📁 components/   # Reusable UI components
 │       │   │   ├── Navbar.jsx
 │       │   │   ├── Hero.jsx
+│       │   │   ├── Features.jsx     # Landing page features
+│       │   │   ├── CoinShower.jsx   # Animation component
 │       │   │   ├── Footer.jsx
 │       │   │   ├── Ticker.jsx
 │       │   │   └── TradingViewChart.jsx
@@ -245,7 +248,6 @@ Ensure you have the following installed:
    # Edit .env with your configuration (see Environment Variables section)
    ```
 
-3. **Start all services**
    ```bash
    docker-compose up -d
    ```
