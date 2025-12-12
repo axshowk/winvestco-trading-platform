@@ -1,0 +1,21 @@
+# Maven
+target/
+*/target/
+
+# Logs
+logs/
+*.log
+*.gz
+
+# Environment variables
+.env
+*.env
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store

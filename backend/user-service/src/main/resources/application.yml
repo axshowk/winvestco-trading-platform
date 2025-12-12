@@ -1,0 +1,123 @@
+spring:
+  application:
+    name: user-service
+
+  # Virtual Threads (Java 21+)
+  threads:
+    virtual:
+      enabled: true
+
+  # Database Configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/winvestco_user_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate properties
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # OAuth2 Resource Server Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_SERVER_ISSUER_URI:http://localhost:9000}
+          jwk-set-uri: ${AUTH_SERVER_JWK_SET_URI:http://localhost:9000/oauth2/jwks}
+          jws-algorithms: RS256
+
+  # Jackson Configuration
+  jackson:
+    time-zone: Asia/Kolkata
+    date-format: dd-MM-yyyy HH:mm:ss
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: ${RABBITMQ_PASSWORD:guest}
+    template:
+      default-receive-queue: ${RABBITMQ_QUEUE:user.queue}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2.0
+          max-interval: 10000
+
+  # Enable bean definition overriding
+  main:
+    allow-bean-definition-overriding: true
+
+  # Redis Configuration
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+    password: ${SPRING_REDIS_PASSWORD:}
+
+  session:
+    store-type: redis
+    redis:
+      namespace: trading:user
+
+  # Flyway configuration
+  flyway:
+    repair-on-migrate: true
+    validate-on-migrate: false
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:9090}
+
+# Eureka Client Configuration
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+    healthcheck:
+      enabled: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}:${random.value}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Enable Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# Springdoc Configuration
+springdoc:
+  swagger-ui:
+    tryItOutEnabled: false
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+
+# JWT Configuration (must match api-gateway)
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000}

@@ -1,0 +1,94 @@
+spring:
+  application:
+    name: api-gateway
+  
+  # Virtual Threads (Java 21+)
+  threads:
+    virtual:
+      enabled: true
+  
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+  cloud:
+    gateway:
+      default-filters:
+        - PreserveHostHeader
+        - RemoveRequestHeader=Cookie
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+      routes:
+
+        # API Documentation Routes (Centralized)
+        - id: api-docs
+          uri: lb://user-service
+          predicates:
+            - Path=/api/admin/docs/**
+
+        # User Service - Registration (Public)
+        - id: user-service-register
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/register, /api/users/register/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RemoveRequestHeader=Authorization
+
+        # User Service routes
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**, /api/users/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Market Service routes
+        - id: market-service
+          uri: lb://market-service
+          predicates:
+            - Path=/api/market/**
+          filters:
+            - RemoveRequestHeader=Cookie
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, gateway, routes
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.web.server: DEBUG
+
+
+  endpoint:
+    health:
+      show-details: always
+
+# JWT Configuration (must match user-service)
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+

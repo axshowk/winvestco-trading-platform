@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradingApp API Docs</title>
+  <link rel="stylesheet" type="text/css" href="/webjars/swagger-ui/swagger-ui.css" />
+  <style>
+    :root { --brand:#1f6feb; --bg:#0b1220; }
+    body { margin:0; background:#0e1525; }
+    .topbar { display:none; }
+    header.brandbar {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 18px; background:linear-gradient(90deg, var(--bg), #121a2b);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    header.brandbar img { height:28px; }
+    header.brandbar h1 {
+      margin:0; font:600 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:#e6edf3;
+    }
+    header.brandbar .subtitle { color:#9fb1c5; font-size:12px; }
+    .swagger-ui .scheme-container { box-shadow:none; border:1px solid rgba(255,255,255,.08); background:#0f172a; }
+    .swagger-ui .opblock { border-radius:8px; overflow:hidden; }
+    .swagger-ui .btn.execute { background:var(--brand); }
+    .swagger-ui .models, .swagger-ui .information-container { border-radius:8px; }
+  </style>
+</head>
+<body>
+  <header class="brandbar">
+    <img src="/img/logo.svg" alt="TradingApp" />
+    <div>
+      <h1>TradingApp API</h1>
+      <div class="subtitle">Beautiful docs with custom branding</div>
+    </div>
+  </header>
+  <div id="swagger-ui"></div>
+
+  <script src="/webjars/swagger-ui/swagger-ui-bundle.js" crossorigin></script>
+  <script src="/webjars/swagger-ui/swagger-ui-standalone-preset.js" crossorigin></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: '/api-docs',
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      layout: 'BaseLayout',
+      docExpansion: 'none',
+      filter: true,
+      displayRequestDuration: true,
+      operationsSorter: 'method',
+      tagsSorter: 'alpha'
+    });
+  </script>
+</body>
+</html>
