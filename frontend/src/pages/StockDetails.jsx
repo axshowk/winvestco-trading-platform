@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import TradingViewChart from '../components/TradingViewChart';
+import LightweightChart from '../components/LightweightChart';
 import './StockDetails.css';
 
 const StockDetails = () => {
@@ -299,9 +299,9 @@ const StockDetails = () => {
                     </div>
                 </div>
 
-                {/* TradingView Chart Section */}
+                {/* Chart Section */}
                 <div className="chart-section glass">
-                    <TradingViewChart symbol={stockData?.symbol} />
+                    <LightweightChart symbol={stockData?.symbol} />
                 </div>
 
                 {/* Intraday Section */}

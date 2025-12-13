@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, TrendingUp, User } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 import './Navbar.css';
 
 const Navbar = ({ onLogin }) => {
@@ -54,10 +55,13 @@ const Navbar = ({ onLogin }) => {
                     {/* Auth Buttons */}
                     <div className="auth-buttons">
                         {isLoggedIn ? (
-                            <a href="/profile" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-                                <User size={18} />
-                                <span>Profile</span>
-                            </a>
+                            <>
+                                <NotificationBell />
+                                <a href="/profile" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+                                    <User size={18} />
+                                    <span>Profile</span>
+                                </a>
+                            </>
                         ) : (
                             <>
                                 <button type="button" className="btn-text" onClick={onLogin}>Log In</button>

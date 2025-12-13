@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { NotificationProvider } from './context/NotificationContext';
+import NotificationToast from './components/NotificationToast';
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Ticker from './components/Ticker'
@@ -32,20 +34,24 @@ const Home = () => {
 
 function App() {
   return (
-    <Router>
-      <Ticker />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/markets" element={<Stocks />} />
-        <Route path="/market-data" element={<MarketData />} />
-        <Route path="/stock/:symbol" element={<StockDetails />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </Router>
+    <NotificationProvider>
+      <Router>
+        <NotificationToast />
+        <Ticker />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/markets" element={<Stocks />} />
+          <Route path="/market-data" element={<MarketData />} />
+          <Route path="/stock/:symbol" element={<StockDetails />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </Router>
+    </NotificationProvider>
   )
 }
 
 export default App
+

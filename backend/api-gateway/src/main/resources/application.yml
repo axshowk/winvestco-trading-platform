@@ -66,6 +66,48 @@ spring:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
 
+        # Funds Service routes
+        - id: funds-service
+          uri: lb://funds-service
+          predicates:
+            - Path=/api/funds/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Ledger Service routes (Source of Truth)
+        - id: ledger-service
+          uri: lb://ledger-service
+          predicates:
+            - Path=/api/ledger/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Order Service routes
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Notification Service routes
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Notification Service WebSocket
+        - id: notification-websocket
+          uri: lb:ws://notification-service
+          predicates:
+            - Path=/ws/notifications/**
+
 server:
   port: 8090
 

@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: ledger-service
+
+  # Virtual Threads (Java 21+)
+  threads:
+    virtual:
+      enabled: true
+
+  # Database Configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/winvestco_ledger_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate properties
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Jackson Configuration
+  jackson:
+    time-zone: Asia/Kolkata
+    date-format: dd-MM-yyyy HH:mm:ss
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  # Flyway configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    repair-on-migrate: true
+    validate-on-migrate: false
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8087}
+
+# Eureka Client Configuration
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+    healthcheck:
+      enabled: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}:${random.value}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+
+# Springdoc Configuration
+springdoc:
+  swagger-ui:
+    tryItOutEnabled: true
+
+# Logging
+logging:
+  level:
+    org.springframework.security: DEBUG
+    in.winvestco.ledger_service: DEBUG
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000}

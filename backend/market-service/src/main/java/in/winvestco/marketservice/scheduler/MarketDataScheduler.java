@@ -17,6 +17,7 @@ public class MarketDataScheduler {
     private final NseClient nseClient;
     private final MarketDataPublisher marketDataPublisher;
     private final in.winvestco.marketservice.service.MarketDataService marketDataService;
+    private final in.winvestco.marketservice.service.CandleService candleService;
 
     @Scheduled(initialDelay = 0, fixedRate = 180000)
     public void fetchAndPublishMarketData() {
@@ -44,6 +45,11 @@ public class MarketDataScheduler {
                     log.warn("No data received for index: {}", indexName);
                 }
             }
+
+            // Store candles for charting after all indices are fetched
+            candleService.storeCurrentCandles();
+            log.info("Candle storage completed");
+
         } catch (Exception e) {
             log.error("Error occurred while fetching/publishing market data from NSE", e);
         }

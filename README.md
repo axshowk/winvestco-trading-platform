@@ -21,6 +21,7 @@
 - [Features](#-features)
 - [Architecture](#-architecture)
 - [Technology Stack](#-technology-stack)
+- [Microservices Overview](#-microservices-overview)
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
@@ -41,64 +42,87 @@
 
 ### Core Trading Features
 - **📈 Live Market Data** - Real-time stock prices and indices from NSE India
-- **📊 Interactive Charts** - TradingView-powered stock charts with technical analysis
-- **🔐 User Authentication** - Secure JWT-based authentication with OAuth2 support
+- **📊 Interactive Charts** - TradingView & Lightweight Charts with drawing tools (horizontal lines, trendlines)
+- **🔐 User Authentication** - Secure JWT-based authentication with OAuth2/Google support
 - **👤 User Management** - Complete user registration, login, and profile management
 - **💼 Portfolio Management** - Track holdings, P&L calculations, and investment performance
+- **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking
+- **📒 Immutable Ledger** - Audit-compliant financial record keeping (source of truth)
+- **📋 Order Management** - Complete order lifecycle with market/limit orders
+- **🔔 Real-time Notifications** - WebSocket-based push notifications
 - **📄 Stock Details** - Comprehensive stock information with interactive charts
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
-- **☁️ Cloud-Native Architecture** - Microservices with service discovery and API gateway
-- **🔄 Event-Driven Communication** - Kafka for real-time market data streaming
-- **💾 Redis Caching** - High-performance caching for market data
-- **🐰 Message Queuing** - RabbitMQ for reliable async communication
+- **☁️ Cloud-Native Architecture** - 10 microservices with service discovery and API gateway
+- **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events
+- **💾 Redis Caching** - High-performance caching for market data and sessions
 - **📝 Database Migrations** - Flyway for version-controlled schema management
 - **🛡️ API Security** - OAuth2/JWT authentication with Spring Security
 - **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints
 - **🐳 Docker Support** - Complete containerization with Docker Compose
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
 - **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) for metrics & logging
+- **🔁 Event Sourcing Ready** - Domain events for all key business actions
 
 ---
 
 ## 🏗 Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              WINVESTCO PLATFORM                                 │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────┐           ┌──────────────────────────────────────────────┐    │
-│  │   React     │ ─────────►│              API Gateway (8090)              │    │
-│  │  Frontend   │           │  • JWT Validation  • Rate Limiting           │    │
-│  │   (5173)    │           │  • OAuth2 Client   • Load Balancing          │    │
-│  └─────────────┘           └────────────────────┬─────────────────────────┘    │
-│                                                 │                               │
-│                    ┌────────────────────────────┼────────────────────────┐     │
-│                    ▼                            ▼                        ▼     │
-│     ┌──────────────────────┐    ┌──────────────────────┐  ┌─────────────────┐  │
-│     │   User Service (8088)│    │Market Service (8084) │  │Portfolio (8085) │  │
-│     │                      │    │                      │  │                 │  │
-│     │  • Authentication    │    │  • NSE India API     │  │ • Holdings Mgmt │  │
-│     │  • Registration      │    │  • Live Market Data  │  │ • P&L Tracking  │  │
-│     │  • Profile Mgmt      │    │  • Stock Quotes      │  │ • Event-Driven  │  │
-│     │  • JWT Generation    │    │  • Index Data        │  │ • RabbitMQ      │  │
-│     └──────────┬───────────┘    └──────────┬───────────┘  └────────┬────────┘  │
-│                │                           │                       │           │
-│     ┌──────────┴──────────┐     ┌─────────┴─────────┐    ┌────────┴────────┐  │
-│     ▼          ▼          ▼     ▼                   ▼    ▼                 ▼  │
-│  ┌────────┐ ┌────────┐ ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐        │
-│  │Postgres│ │ Redis  │ │RabbitMQ│  │ Kafka  │  │ Redis  │  │Postgres│        │
-│  │  DB    │ │ Cache  │ │ Queue  │  │ Stream │  │ Cache  │  │   DB   │        │
-│  └────────┘ └────────┘ └────────┘  └────────┘  └────────┘  └────────┘        │
-│                                                                               │
-│  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │                        Eureka Server (8761)                            │  │
-│  │                      Service Discovery & Registry                      │  │
-│  └────────────────────────────────────────────────────────────────────────┘  │
-│                                                                               │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────────────-┐
+│                                    WINVESTCO PLATFORM                                      │
+├─────────────────────────────────────────────────────────────────────────────────────────── ┤
+│                                                                                            │
+│  ┌─────────────┐              ┌────────────────────────────────────────────────────┐       │
+│  │   React     │ ───────────► │                 API Gateway (8090)                 │       │
+│  │  Frontend   │              │  • JWT Validation  • Rate Limiting  • OAuth2       │       │
+│  │   (5173)    │              │  • Load Balancing  • Route Management              │       │
+│  └─────────────┘              └─────────────────────────┬──────────────────────────┘       │
+│                                                         │                                  │
+│         ┌───────────────────────────────────────────────┼───────────────────────┐          │
+│         │                                               │                       │          │
+│         ▼                                               ▼                       ▼          │
+│  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐   ┌─────────────────┐  │
+│  │ User Service     │   │ Market Service   │   │ Portfolio Service│   │ Funds Service   │  │
+│  │     (8088)       │   │     (8084)       │   │     (8085)       │   │    (8086)       │  │
+│  │                  │   │                  │   │                  │   │                 │  │
+│  │ • Authentication │   │ • NSE India API  │   │ • Holdings Mgmt  │   │ • Wallet Mgmt   │  │
+│  │ • Registration   │   │ • Live Data      │   │ • P&L Tracking   │   │ • Deposits      │  │
+│  │ • Profile Mgmt   │   │ • Stock Quotes   │   │ • Event-Driven   │   │ • Withdrawals   │  │
+│  │ • JWT Generation │   │ • Candle Data    │   │                  │   │ • Funds Locking │  │
+│  └────────┬─────────┘   └────────┬─────────┘   └────────┬─────────┘   └────────┬────────┘  │
+│           │                      │                      │                      │           │
+│  ┌────────┴──────────────────────┴──────────────────────┴──────────────────────┴──────── ┐ │
+│  │                                                                                       │ |
+│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                   │ │
+│  │  │ Ledger Service   │   │ Order Service    │   │ Notification Svc │                   │ │
+│  │  │     (8087)       │   │     (8089)       │   │     (8091)       │                   │ │
+│  │  │                  │   │                  │   │                  │                   │ │
+│  │  │ • Immutable SOT  │   │ • Order Lifecycle│   │ • Push Notifs    │                   │ │
+│  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • WebSocket      │                   │ │
+│  │  │ • Reconciliation │   │ • Order Expiry   │   │ • Preferences    │                   │ │
+│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                   │ │
+│  │                                                                                       │ │
+│  └───────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                            │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                             Infrastructure Layer                                      │ │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────────┐ ┌─────────────────────┐│ │
+│  │  │Postgres │ │  Redis  │ │RabbitMQ │ │  Kafka  │ │ Zookeeper │ │   Eureka (8761)     ││ │
+│  │  │  (5432) │ │ (6379)  │ │  (5672) │ │ (9092)  │ │  (2181)   │ │ Service Discovery   ││ │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └───────────┘ └─────────────────────┘│ │
+│  └───────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                            │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                          Observability (PLG Stack)                                    │ │
+│  │  ┌───────────────────┐ ┌───────────────────┐ ┌───────────────────────────────────────┐│ │
+│  │  │ Prometheus (9090) │ │   Loki (3100)     │ │          Grafana (3000)               ││ │
+│  │  │ Metrics Collection│ │ Log Aggregation   │ │  Dashboards & Visualization           ││ │
+│  │  └───────────────────┘ └───────────────────┘ └───────────────────────────────────────┘│ │
+│  └───────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -114,16 +138,17 @@
 | **Spring Security** | 6.x | Authentication & Authorization |
 | **Spring Cloud Gateway** | - | API Gateway with reactive support |
 | **Netflix Eureka** | - | Service Discovery |
+| **OpenFeign** | - | Declarative REST client for inter-service communication |
 | **Resilience4j** | - | Circuit Breaker pattern |
 | **Micrometer** | - | Distributed Tracing |
 
 ### Data & Messaging
 | Technology | Purpose |
 |------------|---------|
-| **PostgreSQL 16** | Primary database for user data |
+| **PostgreSQL 16** | Primary database (separate DB per service) |
 | **Redis** | Caching & session management |
 | **Apache Kafka** | Market data streaming |
-| **RabbitMQ** | Async messaging for user events |
+| **RabbitMQ** | Async messaging for domain events |
 | **Flyway** | Database migrations |
 
 ### Frontend
@@ -133,15 +158,16 @@
 | **Vite** | 7.2 | Build tool |
 | **React Router** | 7.10 | Client-side routing |
 | **Framer Motion** | 12.x | Animations |
-| **Lucide React** | - | Icons |
-| **TradingView** | - | Stock charts |
+| **Lucide React** | 0.555 | Icons |
+| **Lightweight Charts** | 4.2 | Financial charts with drawing tools |
+| **TradingView** | - | Advanced stock charts |
 
 ### DevOps & Tools
 | Technology | Purpose |
 |------------|---------|
 | **Docker** | Containerization |
 | **Docker Compose** | Multi-container orchestration |
-| **Maven** | Build & dependency management |
+| **Maven** | Build & dependency management (multi-module) |
 | **Lombok** | Boilerplate reduction |
 | **MapStruct** | Object mapping |
 | **SpringDoc OpenAPI** | API documentation |
@@ -157,6 +183,34 @@
 
 ---
 
+## 🔲 Microservices Overview
+
+| Service | Port | Description | Database |
+|---------|------|-------------|----------|
+| **Eureka Server** | 8761 | Service discovery & registry | - |
+| **API Gateway** | 8090 | Central entry point, routing, JWT validation | - |
+| **User Service** | 8088 | Authentication, registration, user management | `winvestco_user_db` |
+| **Market Service** | 8084 | Real-time market data, NSE API integration, candles | `winvestco_market_db` |
+| **Portfolio Service** | 8085 | Holdings management, P&L tracking | `winvestco_portfolio_db` |
+| **Funds Service** | 8086 | Wallet management, deposits, withdrawals, fund locking | `winvestco_funds_db` |
+| **Ledger Service** | 8087 | Immutable financial ledger (source of truth) | `winvestco_ledger_db` |
+| **Order Service** | 8089 | Order lifecycle management (create, cancel, fill, expire) | `winvestco_order_db` |
+| **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
+| **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
+
+### Domain Events (RabbitMQ)
+
+The platform uses an event-driven architecture with the following domain events:
+
+| Category | Events |
+|----------|--------|
+| **User Events** | `UserCreatedEvent`, `UserUpdatedEvent`, `UserLoginEvent`, `UserStatusChangedEvent`, `UserRoleChangedEvent`, `UserPasswordChangedEvent` |
+| **Order Events** | `OrderCreatedEvent`, `OrderValidatedEvent`, `OrderFilledEvent`, `OrderCancelledEvent`, `OrderExpiredEvent`, `OrderRejectedEvent` |
+| **Funds Events** | `FundsDepositedEvent`, `FundsWithdrawnEvent`, `FundsLockedEvent`, `FundsReleasedEvent` |
+| **Trade Events** | `TradeExecutedEvent` |
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -164,90 +218,119 @@ winvestco-trading-platform/
 ├── 📄 LICENSE                    # MIT License
 ├── 📄 README.md                  # This file
 │
-├── 📁 backend/                   # Backend microservices
-│   ├── 📄 pom.xml               # Parent POM (Maven multi-module)
-│   ├── 📄 docker-compose.yml    # Full stack deployment
+├── 📁 backend/                   # Backend microservices (Maven multi-module)
+│   ├── 📄 pom.xml                # Parent POM
+│   ├── 📄 docker-compose.yml     # Full stack deployment
 │   ├── 📄 docker-compose-services.yml  # External services only
-│   ├── 📄 .env.example          # Environment variables template
+│   ├── 📄 .env.example           # Environment variables template
 │   │
-│   ├── 📁 common/               # Shared library module
-│   │   ├── 📁 config/           # Common configurations (Redis, Cache, Security)
-│   │   ├── 📁 dto/              # Shared DTOs
-│   │   ├── 📁 enums/            # Enumerations (Role, AccountStatus, PortfolioStatus)
-│   │   ├── 📁 event/            # Domain events (UserCreated, etc.)
-│   │   ├── 📁 exception/        # Global exception handling
-│   │   ├── 📁 interceptor/      # Rate limiting interceptors
-│   │   ├── 📁 security/         # JWT & auth utilities
-│   │   ├── 📁 service/          # Shared services (Redis, RateLimit)
-│   │   └── 📁 util/             # Logging & utility classes
+│   ├── 📁 common/                # Shared library module
+│   │   ├── 📁 config/            # Common configurations (Redis, Cache, Security)
+│   │   ├── 📁 dto/               # Shared DTOs
+│   │   ├── 📁 enums/             # Enumerations (13 enums including Order, Wallet, Ledger types)
+│   │   ├── 📁 event/             # Domain events (17 events for User, Order, Funds, Trade)
+│   │   ├── 📁 exception/         # Global exception handling
+│   │   ├── 📁 interceptor/       # Rate limiting interceptors
+│   │   ├── 📁 security/          # JWT & auth utilities
+│   │   ├── 📁 service/           # Shared services (Redis, RateLimit)
+│   │   └── 📁 util/              # Logging & utility classes
 │   │
-│   ├── 📁 eureka-server/        # Service Discovery (Port: 8761)
-│   │   └── 📁 src/main/java/    # Eureka server application
+│   ├── 📁 eureka-server/         # Service Discovery (Port: 8761)
 │   │
-│   ├── 📁 api-gateway/          # API Gateway (Port: 8090)
-│   │   ├── 📁 config/           # Gateway & security config
-│   │   ├── 📁 filter/           # Custom gateway filters
-│   │   └── 📄 Dockerfile        # Container definition
+│   ├── 📁 api-gateway/           # API Gateway (Port: 8090)
+│   │   ├── 📁 config/            # Gateway & security config
+│   │   ├── 📁 filter/            # Custom gateway filters
+│   │   └── 📄 Dockerfile
 │   │
-│   ├── 📁 user-service/         # User Management (Port: 9090)
-│   │   ├── 📁 controller/       # REST controllers
-│   │   ├── 📁 service/          # Business logic
-│   │   ├── 📁 repository/       # Data access layer
-│   │   ├── 📁 model/            # JPA entities
-│   │   ├── 📁 dto/              # Request/Response DTOs
-│   │   ├── 📁 mapper/           # MapStruct mappers
-│   │   ├── 📁 security/         # UserDetails, JWT filters
-│   │   └── 📄 Dockerfile        # Container definition
+│   ├── 📁 user-service/          # User Management (Port: 8088)
+│   │   ├── 📁 controller/        # REST controllers
+│   │   ├── 📁 service/           # Authentication, User management
+│   │   ├── 📁 repository/        # Data access layer
+│   │   ├── 📁 model/             # JPA entities
+│   │   ├── 📁 dto/               # Request/Response DTOs
+│   │   ├── 📁 mapper/            # MapStruct mappers
+│   │   ├── 📁 security/          # UserDetails, JWT filters
+│   │   └── 📄 Dockerfile
 │   │
-│   ├── 📁 market-service/       # Market Data (Port: 8084)
-│   │   ├── 📁 client/           # NSE India API client
-│   │   ├── 📁 controller/       # REST controllers
-│   │   ├── 📁 service/          # Market data processing
-│   │   ├── 📁 scheduler/        # Scheduled data fetching
-│   │   ├── 📁 messaging/        # Kafka publisher
-│   │   ├── 📁 config/           # NSE & Kafka config
-│   │   └── 📄 Dockerfile        # Container definition
+│   ├── 📁 market-service/        # Market Data (Port: 8084)
+│   │   ├── 📁 client/            # NSE India API client
+│   │   ├── 📁 controller/        # REST controllers
+│   │   ├── 📁 service/           # Market data processing
+│   │   ├── 📁 scheduler/         # Scheduled data fetching
+│   │   ├── 📁 messaging/         # Kafka publisher
+│   │   └── 📄 Dockerfile
 │   │
-│   └── 📁 portfolio-service/    # Portfolio Management (Port: 8085)
-│       ├── 📁 controller/       # REST controllers
-│       ├── 📁 service/          # Portfolio & Holdings logic
-│       ├── 📁 repository/       # Data access layer
-│       ├── 📁 model/            # JPA entities (Portfolio, Holding)
-│       ├── 📁 dto/              # Request/Response DTOs
-│       ├── 📁 mapper/           # MapStruct mappers
-│       ├── 📁 config/           # Security & OpenAPI config
-│       ├── 📁 event/            # RabbitMQ event listeners
-│       └── 📄 Dockerfile        # Container definition
+│   ├── 📁 portfolio-service/     # Portfolio Management (Port: 8085)
+│   │   ├── 📁 controller/        # REST controllers
+│   │   ├── 📁 service/           # Portfolio & Holdings logic
+│   │   ├── 📁 repository/        # Data access layer
+│   │   ├── 📁 model/             # JPA entities (Portfolio, Holding)
+│   │   ├── 📁 messaging/         # RabbitMQ event listeners
+│   │   └── 📄 Dockerfile
+│   │
+│   ├── 📁 funds-service/         # Funds Management (Port: 8086)
+│   │   ├── 📁 controller/        # Wallet, Transaction, Lock controllers
+│   │   ├── 📁 service/           # Wallet, Transaction, FundsLock services
+│   │   ├── 📁 client/            # Feign client for Ledger Service
+│   │   ├── 📁 messaging/         # Event publisher/listeners
+│   │   ├── 📁 model/             # Wallet, Transaction, FundsLock entities
+│   │   └── 📄 Dockerfile
+│   │
+│   ├── 📁 ledger-service/        # Immutable Ledger (Port: 8087)
+│   │   ├── 📁 controller/        # Ledger API (read-only)
+│   │   ├── 📁 service/           # Append-only ledger operations
+│   │   ├── 📁 repository/        # Ledger entry repository
+│   │   ├── 📁 model/             # LedgerEntry entity (immutable)
+│   │   └── 📄 Dockerfile
+│   │
+│   ├── 📁 order-service/         # Order Management (Port: 8089)
+│   │   ├── 📁 controller/        # Order REST controllers
+│   │   ├── 📁 service/           # Order lifecycle, expiry scheduling
+│   │   ├── 📁 client/            # Feign clients (Market, Funds)
+│   │   ├── 📁 messaging/         # Event listeners/publishers
+│   │   ├── 📁 model/             # Order entity
+│   │   └── 📄 Dockerfile
+│   │
+│   └── 📁 notification-service/  # Notifications (Port: 8091)
+│       ├── 📁 controller/        # Notification REST & Preference controllers
+│       ├── 📁 service/           # Notification, Preference, WebSocket services
+│       ├── 📁 websocket/         # WebSocket handlers & config
+│       ├── 📁 messaging/         # Event listeners for all domain events
+│       ├── 📁 model/             # Notification, Preference entities
+│       └── 📄 Dockerfile
 │
-├── 📁 frontend/                 # React Frontend (standalone)
+├── 📁 frontend/                  # React Frontend (Vite)
 │   ├── 📁 src/
-│   │   ├── 📁 components/       # Reusable UI components
+│   │   ├── 📁 components/        # Reusable UI components
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Hero.jsx
-│   │   │   ├── Features.jsx     # Landing page features
-│   │   │   ├── CoinShower.jsx   # Animation component
 │   │   │   ├── Footer.jsx
 │   │   │   ├── Ticker.jsx
-│   │   │   └── TradingViewChart.jsx
-│   │   └── 📁 pages/            # Page components
-│   │       ├── Login.jsx
-│   │       ├── Signup.jsx
-│   │       ├── Profile.jsx
-│   │       ├── Stocks.jsx
-│   │       ├── StockDetails.jsx # Detailed stock view with charts
-│   │       ├── Portfolio.jsx    # Holdings & P&L management
-│   │       └── MarketData.jsx
+│   │   │   ├── LightweightChart.jsx  # Financial charts with drawing tools
+│   │   │   ├── TradingViewChart.jsx
+│   │   │   ├── NotificationBell.jsx
+│   │   │   └── NotificationToast.jsx
+│   │   ├── 📁 pages/             # Page components
+│   │   │   ├── Login.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   ├── Profile.jsx
+│   │   │   ├── Stocks.jsx
+│   │   │   ├── StockDetails.jsx
+│   │   │   ├── Portfolio.jsx
+│   │   │   └── MarketData.jsx
+│   │   └── 📁 context/           # React context (Auth)
 │   ├── 📄 package.json
 │   ├── 📄 vite.config.js
 │   └── 📄 Dockerfile
 │
-├── 📁 cicd/                     # CI/CD configurations (future)
-├── 📁 docs/                     # Additional documentation
-├── 📁 infra/                    # Infrastructure as Code (future)
-└── 📁 observability/            # PLG Stack observability configs
-    ├── 📁 prometheus/           # Prometheus metrics configuration
-    ├── 📁 loki/                 # Loki log aggregation config
-    └── 📁 grafana/              # Grafana dashboards & provisioning
+├── 📁 observability/             # PLG Stack configurations
+│   ├── 📁 prometheus/            # Prometheus metrics configuration
+│   ├── 📁 loki/                  # Loki log aggregation config
+│   └── 📁 grafana/               # Grafana dashboards & provisioning
+│
+├── 📁 cicd/                      # CI/CD configurations
+├── 📁 docs/                      # Additional documentation
+└── 📁 infra/                     # Infrastructure as Code
 ```
 
 ---
@@ -278,6 +361,7 @@ Ensure you have the following installed:
    # Edit .env with your configuration (see Environment Variables section)
    ```
 
+3. **Start all services**
    ```bash
    docker-compose up -d
    ```
@@ -286,6 +370,8 @@ Ensure you have the following installed:
    - **Frontend**: http://localhost:5173
    - **API Gateway**: http://localhost:8090
    - **Eureka Dashboard**: http://localhost:8761
+   - **Grafana**: http://localhost:3000 (admin/winvestco)
+   - **Prometheus**: http://localhost:9090
    - **RabbitMQ Management**: http://localhost:15672 (guest/guest)
 
 ### Running Locally (For Development)
@@ -296,12 +382,23 @@ Ensure you have the following installed:
    docker-compose -f docker-compose-services.yml up -d
    ```
 
-2. **Build the backend**
+2. **Create databases** (if not auto-created)
+   ```sql
+   CREATE DATABASE winvestco_user_db;
+   CREATE DATABASE winvestco_market_db;
+   CREATE DATABASE winvestco_portfolio_db;
+   CREATE DATABASE winvestco_funds_db;
+   CREATE DATABASE winvestco_ledger_db;
+   CREATE DATABASE winvestco_order_db;
+   CREATE DATABASE winvestco_notification_db;
+   ```
+
+3. **Build the backend**
    ```bash
    mvn clean install -DskipTests
    ```
 
-3. **Start services in order**
+4. **Start services in order**
    ```bash
    # Terminal 1: Eureka Server
    cd eureka-server && mvn spring-boot:run
@@ -314,9 +411,24 @@ Ensure you have the following installed:
 
    # Terminal 4: Market Service
    cd market-service && mvn spring-boot:run
+
+   # Terminal 5: Portfolio Service
+   cd portfolio-service && mvn spring-boot:run
+
+   # Terminal 6: Funds Service (requires Ledger Service)
+   cd funds-service && mvn spring-boot:run
+
+   # Terminal 7: Ledger Service
+   cd ledger-service && mvn spring-boot:run
+
+   # Terminal 8: Order Service
+   cd order-service && mvn spring-boot:run
+
+   # Terminal 9: Notification Service
+   cd notification-service && mvn spring-boot:run
    ```
 
-4. **Start the frontend**
+5. **Start the frontend**
    ```bash
    cd frontend
    npm install
@@ -337,11 +449,18 @@ Ensure you have the following installed:
 | User Service | 8088 | User management APIs |
 | Market Service | 8084 | Market data APIs |
 | Portfolio Service | 8085 | Portfolio & holdings management |
+| Funds Service | 8086 | Wallet & funds management |
+| Ledger Service | 8087 | Immutable ledger (source of truth) |
+| Order Service | 8089 | Order management |
+| Notification Service | 8091 | Notifications & WebSocket |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |
 | Kafka | 9092 | Event streaming |
 | Zookeeper | 2181 | Kafka coordination |
+| Prometheus | 9090 | Metrics collection |
+| Loki | 3100 | Log aggregation |
+| Grafana | 3000 | Dashboards |
 
 ### API Gateway Routes
 
@@ -350,7 +469,12 @@ Ensure you have the following installed:
 | `/api/auth/**` | user-service | Authentication endpoints |
 | `/api/users/**` | user-service | User management |
 | `/api/market/**` | market-service | Market data |
-| `/api/portfolio/**` | portfolio-service | Portfolio management |
+| `/api/portfolios/**` | portfolio-service | Portfolio management |
+| `/api/funds/**` | funds-service | Funds/wallet management |
+| `/api/ledger/**` | ledger-service | Ledger queries (read-only) |
+| `/api/orders/**` | order-service | Order management |
+| `/api/v1/notifications/**` | notification-service | Notifications |
+| `/ws/notifications/**` | notification-service | WebSocket endpoint |
 | `/api/admin/docs/**` | user-service | API documentation |
 
 ---
@@ -361,8 +485,12 @@ Ensure you have the following installed:
 
 When services are running, access OpenAPI documentation at:
 - **User Service**: http://localhost:8088/swagger-ui.html
+- **Market Service**: http://localhost:8084/swagger-ui.html
 - **Portfolio Service**: http://localhost:8085/swagger-ui.html
-- **API Gateway Aggregated**: http://localhost:8090/swagger-ui.html
+- **Funds Service**: http://localhost:8086/swagger-ui.html
+- **Ledger Service**: http://localhost:8087/swagger-ui.html
+- **Order Service**: http://localhost:8089/swagger-ui.html
+- **Notification Service**: http://localhost:8091/swagger-ui.html
 
 ### Key API Endpoints
 
@@ -384,16 +512,45 @@ PUT  /api/users/{id}          # Update user
 ```
 GET  /api/market/indices/{symbol}  # Get index data (e.g., NIFTY 50)
 GET  /api/market/stocks/all        # Get all stocks from all indices
+GET  /api/market/candles/{symbol}  # Get OHLC candle data
 ```
 
 #### Portfolio Management
 ```
-GET  /api/portfolio/user/{userId}    # Get user's portfolio
-GET  /api/portfolio/{portfolioId}    # Get portfolio by ID
-POST /api/portfolio/{id}/holdings    # Add holding to portfolio
-GET  /api/portfolio/{id}/holdings    # Get all holdings in portfolio
-PUT  /api/portfolio/holdings/{id}    # Update holding
-DELETE /api/portfolio/holdings/{id}  # Remove holding
+GET  /api/portfolios/user/{userId}    # Get user's portfolio
+GET  /api/portfolios/{portfolioId}    # Get portfolio by ID
+POST /api/portfolios/{id}/holdings    # Add holding to portfolio
+GET  /api/portfolios/{id}/holdings    # Get all holdings
+PUT  /api/portfolios/holdings/{id}    # Update holding
+DELETE /api/portfolios/holdings/{id}  # Remove holding
+```
+
+#### Funds/Wallet Management
+```
+GET  /api/funds/wallet/{userId}        # Get wallet
+POST /api/funds/wallet/{userId}/deposit     # Deposit funds
+POST /api/funds/wallet/{userId}/withdraw    # Withdraw funds
+POST /api/funds/lock                   # Lock funds for order
+POST /api/funds/lock/{lockId}/release  # Release locked funds
+GET  /api/funds/transactions/{userId}  # Get transaction history
+```
+
+#### Order Management
+```
+POST /api/orders                      # Create order
+GET  /api/orders/{orderId}            # Get order by ID
+GET  /api/orders/user/{userId}        # Get user's orders
+GET  /api/orders/user/{userId}/active # Get active orders
+POST /api/orders/{orderId}/cancel     # Cancel order
+```
+
+#### Notifications
+```
+GET  /api/v1/notifications            # Get notifications
+POST /api/v1/notifications/{id}/read  # Mark as read
+POST /api/v1/notifications/read-all   # Mark all as read
+DELETE /api/v1/notifications/{id}     # Delete notification
+WS   /ws/notifications                # WebSocket for real-time
 ```
 
 ### Sample Requests
@@ -408,6 +565,21 @@ curl -X POST http://localhost:8090/api/auth/login \
 **Get NIFTY 50 Data:**
 ```bash
 curl http://localhost:8090/api/market/indices/NIFTY%2050
+```
+
+**Create Order:**
+```bash
+curl -X POST http://localhost:8090/api/orders \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "symbol": "RELIANCE",
+    "side": "BUY",
+    "type": "LIMIT",
+    "quantity": 10,
+    "price": 2500.00,
+    "validity": "DAY"
+  }'
 ```
 
 ---
@@ -451,6 +623,7 @@ mvn test
 # Run tests for a specific module
 mvn test -pl user-service
 mvn test -pl market-service
+mvn test -pl order-service
 ```
 
 ### Test Configuration
@@ -501,13 +674,13 @@ The platform leverages **Java 21 Virtual Threads** for exceptional concurrency p
 
 ```bash
 # Check virtual threads info
-curl http://localhost:9090/api/stress-test/info
+curl http://localhost:8088/api/stress-test/info
 
 # Run stress test (1000 concurrent tasks, 100ms simulated I/O each)
-curl "http://localhost:9090/api/stress-test?concurrentTasks=1000&sleepMs=100"
+curl "http://localhost:8088/api/stress-test?concurrentTasks=1000&sleepMs=100"
 
 # Extreme stress test (50000 tasks)
-curl "http://localhost:9090/api/stress-test?concurrentTasks=50000&sleepMs=50"
+curl "http://localhost:8088/api/stress-test?concurrentTasks=50000&sleepMs=50"
 ```
 
 > 💡 **Note**: The stress test endpoint (`/api/stress-test/**`) is available on User Service for development/testing purposes.
@@ -537,7 +710,16 @@ Each service uses optimized multi-stage builds:
 All services expose health endpoints via Spring Actuator:
 ```
 GET /actuator/health
+GET /actuator/info
+GET /actuator/prometheus  # Metrics for Prometheus
 ```
+
+### Observability
+
+Access the PLG Stack dashboards:
+- **Grafana**: http://localhost:3000 (admin/winvestco)
+- **Prometheus**: http://localhost:9090
+- **Loki**: http://localhost:3100 (via Grafana)
 
 ---
 
@@ -556,6 +738,7 @@ We welcome contributions! Please follow these steps:
 - Write unit tests for new features
 - Update documentation as needed
 - Use meaningful commit messages
+- Ensure all services use the common module for shared code
 
 ---
 

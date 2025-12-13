@@ -1,0 +1,249 @@
+.lightweight-chart-wrapper {
+    position: relative;
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(15, 23, 42, 0.98));
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.lightweight-chart-wrapper.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    border-radius: 0;
+    background: #0a0e27;
+}
+
+/* Toolbar */
+.chart-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    gap: 16px;
+}
+
+.interval-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.interval-btn {
+    padding: 6px 12px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 6px;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.interval-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: #e5e7eb;
+}
+
+.interval-btn.active {
+    background: rgba(99, 102, 241, 0.3);
+    border-color: #6366f1;
+    color: #fff;
+}
+
+/* Drawing tools */
+.drawing-tools {
+    display: flex;
+    gap: 8px;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: #e5e7eb;
+}
+
+.tool-btn.active {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.tool-btn.clear-btn {
+    color: #ef4444;
+}
+
+.tool-btn.clear-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.fullscreen-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fullscreen-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: #e5e7eb;
+}
+
+/* Drawing hint */
+.drawing-hint {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245, 158, 11, 0.9);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 100;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Chart container */
+.chart-container {
+    width: 100%;
+    min-height: 500px;
+}
+
+.chart-container.drawing-mode {
+    cursor: crosshair;
+}
+
+/* Loading overlay */
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+}
+
+.chart-loading .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(99, 102, 241, 0.2);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error message */
+.chart-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #9ca3af;
+    padding: 24px;
+}
+
+.chart-error p {
+    margin-bottom: 8px;
+    color: #f59e0b;
+}
+
+.chart-error small {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* Fullscreen info */
+.fullscreen-info {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+}
+
+.symbol-badge {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 6px 16px;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.fullscreen-info .hint {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chart-toolbar {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .interval-buttons {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .interval-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .drawing-tools {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .fullscreen-btn {
+        order: 2;
+    }
+}
