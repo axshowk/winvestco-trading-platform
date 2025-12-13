@@ -13,43 +13,45 @@ import java.util.Arrays;
 @Configuration
 public class GlobalCorsConfig {
 
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public CorsWebFilter corsWebFilter() {
-        CorsConfiguration config = new CorsConfiguration();
+        @Bean
+        @Order(Ordered.HIGHEST_PRECEDENCE)
+        public CorsWebFilter corsWebFilter() {
+                CorsConfiguration config = new CorsConfiguration();
 
-        // Allow credentials (cookies, authorization headers)
-        config.setAllowCredentials(true);
+                // Allow credentials (cookies, authorization headers)
+                config.setAllowCredentials(true);
 
-        // Explicitly list allowed origins (adjust these to match your frontend URLs)
-        config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000", // React default port
-                "http://localhost:4200", // Angular default port
-                "http://localhost:8080", // Common frontend port
-                "http://localhost:5173" // Vite default port
-        ));
+                // Explicitly list allowed origins (adjust these to match your frontend URLs)
+                config.setAllowedOrigins(Arrays.asList(
+                                "http://localhost:3000", // React default port
+                                "http://localhost:4200", // Angular default port
+                                "http://localhost:8080", // Common frontend port
+                                "http://localhost:5173", // Vite default port
+                                "https://winvestco.in", // Production domain
+                                "http://winvestco.in" // Production domain (HTTP fallback)
+                ));
 
-        // Allowed HTTP methods
-        config.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                // Allowed HTTP methods
+                config.setAllowedMethods(Arrays.asList(
+                                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
-        // Allowed headers
-        config.setAllowedHeaders(Arrays.asList(
-                "Origin", "Content-Type", "Accept", "Authorization",
-                "X-Requested-With", "X-Auth-Token", "X-Request-Id", "X-Correlation-Id"));
+                // Allowed headers
+                config.setAllowedHeaders(Arrays.asList(
+                                "Origin", "Content-Type", "Accept", "Authorization",
+                                "X-Requested-With", "X-Auth-Token", "X-Request-Id", "X-Correlation-Id"));
 
-        // Exposed headers
-        config.setExposedHeaders(Arrays.asList(
-                "Authorization", "Content-Type", "X-Requested-With",
-                "X-Auth-Token", "X-Request-Id", "X-Correlation-Id"));
+                // Exposed headers
+                config.setExposedHeaders(Arrays.asList(
+                                "Authorization", "Content-Type", "X-Requested-With",
+                                "X-Auth-Token", "X-Request-Id", "X-Correlation-Id"));
 
-        // Cache preflight requests for 1 hour
-        config.setMaxAge(3600L);
+                // Cache preflight requests for 1 hour
+                config.setMaxAge(3600L);
 
-        // Apply CORS configuration to all paths
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+                // Apply CORS configuration to all paths
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
 
-        return new CorsWebFilter(source);
-    }
+                return new CorsWebFilter(source);
+        }
 }

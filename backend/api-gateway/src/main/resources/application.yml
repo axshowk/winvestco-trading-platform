@@ -57,6 +57,15 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
 
+        # Portfolio Service routes
+        - id: portfolio-service
+          uri: lb://portfolio-service
+          predicates:
+            - Path=/api/portfolios/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
 server:
   port: 8090
 
@@ -73,22 +82,27 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, gateway, routes
-
-logging:
-  level:
-    org.springframework.cloud.gateway: INFO
-    reactor.netty.http.client: INFO
-    org.springframework.security: DEBUG
-    org.springframework.security.web.server: DEBUG
-
-
+        include: health,info,prometheus,metrics,gateway,routes
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  # Disable Zipkin tracing (using PLG stack instead)
+  zipkin:
+    tracing:
+      enabled: false
+  tracing:
+    sampling:
+      probability: 0.0
 
 # JWT Configuration (must match user-service)
 jwt:
   secret: ${JWT_SECRET:dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
-

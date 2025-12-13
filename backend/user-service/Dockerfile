@@ -14,5 +14,5 @@ RUN mvn -pl user-service -am clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/user-service/target/*.jar app.jar
-EXPOSE 8081
+EXPOSE 8088
 ENTRYPOINT ["java", "-jar", "app.jar"]

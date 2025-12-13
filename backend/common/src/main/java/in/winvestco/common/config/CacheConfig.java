@@ -1,6 +1,7 @@
 package in.winvestco.common.config;
 
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @Configuration
 @EnableCaching
+@ConditionalOnClass(name = "org.springframework.data.redis.cache.RedisCacheManager")
 public class CacheConfig {
 
     @Bean
@@ -46,8 +48,8 @@ public class CacheConfig {
 
             // Holdings cache - medium TTL
             cacheConfigurations.put("holdings", defaultConfig.entryTtl(Duration.ofMinutes(10)));
-            cacheConfigurations.forEach((cacheName, config) ->
-                cacheManager.getCacheConfigurations().putIfAbsent(cacheName, config));
+            cacheConfigurations.forEach(
+                    (cacheName, config) -> cacheManager.getCacheConfigurations().putIfAbsent(cacheName, config));
         };
     }
 }

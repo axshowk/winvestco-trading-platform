@@ -1,6 +1,6 @@
 package in.winvestco.user_service;
 
-import in.winvestco.common.CommonSecurityConfig;
+import in.winvestco.common.config.CommonSecurityConfig;
 import in.winvestco.common.config.LoggingConfig;
 import in.winvestco.common.config.MetricsConfig;
 import in.winvestco.common.config.RabbitMQConfig;

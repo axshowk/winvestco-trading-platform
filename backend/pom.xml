@@ -42,6 +42,7 @@
         <module>eureka-server</module>
         <module>api-gateway</module>
         <module>market-service</module>
+        <module>portfolio-service</module>
     </modules>
     
     <dependencyManagement>

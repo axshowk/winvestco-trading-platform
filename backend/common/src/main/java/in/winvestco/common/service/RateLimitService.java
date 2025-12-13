@@ -1,12 +1,16 @@
 package in.winvestco.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 
 @Service
+@ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
+@ConditionalOnBean(RedisService.class)
 public class RateLimitService {
 
     @Autowired
@@ -21,8 +25,13 @@ public class RateLimitService {
             this.window = window;
         }
 
-        public int getMaxRequests() { return maxRequests; }
-        public Duration getWindow() { return window; }
+        public int getMaxRequests() {
+            return maxRequests;
+        }
+
+        public Duration getWindow() {
+            return window;
+        }
     }
 
     /**
@@ -126,7 +135,12 @@ public class RateLimitService {
             this.count = count;
         }
 
-        public long getWindowStart() { return windowStart; }
-        public int getCount() { return count; }
+        public long getWindowStart() {
+            return windowStart;
+        }
+
+        public int getCount() {
+            return count;
+        }
     }
 }

@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'eureka-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['eureka-server:8761']
+        labels:
+          service: 'eureka-server'
+
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8090']
+        labels:
+          service: 'api-gateway'
+
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['user-service:8088']
+        labels:
+          service: 'user-service'
+
+  - job_name: 'market-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['market-service:8084']
+        labels:
+          service: 'market-service'
+
+  - job_name: 'portfolio-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['portfolio-service:8085']
+        labels:
+          service: 'portfolio-service'

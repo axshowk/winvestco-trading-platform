@@ -17,7 +17,7 @@ spring:
   # JPA/Hibernate properties
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: true
     properties:
       hibernate:
@@ -75,7 +75,7 @@ spring:
       enabled: false
 
 server:
-  port: ${SERVER_PORT:9090}
+  port: ${SERVER_PORT:8088}
 
 # Eureka Client Configuration
 eureka:
@@ -99,7 +99,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
 
 # Springdoc Configuration
 springdoc:

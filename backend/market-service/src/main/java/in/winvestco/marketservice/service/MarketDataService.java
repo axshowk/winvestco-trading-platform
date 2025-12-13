@@ -110,4 +110,50 @@ public class MarketDataService {
             return null;
         }
     }
+
+    /**
+     * Get stock quote data for a specific symbol.
+     * Searches through all cached index data to find the stock.
+     */
+    public String getStockQuote(String symbol) {
+        if (symbol == null || symbol.isEmpty()) {
+            return null;
+        }
+
+        // All major NSE indices to search through
+        java.util.List<String> indices = java.util.List.of(
+                "NIFTY 50", "NIFTY NEXT 50", "NIFTY 100", "NIFTY 200", "NIFTY 500",
+                "NIFTY MIDCAP 50", "NIFTY MIDCAP 100", "NIFTY SMLCAP 100",
+                "NIFTY BANK", "NIFTY IT", "NIFTY AUTO", "NIFTY FINANCIAL SERVICES",
+                "NIFTY FMCG", "NIFTY PHARMA", "NIFTY METAL", "NIFTY MEDIA",
+                "NIFTY ENERGY", "NIFTY PSU BANK", "NIFTY PRIVATE BANK",
+                "NIFTY INFRA", "NIFTY REALTY", "NIFTY CONSUMPTION");
+
+        log.info("getStockQuote: Searching for symbol {} in {} indices", symbol, indices.size());
+
+        for (String indexName : indices) {
+            try {
+                String indexData = getMarketData(indexName);
+                if (indexData != null) {
+                    com.fasterxml.jackson.databind.JsonNode root = objectMapper.readTree(indexData);
+                    com.fasterxml.jackson.databind.JsonNode dataArray = root.path("data");
+
+                    if (dataArray.isArray()) {
+                        for (com.fasterxml.jackson.databind.JsonNode stock : dataArray) {
+                            String stockSymbol = stock.path("symbol").asText();
+                            if (symbol.equalsIgnoreCase(stockSymbol)) {
+                                log.info("getStockQuote: Found {} in index {}", symbol, indexName);
+                                return objectMapper.writeValueAsString(stock);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Error searching index {} for symbol {}: {}", indexName, symbol, e.getMessage());
+            }
+        }
+
+        log.warn("getStockQuote: Symbol {} not found in any index", symbol);
+        return null;
+    }
 }

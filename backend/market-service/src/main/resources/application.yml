@@ -42,3 +42,21 @@ nse:
   connection-timeout-ms: 10000
   read-timeout-ms: 10000
   cookie-refresh-interval-ms: 300000
+
+# Enable Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}

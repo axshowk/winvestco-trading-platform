@@ -34,4 +34,14 @@ public class MarketController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @GetMapping("/stocks/{symbol}")
+    public ResponseEntity<String> getStockQuote(@PathVariable String symbol) {
+        String data = marketDataService.getStockQuote(symbol);
+        if (data != null) {
+            return ResponseEntity.ok(data);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

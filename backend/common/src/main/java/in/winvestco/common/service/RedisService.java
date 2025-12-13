@@ -1,6 +1,7 @@
 package in.winvestco.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
 public class RedisService {
 
     @Autowired

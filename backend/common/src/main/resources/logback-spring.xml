@@ -101,4 +101,25 @@
     <logger name="AUDIT" level="INFO" additivity="false">
         <appender-ref ref="AUDIT_FILE"/>
     </logger>
+
+    <!-- Loki Appender for centralized logging (docker/prod profiles only) -->
+    <springProfile name="docker,prod">
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http>
+                <url>${LOKI_URL:-http://loki:3100}/loki/api/v1/push</url>
+            </http>
+            <format>
+                <label>
+                    <pattern>service=${spring.application.name:-unknown},host=${HOSTNAME:-localhost},level=%level</pattern>
+                </label>
+                <message>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId:-}] [%X{userId:-}] %-5level %logger{36} - %msg%n</pattern>
+                </message>
+            </format>
+        </appender>
+        
+        <root level="${LOG_LEVEL_ROOT:-INFO}">
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
 </configuration>

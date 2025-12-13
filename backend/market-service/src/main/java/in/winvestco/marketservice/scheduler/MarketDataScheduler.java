@@ -18,7 +18,7 @@ public class MarketDataScheduler {
     private final MarketDataPublisher marketDataPublisher;
     private final in.winvestco.marketservice.service.MarketDataService marketDataService;
 
-    @Scheduled(cron = "0 0/3 * * * ?")
+    @Scheduled(initialDelay = 0, fixedRate = 180000)
     public void fetchAndPublishMarketData() {
         log.info("Scheduled task started: Fetching market data from NSE India");
         try {

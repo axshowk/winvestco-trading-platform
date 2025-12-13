@@ -44,6 +44,8 @@
 - **📊 Interactive Charts** - TradingView-powered stock charts with technical analysis
 - **🔐 User Authentication** - Secure JWT-based authentication with OAuth2 support
 - **👤 User Management** - Complete user registration, login, and profile management
+- **💼 Portfolio Management** - Track holdings, P&L calculations, and investment performance
+- **📄 Stock Details** - Comprehensive stock information with interactive charts
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
@@ -56,46 +58,47 @@
 - **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints
 - **🐳 Docker Support** - Complete containerization with Docker Compose
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
+- **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) for metrics & logging
 
 ---
 
 ## 🏗 Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              WINVESTCO PLATFORM                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐         ┌──────────────────────────────────────────────┐  │
-│  │   React     │ ───────►│              API Gateway (8090)              │  │
-│  │  Frontend   │         │  • JWT Validation  • Rate Limiting           │  │
-│  │   (5173)    │         │  • OAuth2 Client   • Load Balancing          │  │
-│  └─────────────┘         └──────────────────────────────────────────────┘  │
-│                                         │                                   │
-│                         ┌───────────────┴───────────────────┐              │
-│                         ▼                                   ▼              │
-│           ┌──────────────────────┐           ┌──────────────────────┐      │
-│           │   User Service (9090)│           │Market Service (8084) │      │
-│           │                      │           │                      │      │
-│           │  • Authentication    │           │  • NSE India API     │      │
-│           │  • Registration      │           │  • Live Market Data  │      │
-│           │  • Profile Mgmt      │           │  • Stock Quotes      │      │
-│           │  • JWT Generation    │           │  • Index Data        │      │
-│           └──────────┬───────────┘           └──────────┬───────────┘      │
-│                      │                                  │                   │
-│           ┌──────────┴──────────┐            ┌─────────┴─────────┐         │
-│           ▼          ▼          ▼            ▼                   ▼         │
-│      ┌────────┐ ┌────────┐ ┌────────┐   ┌────────┐          ┌────────┐    │
-│      │Postgres│ │ Redis  │ │RabbitMQ│   │ Kafka  │          │ Redis  │    │
-│      │  DB    │ │ Cache  │ │ Queue  │   │ Stream │          │ Cache  │    │
-│      └────────┘ └────────┘ └────────┘   └────────┘          └────────┘    │
-│                                                                             │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                      Eureka Server (8761)                            │  │
-│  │                    Service Discovery & Registry                       │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              WINVESTCO PLATFORM                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌─────────────┐           ┌──────────────────────────────────────────────┐    │
+│  │   React     │ ─────────►│              API Gateway (8090)              │    │
+│  │  Frontend   │           │  • JWT Validation  • Rate Limiting           │    │
+│  │   (5173)    │           │  • OAuth2 Client   • Load Balancing          │    │
+│  └─────────────┘           └────────────────────┬─────────────────────────┘    │
+│                                                 │                               │
+│                    ┌────────────────────────────┼────────────────────────┐     │
+│                    ▼                            ▼                        ▼     │
+│     ┌──────────────────────┐    ┌──────────────────────┐  ┌─────────────────┐  │
+│     │   User Service (8088)│    │Market Service (8084) │  │Portfolio (8085) │  │
+│     │                      │    │                      │  │                 │  │
+│     │  • Authentication    │    │  • NSE India API     │  │ • Holdings Mgmt │  │
+│     │  • Registration      │    │  • Live Market Data  │  │ • P&L Tracking  │  │
+│     │  • Profile Mgmt      │    │  • Stock Quotes      │  │ • Event-Driven  │  │
+│     │  • JWT Generation    │    │  • Index Data        │  │ • RabbitMQ      │  │
+│     └──────────┬───────────┘    └──────────┬───────────┘  └────────┬────────┘  │
+│                │                           │                       │           │
+│     ┌──────────┴──────────┐     ┌─────────┴─────────┐    ┌────────┴────────┐  │
+│     ▼          ▼          ▼     ▼                   ▼    ▼                 ▼  │
+│  ┌────────┐ ┌────────┐ ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐        │
+│  │Postgres│ │ Redis  │ │RabbitMQ│  │ Kafka  │  │ Redis  │  │Postgres│        │
+│  │  DB    │ │ Cache  │ │ Queue  │  │ Stream │  │ Cache  │  │   DB   │        │
+│  └────────┘ └────────┘ └────────┘  └────────┘  └────────┘  └────────┘        │
+│                                                                               │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │                        Eureka Server (8761)                            │  │
+│  │                      Service Discovery & Registry                      │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -143,6 +146,15 @@
 | **MapStruct** | Object mapping |
 | **SpringDoc OpenAPI** | API documentation |
 
+### Observability (PLG Stack)
+| Technology | Purpose |
+|------------|---------|
+| **Prometheus** | Metrics collection & alerting |
+| **Loki** | Log aggregation & querying |
+| **Grafana** | Visualization & dashboards |
+| **Micrometer** | Application metrics |
+| **Logback** | Structured logging |
+
 ---
 
 ## 📁 Project Structure
@@ -159,12 +171,14 @@ winvestco-trading-platform/
 │   ├── 📄 .env.example          # Environment variables template
 │   │
 │   ├── 📁 common/               # Shared library module
-│   │   ├── 📁 config/           # Common configurations
+│   │   ├── 📁 config/           # Common configurations (Redis, Cache, Security)
 │   │   ├── 📁 dto/              # Shared DTOs
-│   │   ├── 📁 enums/            # Enumerations (Role, AccountStatus)
+│   │   ├── 📁 enums/            # Enumerations (Role, AccountStatus, PortfolioStatus)
 │   │   ├── 📁 event/            # Domain events (UserCreated, etc.)
 │   │   ├── 📁 exception/        # Global exception handling
+│   │   ├── 📁 interceptor/      # Rate limiting interceptors
 │   │   ├── 📁 security/         # JWT & auth utilities
+│   │   ├── 📁 service/          # Shared services (Redis, RateLimit)
 │   │   └── 📁 util/             # Logging & utility classes
 │   │
 │   ├── 📁 eureka-server/        # Service Discovery (Port: 8761)
@@ -194,30 +208,46 @@ winvestco-trading-platform/
 │   │   ├── 📁 config/           # NSE & Kafka config
 │   │   └── 📄 Dockerfile        # Container definition
 │   │
-│   └── 📁 frontend/             # React Frontend
-│       ├── 📁 src/
-│       │   ├── 📁 components/   # Reusable UI components
-│       │   │   ├── Navbar.jsx
-│       │   │   ├── Hero.jsx
-│       │   │   ├── Features.jsx     # Landing page features
-│       │   │   ├── CoinShower.jsx   # Animation component
-│       │   │   ├── Footer.jsx
-│       │   │   ├── Ticker.jsx
-│       │   │   └── TradingViewChart.jsx
-│       │   └── 📁 pages/        # Page components
-│       │       ├── Login.jsx
-│       │       ├── Signup.jsx
-│       │       ├── Profile.jsx
-│       │       ├── Stocks.jsx
-│       │       └── MarketData.jsx
-│       ├── 📄 package.json
-│       ├── 📄 vite.config.js
-│       └── 📄 Dockerfile
+│   └── 📁 portfolio-service/    # Portfolio Management (Port: 8085)
+│       ├── 📁 controller/       # REST controllers
+│       ├── 📁 service/          # Portfolio & Holdings logic
+│       ├── 📁 repository/       # Data access layer
+│       ├── 📁 model/            # JPA entities (Portfolio, Holding)
+│       ├── 📁 dto/              # Request/Response DTOs
+│       ├── 📁 mapper/           # MapStruct mappers
+│       ├── 📁 config/           # Security & OpenAPI config
+│       ├── 📁 event/            # RabbitMQ event listeners
+│       └── 📄 Dockerfile        # Container definition
+│
+├── 📁 frontend/                 # React Frontend (standalone)
+│   ├── 📁 src/
+│   │   ├── 📁 components/       # Reusable UI components
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Hero.jsx
+│   │   │   ├── Features.jsx     # Landing page features
+│   │   │   ├── CoinShower.jsx   # Animation component
+│   │   │   ├── Footer.jsx
+│   │   │   ├── Ticker.jsx
+│   │   │   └── TradingViewChart.jsx
+│   │   └── 📁 pages/            # Page components
+│   │       ├── Login.jsx
+│   │       ├── Signup.jsx
+│   │       ├── Profile.jsx
+│   │       ├── Stocks.jsx
+│   │       ├── StockDetails.jsx # Detailed stock view with charts
+│   │       ├── Portfolio.jsx    # Holdings & P&L management
+│   │       └── MarketData.jsx
+│   ├── 📄 package.json
+│   ├── 📄 vite.config.js
+│   └── 📄 Dockerfile
 │
 ├── 📁 cicd/                     # CI/CD configurations (future)
 ├── 📁 docs/                     # Additional documentation
 ├── 📁 infra/                    # Infrastructure as Code (future)
-└── 📁 observability/            # Monitoring & logging configs
+└── 📁 observability/            # PLG Stack observability configs
+    ├── 📁 prometheus/           # Prometheus metrics configuration
+    ├── 📁 loki/                 # Loki log aggregation config
+    └── 📁 grafana/              # Grafana dashboards & provisioning
 ```
 
 ---
@@ -304,8 +334,9 @@ Ensure you have the following installed:
 | Frontend | 5173 | React development server |
 | API Gateway | 8090 | Entry point for all API requests |
 | Eureka Server | 8761 | Service discovery dashboard |
-| User Service | 9090 | User management APIs |
+| User Service | 8088 | User management APIs |
 | Market Service | 8084 | Market data APIs |
+| Portfolio Service | 8085 | Portfolio & holdings management |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |
@@ -319,6 +350,7 @@ Ensure you have the following installed:
 | `/api/auth/**` | user-service | Authentication endpoints |
 | `/api/users/**` | user-service | User management |
 | `/api/market/**` | market-service | Market data |
+| `/api/portfolio/**` | portfolio-service | Portfolio management |
 | `/api/admin/docs/**` | user-service | API documentation |
 
 ---
@@ -328,7 +360,8 @@ Ensure you have the following installed:
 ### Interactive Documentation (Swagger UI)
 
 When services are running, access OpenAPI documentation at:
-- **User Service**: http://localhost:9090/swagger-ui.html
+- **User Service**: http://localhost:8088/swagger-ui.html
+- **Portfolio Service**: http://localhost:8085/swagger-ui.html
 - **API Gateway Aggregated**: http://localhost:8090/swagger-ui.html
 
 ### Key API Endpoints
@@ -351,6 +384,16 @@ PUT  /api/users/{id}          # Update user
 ```
 GET  /api/market/indices/{symbol}  # Get index data (e.g., NIFTY 50)
 GET  /api/market/stocks/all        # Get all stocks from all indices
+```
+
+#### Portfolio Management
+```
+GET  /api/portfolio/user/{userId}    # Get user's portfolio
+GET  /api/portfolio/{portfolioId}    # Get portfolio by ID
+POST /api/portfolio/{id}/holdings    # Add holding to portfolio
+GET  /api/portfolio/{id}/holdings    # Get all holdings in portfolio
+PUT  /api/portfolio/holdings/{id}    # Update holding
+DELETE /api/portfolio/holdings/{id}  # Remove holding
 ```
 
 ### Sample Requests
