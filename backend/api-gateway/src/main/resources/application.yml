@@ -93,6 +93,32 @@ spring:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
 
+        # Trade Service routes
+        - id: trade-service
+          uri: lb://trade-service
+          predicates:
+            - Path=/api/trades/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Payment Service routes
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
+        # Payment Webhook (public, no auth - signature verified by service)
+        - id: payment-webhook
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/webhook/**
+          filters:
+            - RemoveRequestHeader=Cookie
+
         # Notification Service routes
         - id: notification-service
           uri: lb://notification-service

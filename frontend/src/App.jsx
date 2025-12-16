@@ -14,6 +14,7 @@ import Stocks from './pages/Stocks'
 import MarketData from './pages/MarketData'
 import StockDetails from './pages/StockDetails'
 import Portfolio from './pages/Portfolio'
+import Orders from './pages/Orders'
 import './App.css'
 
 const Home = () => {
@@ -44,6 +45,7 @@ function App() {
           <Route path="/market-data" element={<MarketData />} />
           <Route path="/stock/:symbol" element={<StockDetails />} />
           <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />

@@ -6,13 +6,15 @@ import in.winvestco.common.exception.BaseServiceExceptionHandler;
 import in.winvestco.common.util.LoggingUtils;
 
 /**
- * User service specific exception handler that extends the base exception handler.
- * This provides consistent error handling while allowing service-specific customizations.
+ * User service specific exception handler that extends the base exception
+ * handler.
+ * This provides consistent error handling while allowing service-specific
+ * customizations.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler extends BaseServiceExceptionHandler {
+public class UserExceptionHandler extends BaseServiceExceptionHandler {
 
-    public GlobalExceptionHandler(LoggingUtils loggingUtils) {
+    public UserExceptionHandler(LoggingUtils loggingUtils) {
         super(loggingUtils);
     }
 

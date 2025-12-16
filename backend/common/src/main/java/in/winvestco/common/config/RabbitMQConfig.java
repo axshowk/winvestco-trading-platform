@@ -88,6 +88,16 @@ public class RabbitMQConfig {
     public static final String FUNDS_LOCKED_ORDER_QUEUE = "funds.locked.order.queue";
     public static final String TRADE_EXECUTED_ORDER_QUEUE = "trade.executed.order.queue";
 
+    // Trade Service specific queues
+    public static final String FUNDS_LOCKED_TRADE_QUEUE = "funds.locked.trade.queue";
+    public static final String TRADE_CREATED_NOTIFICATION_QUEUE = "trade.created.notification.queue";
+    public static final String TRADE_PLACED_NOTIFICATION_QUEUE = "trade.placed.notification.queue";
+    public static final String TRADE_CLOSED_NOTIFICATION_QUEUE = "trade.closed.notification.queue";
+    public static final String TRADE_CANCELLED_NOTIFICATION_QUEUE = "trade.cancelled.notification.queue";
+    public static final String TRADE_FAILED_NOTIFICATION_QUEUE = "trade.failed.notification.queue";
+    public static final String TRADE_CLOSED_FUNDS_QUEUE = "trade.closed.funds.queue";
+    public static final String TRADE_CANCELLED_FUNDS_QUEUE = "trade.cancelled.funds.queue";
+
     public static final String TRADE_CREATED_ACCOUNT_QUEUE = "trade.created.account.queue";
     public static final String TRADE_CREATED_PORTFOLIO_QUEUE = "trade.created.portfolio.queue";
     public static final String TRADE_REJECTED_NOTIFICATION_QUEUE = "trade.rejected.notification.queue";
@@ -114,6 +124,13 @@ public class RabbitMQConfig {
     public static final String ORDER_VALIDATED_ROUTING_KEY = "order.validated";
     public static final String FUNDS_LOCKED_ROUTING_KEY = "funds.locked";
     public static final String TRADE_EXECUTED_ROUTING_KEY = "trade.executed";
+
+    // Trade Service Routing Keys
+    public static final String TRADE_CREATED_ROUTING_KEY = "trade.created";
+    public static final String TRADE_PLACED_ROUTING_KEY = "trade.placed";
+    public static final String TRADE_CLOSED_ROUTING_KEY = "trade.closed";
+    public static final String TRADE_CANCELLED_ROUTING_KEY = "trade.cancelled";
+    public static final String TRADE_FAILED_ROUTING_KEY = "trade.failed";
 
     // New Routing Keys for Notification Service
     public static final String ORDER_CANCELLED_ROUTING_KEY = "order.cancelled";
@@ -698,5 +715,244 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(tradeExecutedNotificationQueue())
                 .to(tradeExchange())
                 .with(TRADE_EXECUTED_ROUTING_KEY);
+    }
+
+    // =====================================================
+    // Trade Service Queues and Bindings
+    // =====================================================
+
+    @Bean
+    public Queue fundsLockedTradeQueue() {
+        return QueueBuilder.durable(FUNDS_LOCKED_TRADE_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", FUNDS_LOCKED_TRADE_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeCreatedNotificationQueue() {
+        return QueueBuilder.durable(TRADE_CREATED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_CREATED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradePlacedNotificationQueue() {
+        return QueueBuilder.durable(TRADE_PLACED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_PLACED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeClosedNotificationQueue() {
+        return QueueBuilder.durable(TRADE_CLOSED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_CLOSED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeCancelledNotificationQueue() {
+        return QueueBuilder.durable(TRADE_CANCELLED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_CANCELLED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeFailedNotificationQueue() {
+        return QueueBuilder.durable(TRADE_FAILED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_FAILED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeClosedFundsQueue() {
+        return QueueBuilder.durable(TRADE_CLOSED_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_CLOSED_FUNDS_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue tradeCancelledFundsQueue() {
+        return QueueBuilder.durable(TRADE_CANCELLED_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_CANCELLED_FUNDS_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    // Trade Service Bindings
+    @Bean
+    public Binding fundsLockedTradeBinding() {
+        return BindingBuilder.bind(fundsLockedTradeQueue())
+                .to(fundsExchange())
+                .with(FUNDS_LOCKED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeCreatedNotificationBinding() {
+        return BindingBuilder.bind(tradeCreatedNotificationQueue())
+                .to(tradeExchange())
+                .with(TRADE_CREATED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradePlacedNotificationBinding() {
+        return BindingBuilder.bind(tradePlacedNotificationQueue())
+                .to(tradeExchange())
+                .with(TRADE_PLACED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeClosedNotificationBinding() {
+        return BindingBuilder.bind(tradeClosedNotificationQueue())
+                .to(tradeExchange())
+                .with(TRADE_CLOSED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeCancelledNotificationBinding() {
+        return BindingBuilder.bind(tradeCancelledNotificationQueue())
+                .to(tradeExchange())
+                .with(TRADE_CANCELLED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeFailedNotificationBinding() {
+        return BindingBuilder.bind(tradeFailedNotificationQueue())
+                .to(tradeExchange())
+                .with(TRADE_FAILED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeClosedFundsBinding() {
+        return BindingBuilder.bind(tradeClosedFundsQueue())
+                .to(tradeExchange())
+                .with(TRADE_CLOSED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeCancelledFundsBinding() {
+        return BindingBuilder.bind(tradeCancelledFundsQueue())
+                .to(tradeExchange())
+                .with(TRADE_CANCELLED_ROUTING_KEY);
+    }
+
+    // =====================================================
+    // Payment Service Exchange, Queues, and Bindings
+    // =====================================================
+
+    // Payment Exchange
+    public static final String PAYMENT_EXCHANGE = "payment.exchange";
+
+    // Payment Queues
+    public static final String PAYMENT_SUCCESS_FUNDS_QUEUE = "payment.success.funds.queue";
+    public static final String PAYMENT_CREATED_NOTIFICATION_QUEUE = "payment.created.notification.queue";
+    public static final String PAYMENT_SUCCESS_NOTIFICATION_QUEUE = "payment.success.notification.queue";
+    public static final String PAYMENT_FAILED_NOTIFICATION_QUEUE = "payment.failed.notification.queue";
+    public static final String PAYMENT_EXPIRED_NOTIFICATION_QUEUE = "payment.expired.notification.queue";
+
+    // Payment Routing Keys
+    public static final String PAYMENT_CREATED_ROUTING_KEY = "payment.created";
+    public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
+    public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
+    public static final String PAYMENT_EXPIRED_ROUTING_KEY = "payment.expired";
+
+    @Bean
+    public TopicExchange paymentExchange() {
+        return new TopicExchange(PAYMENT_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Queue paymentSuccessFundsQueue() {
+        return QueueBuilder.durable(PAYMENT_SUCCESS_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_SUCCESS_FUNDS_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentCreatedNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_CREATED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_CREATED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentSuccessNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_SUCCESS_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_SUCCESS_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentFailedNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_FAILED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_FAILED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentExpiredNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_EXPIRED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_EXPIRED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    // Payment Bindings
+    @Bean
+    public Binding paymentSuccessFundsBinding() {
+        return BindingBuilder.bind(paymentSuccessFundsQueue())
+                .to(paymentExchange())
+                .with(PAYMENT_SUCCESS_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentCreatedNotificationBinding() {
+        return BindingBuilder.bind(paymentCreatedNotificationQueue())
+                .to(paymentExchange())
+                .with(PAYMENT_CREATED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentSuccessNotificationBinding() {
+        return BindingBuilder.bind(paymentSuccessNotificationQueue())
+                .to(paymentExchange())
+                .with(PAYMENT_SUCCESS_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentFailedNotificationBinding() {
+        return BindingBuilder.bind(paymentFailedNotificationQueue())
+                .to(paymentExchange())
+                .with(PAYMENT_FAILED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentExpiredNotificationBinding() {
+        return BindingBuilder.bind(paymentExpiredNotificationQueue())
+                .to(paymentExchange())
+                .with(PAYMENT_EXPIRED_ROUTING_KEY);
     }
 }

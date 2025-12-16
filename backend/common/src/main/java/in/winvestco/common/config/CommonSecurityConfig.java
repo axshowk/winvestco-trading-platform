@@ -2,6 +2,7 @@ package in.winvestco.common.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,13 +19,22 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
+/**
+ * Common Security configuration - FALLBACK only.
+ * This configuration is DISABLED by default and only activates when:
+ * 1. Property 'security.common.enabled' is set to true
+ * 2. No other SecurityFilterChain bean is already defined
+ * 
+ * Each service should define its own SecurityConfig with specific settings.
+ */
+@Configuration("commonSecurityConfig")
 @EnableWebSecurity
 @EnableMethodSecurity
+@ConditionalOnProperty(name = "security.common.enabled", havingValue = "true", matchIfMissing = false)
 public class CommonSecurityConfig {
 
-    @Bean
-    @Order(org.springframework.core.Ordered.LOWEST_PRECEDENCE)
+    @Bean("commonFallbackSecurityFilterChain")
+    @Order(Integer.MAX_VALUE) // Lowest priority
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,8 +53,9 @@ public class CommonSecurityConfig {
         return http.build();
     }
 
-    @Bean
+    @Bean("commonAuthenticationProvider")
     @ConditionalOnBean(UserDetailsService.class)
+    @ConditionalOnMissingBean(AuthenticationProvider.class)
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {
         // Create the authentication provider with the required dependencies
@@ -60,8 +71,9 @@ public class CommonSecurityConfig {
         return authProvider;
     }
 
-    @Bean
+    @Bean("commonAuthenticationManager")
     @ConditionalOnBean(AuthenticationProvider.class)
+    @ConditionalOnMissingBean(AuthenticationManager.class)
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }

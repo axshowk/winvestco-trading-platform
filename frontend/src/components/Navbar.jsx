@@ -46,9 +46,10 @@ const Navbar = ({ onLogin }) => {
 
                     {/* Desktop Menu */}
                     <div className="desktop-menu">
-                        <a href="/markets" className="nav-link">Markets</a>
+                        <a href="/markets" className="nav-link">Indices</a>
                         <a href="/market-data" className="nav-link">Market Data</a>
                         <a href="/portfolio" className="nav-link">Portfolio</a>
+                        <a href="/orders" className="nav-link">Orders</a>
                         <a href="https://zerodha.com/varsity/modules" target="_blank" rel="noopener noreferrer" className="nav-link">Learn</a>
                     </div>
 
@@ -86,6 +87,7 @@ const Navbar = ({ onLogin }) => {
                         <a href="/markets" className="nav-link mobile">Markets</a>
                         <a href="/market-data" className="nav-link mobile">Market Data</a>
                         <a href="/portfolio" className="nav-link mobile">Portfolio</a>
+                        <a href="/orders" className="nav-link mobile">Orders</a>
                         <a href="https://zerodha.com/varsity/modules" target="_blank" rel="noopener noreferrer" className="nav-link mobile">Learn</a>
                         <hr className="divider" />
                         {isLoggedIn ? (

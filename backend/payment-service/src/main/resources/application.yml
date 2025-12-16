@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: payment-service
+  
+  # Virtual Threads (Java 21+)
+  threads:
+    virtual:
+      enabled: true
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:winvestco_payment_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+server:
+  port: 8093
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+
+# JWT Configuration (must match other services)
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Razorpay Configuration
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
+  key-secret: ${RAZORPAY_KEY_SECRET:placeholder_secret}
+
+# Payment Configuration
+payment:
+  # Payment expiry in minutes (15 minutes default)
+  expiry-minutes: 15
+  # Currency
+  currency: INR
+
+# OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api/payments/v3/api-docs
+  swagger-ui:
+    path: /api/payments/swagger-ui.html
+
+logging:
+  level:
+    in.winvestco.payment_service: DEBUG
+    org.springframework.amqp: INFO
+    com.razorpay: DEBUG

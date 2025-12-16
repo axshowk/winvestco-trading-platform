@@ -47,7 +47,9 @@
         <module>funds-service</module>
         <module>ledger-service</module>
         <module>order-service</module>
+        <module>trade-service</module>
         <module>notification-service</module>
+        <module>payment-service</module>
     </modules>
     
     <dependencyManagement>
@@ -57,6 +59,18 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
+            </dependency>
+            
+            <!-- Flyway -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flyway.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
+                <version>${flyway.version}</version>
             </dependency>
             
             <!-- Spring Cloud Dependencies -->

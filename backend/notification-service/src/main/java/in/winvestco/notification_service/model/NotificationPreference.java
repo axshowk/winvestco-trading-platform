@@ -1,9 +1,7 @@
 package in.winvestco.notification_service.model;
 
-import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 import java.time.Instant;
 import java.util.ArrayList;

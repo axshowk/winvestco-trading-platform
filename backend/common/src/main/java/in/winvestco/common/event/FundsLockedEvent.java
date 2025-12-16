@@ -1,5 +1,7 @@
 package in.winvestco.common.event;
 
+import in.winvestco.common.enums.OrderSide;
+import in.winvestco.common.enums.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,4 +28,16 @@ public class FundsLockedEvent implements Serializable {
     private BigDecimal lockedAmount;
     private String lockId;
     private Instant lockedAt;
+
+    // Trading details for trade creation
+    private String symbol;
+    private OrderSide side;
+    private OrderType orderType;
+    private BigDecimal quantity;
+    private BigDecimal price;
+
+    // Alias for backwards compatibility
+    public BigDecimal getAmount() {
+        return lockedAmount;
+    }
 }

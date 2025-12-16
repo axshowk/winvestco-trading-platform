@@ -49,12 +49,14 @@
 - **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking
 - **📒 Immutable Ledger** - Audit-compliant financial record keeping (source of truth)
 - **📋 Order Management** - Complete order lifecycle with market/limit orders
+- **📈 Trade Execution** - Trade lifecycle management with state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
+- **💳 Payment Gateway** - Razorpay integration for deposits with webhook verification
 - **🔔 Real-time Notifications** - WebSocket-based push notifications
 - **📄 Stock Details** - Comprehensive stock information with interactive charts
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
-- **☁️ Cloud-Native Architecture** - 10 microservices with service discovery and API gateway
+- **☁️ Cloud-Native Architecture** - 12 microservices with service discovery and API gateway
 - **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events
 - **💾 Redis Caching** - High-performance caching for market data and sessions
 - **📝 Database Migrations** - Flyway for version-controlled schema management
@@ -96,13 +98,22 @@
 │  ┌────────┴──────────────────────┴──────────────────────┴──────────────────────┴──────── ┐ │
 │  │                                                                                       │ |
 │  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                   │ │
-│  │  │ Ledger Service   │   │ Order Service    │   │ Notification Svc │                   │ │
-│  │  │     (8087)       │   │     (8089)       │   │     (8091)       │                   │ │
+│  │  │ Ledger Service   │   │ Order Service    │   │ Trade Service    │                   │ │
+│  │  │     (8087)       │   │     (8089)       │   │     (8092)       │                   │ │
 │  │  │                  │   │                  │   │                  │                   │ │
-│  │  │ • Immutable SOT  │   │ • Order Lifecycle│   │ • Push Notifs    │                   │ │
-│  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • WebSocket      │                   │ │
-│  │  │ • Reconciliation │   │ • Order Expiry   │   │ • Preferences    │                   │ │
+│  │  │ • Immutable SOT  │   │ • Order Lifecycle│   │ • Trade Lifecycle│                   │ │
+│  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • State Machine  │                   │ │
+│  │  │ • Reconciliation │   │ • Order Expiry   │   │ • Execution Sim  │                   │ │
 │  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                   │ │
+│  │                                                                                       │ │
+│  │  ┌──────────────────┐   ┌──────────────────┐                                          │ │
+│  │  │ Notification Svc │   │ Payment Service  │                                          │ │
+│  │  │     (8091)       │   │     (8093)       │                                          │ │
+│  │  │                  │   │                  │                                          │ │
+│  │  │ • Push Notifs    │   │ • Razorpay       │                                          │ │
+│  │  │ • WebSocket      │   │ • Webhooks       │                                          │ │
+│  │  │ • Preferences    │   │ • Payment Events │                                          │ │
+│  │  └──────────────────┘   └──────────────────┘                                          │ │
 │  │                                                                                       │ │
 │  └───────────────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                            │
@@ -195,19 +206,22 @@
 | **Funds Service** | 8086 | Wallet management, deposits, withdrawals, fund locking | `winvestco_funds_db` |
 | **Ledger Service** | 8087 | Immutable financial ledger (source of truth) | `winvestco_ledger_db` |
 | **Order Service** | 8089 | Order lifecycle management (create, cancel, fill, expire) | `winvestco_order_db` |
+| **Trade Service** | 8092 | Trade lifecycle, execution, state machine | `winvestco_trade_db` |
+| **Payment Service** | 8093 | Razorpay integration, payment lifecycle, webhooks | `winvestco_payment_db` |
 | **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
 ### Domain Events (RabbitMQ)
 
-The platform uses an event-driven architecture with the following domain events:
+The platform uses an event-driven architecture with the following domain events (26 total):
 
 | Category | Events |
 |----------|--------|
 | **User Events** | `UserCreatedEvent`, `UserUpdatedEvent`, `UserLoginEvent`, `UserStatusChangedEvent`, `UserRoleChangedEvent`, `UserPasswordChangedEvent` |
 | **Order Events** | `OrderCreatedEvent`, `OrderValidatedEvent`, `OrderFilledEvent`, `OrderCancelledEvent`, `OrderExpiredEvent`, `OrderRejectedEvent` |
 | **Funds Events** | `FundsDepositedEvent`, `FundsWithdrawnEvent`, `FundsLockedEvent`, `FundsReleasedEvent` |
-| **Trade Events** | `TradeExecutedEvent` |
+| **Trade Events** | `TradeCreatedEvent`, `TradePlacedEvent`, `TradeExecutedEvent`, `TradeClosedEvent`, `TradeCancelledEvent`, `TradeFailedEvent` |
+| **Payment Events** | `PaymentCreatedEvent`, `PaymentSuccessEvent`, `PaymentFailedEvent`, `PaymentExpiredEvent` |
 
 ---
 
@@ -227,8 +241,8 @@ winvestco-trading-platform/
 │   ├── 📁 common/                # Shared library module
 │   │   ├── 📁 config/            # Common configurations (Redis, Cache, Security)
 │   │   ├── 📁 dto/               # Shared DTOs
-│   │   ├── 📁 enums/             # Enumerations (13 enums including Order, Wallet, Ledger types)
-│   │   ├── 📁 event/             # Domain events (17 events for User, Order, Funds, Trade)
+│   │   ├── 📁 enums/             # Enumerations (17 enums: Order, Trade, Payment, Wallet, Ledger types)
+│   │   ├── 📁 event/             # Domain events (26 events for User, Order, Funds, Trade, Payment)
 │   │   ├── 📁 exception/         # Global exception handling
 │   │   ├── 📁 interceptor/       # Rate limiting interceptors
 │   │   ├── 📁 security/          # JWT & auth utilities
@@ -291,6 +305,20 @@ winvestco-trading-platform/
 │   │   ├── 📁 model/             # Order entity
 │   │   └── 📄 Dockerfile
 │   │
+│   ├── 📁 trade-service/         # Trade Execution (Port: 8092)
+│   │   ├── 📁 controller/        # Trade REST controllers
+│   │   ├── 📁 service/           # Trade lifecycle, execution simulation
+│   │   ├── 📁 messaging/         # Order event listeners, trade event publishers
+│   │   ├── 📁 model/             # Trade entity with state machine
+│   │   └── 📄 Dockerfile
+│   │
+│   ├── 📁 payment-service/       # Payment Gateway (Port: 8093)
+│   │   ├── 📁 controller/        # Payment & Webhook controllers
+│   │   ├── 📁 service/           # Razorpay integration, payment lifecycle
+│   │   ├── 📁 messaging/         # Payment event publishers
+│   │   ├── 📁 model/             # Payment entity
+│   │   └── 📄 Dockerfile
+│   │
 │   └── 📁 notification-service/  # Notifications (Port: 8091)
 │       ├── 📁 controller/        # Notification REST & Preference controllers
 │       ├── 📁 service/           # Notification, Preference, WebSocket services
@@ -317,6 +345,7 @@ winvestco-trading-platform/
 │   │   │   ├── Stocks.jsx
 │   │   │   ├── StockDetails.jsx
 │   │   │   ├── Portfolio.jsx
+│   │   │   ├── Orders.jsx        # Order book & trade history (Zerodha-style)
 │   │   │   └── MarketData.jsx
 │   │   └── 📁 context/           # React context (Auth)
 │   ├── 📄 package.json
@@ -390,6 +419,8 @@ Ensure you have the following installed:
    CREATE DATABASE winvestco_funds_db;
    CREATE DATABASE winvestco_ledger_db;
    CREATE DATABASE winvestco_order_db;
+   CREATE DATABASE winvestco_trade_db;
+   CREATE DATABASE winvestco_payment_db;
    CREATE DATABASE winvestco_notification_db;
    ```
 
@@ -424,7 +455,13 @@ Ensure you have the following installed:
    # Terminal 8: Order Service
    cd order-service && mvn spring-boot:run
 
-   # Terminal 9: Notification Service
+   # Terminal 9: Trade Service
+   cd trade-service && mvn spring-boot:run
+
+   # Terminal 10: Payment Service
+   cd payment-service && mvn spring-boot:run
+
+   # Terminal 11: Notification Service
    cd notification-service && mvn spring-boot:run
    ```
 
@@ -452,6 +489,8 @@ Ensure you have the following installed:
 | Funds Service | 8086 | Wallet & funds management |
 | Ledger Service | 8087 | Immutable ledger (source of truth) |
 | Order Service | 8089 | Order management |
+| Trade Service | 8092 | Trade lifecycle & execution |
+| Payment Service | 8093 | Razorpay payment gateway |
 | Notification Service | 8091 | Notifications & WebSocket |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
@@ -473,6 +512,9 @@ Ensure you have the following installed:
 | `/api/funds/**` | funds-service | Funds/wallet management |
 | `/api/ledger/**` | ledger-service | Ledger queries (read-only) |
 | `/api/orders/**` | order-service | Order management |
+| `/api/trades/**` | trade-service | Trade management |
+| `/api/payments/**` | payment-service | Payment operations |
+| `/api/payments/webhook/**` | payment-service | Razorpay webhooks (public) |
 | `/api/v1/notifications/**` | notification-service | Notifications |
 | `/ws/notifications/**` | notification-service | WebSocket endpoint |
 | `/api/admin/docs/**` | user-service | API documentation |
@@ -490,6 +532,8 @@ When services are running, access OpenAPI documentation at:
 - **Funds Service**: http://localhost:8086/swagger-ui.html
 - **Ledger Service**: http://localhost:8087/swagger-ui.html
 - **Order Service**: http://localhost:8089/swagger-ui.html
+- **Trade Service**: http://localhost:8092/swagger-ui.html
+- **Payment Service**: http://localhost:8093/api/payments/swagger-ui.html
 - **Notification Service**: http://localhost:8091/swagger-ui.html
 
 ### Key API Endpoints
@@ -542,6 +586,26 @@ GET  /api/orders/{orderId}            # Get order by ID
 GET  /api/orders/user/{userId}        # Get user's orders
 GET  /api/orders/user/{userId}/active # Get active orders
 POST /api/orders/{orderId}/cancel     # Cancel order
+```
+
+#### Trade Management
+```
+GET  /api/trades/{tradeId}            # Get trade by ID
+GET  /api/trades/order/{orderId}      # Get trade by order ID
+GET  /api/trades                      # Get user's trades (paginated)
+GET  /api/trades/active               # Get active trades
+POST /api/trades/{tradeId}/cancel     # Cancel trade
+POST /api/trades/{tradeId}/simulate-execution  # Simulate execution (testing)
+```
+
+#### Payment Gateway (Razorpay)
+```
+POST /api/payments/initiate           # Initiate payment (creates Razorpay order)
+POST /api/payments/verify             # Verify payment after checkout
+GET  /api/payments/{id}               # Get payment by ID
+GET  /api/payments/history            # Get payment history
+POST /api/payments/{id}/pending       # Mark payment as pending
+POST /api/payments/webhook/razorpay   # Razorpay webhook (public)
 ```
 
 #### Notifications
@@ -605,6 +669,10 @@ RABBITMQ_PASSWORD=guest
 
 # Redis
 SPRING_REDIS_PASSWORD=
+
+# Razorpay (Payment Gateway)
+RAZORPAY_KEY_ID=your-razorpay-key-id
+RAZORPAY_KEY_SECRET=your-razorpay-key-secret
 ```
 
 > ⚠️ **Security Note**: Never commit `.env` files to version control. The `.env.example` template is provided for reference.

@@ -28,7 +28,7 @@ import java.util.Map;
  * Centralized OpenAPI/Swagger Configuration
  * Provides consistent API documentation across all services
  */
-@Configuration
+@Configuration("commonOpenApiConfig")
 public class OpenApiConfig {
 
         @Value("${spring.application.name:Winvestco-Trading}")

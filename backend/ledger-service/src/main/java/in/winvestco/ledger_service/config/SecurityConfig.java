@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 /**
  * Security configuration for the ledger service.
  */
-@Configuration
+@Configuration("ledgerServiceSecurityConfig")
 @EnableWebSecurity
 @EnableMethodSecurity
 @Import(PasswordConfig.class)

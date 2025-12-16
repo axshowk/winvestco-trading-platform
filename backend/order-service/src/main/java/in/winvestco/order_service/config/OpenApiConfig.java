@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Configuration
+@Configuration("orderServiceOpenApiConfig")
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,

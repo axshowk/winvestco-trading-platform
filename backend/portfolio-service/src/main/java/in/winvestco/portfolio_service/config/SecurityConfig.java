@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 /**
  * Security configuration for the portfolio service with OAuth2 Resource Server.
  */
-@Configuration
+@Configuration("portfolioServiceSecurityConfig")
 @EnableWebSecurity
 @EnableMethodSecurity
 @Import(PasswordConfig.class)

@@ -640,3 +640,106 @@
         margin: 0 0.5rem;
     }
 }
+
+/* Order Type Selector */
+.order-type-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.order-type-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.order-type-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #e2e8f0;
+}
+
+.order-type-btn.active {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: #6366f1;
+    color: #a5b4fc;
+}
+
+/* Quantity Quick Buttons */
+.quantity-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.qty-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 6px;
+    color: #a5b4fc;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #e2e8f0;
+}
+
+/* Validity Selector */
+.validity-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.validity-btn {
+    flex: 1;
+    padding: 0.65rem 0.75rem;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.validity-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #e2e8f0;
+}
+
+.validity-btn.active {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: #6366f1;
+    color: #a5b4fc;
+}
+
+.validity-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.4rem;
+    font-style: italic;
+}
+

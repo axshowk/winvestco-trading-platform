@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LightweightChart from '../components/LightweightChart';
+import { createOrder, OrderType, OrderSide, OrderValidity, formatCurrency } from '../services/orderApi';
 import './StockDetails.css';
 
 const StockDetails = () => {
@@ -18,20 +19,16 @@ const StockDetails = () => {
     const [showTradeModal, setShowTradeModal] = useState(false);
     const [tradeType, setTradeType] = useState('buy'); // 'buy' or 'sell'
     const [quantity, setQuantity] = useState('');
+    const [orderType, setOrderType] = useState(OrderType.MARKET);
+    const [limitPrice, setLimitPrice] = useState('');
+    const [stopPrice, setStopPrice] = useState('');
+    const [validity, setValidity] = useState(OrderValidity.DAY);
     const [trading, setTrading] = useState(false);
     const [tradeError, setTradeError] = useState(null);
     const [tradeSuccess, setTradeSuccess] = useState(null);
 
     const isAuthenticated = () => {
         return !!localStorage.getItem('accessToken');
-    };
-
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem('accessToken');
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        };
     };
 
     const fetchStockData = async () => {
@@ -79,15 +76,6 @@ const StockDetails = () => {
         }
     }, [symbol]);
 
-    const formatCurrency = (value) => {
-        if (value == null) return '₹-';
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 2
-        }).format(value);
-    };
-
     const formatNumber = (value) => {
         if (value == null) return '-';
         return new Intl.NumberFormat('en-IN', {
@@ -97,11 +85,7 @@ const StockDetails = () => {
 
     const formatMarketCap = (valueInLakhs) => {
         if (valueInLakhs == null || isNaN(valueInLakhs)) return '-';
-
-        // Convert Lakhs to Crores (1 Crore = 100 Lakhs)
         const valueInCrores = Math.abs(Number(valueInLakhs)) / 100;
-
-        // Format in Indian number system (Cr.)
         return `₹${new Intl.NumberFormat('en-IN', {
             maximumFractionDigits: 2,
             minimumFractionDigits: 2
@@ -111,7 +95,6 @@ const StockDetails = () => {
     const formatVolume = (value) => {
         if (value == null) return '-';
         const absValue = Math.abs(Number(value));
-
         if (absValue >= 10000000) {
             return `${(absValue / 10000000).toFixed(2)} Cr`;
         } else if (absValue >= 100000) {
@@ -123,7 +106,6 @@ const StockDetails = () => {
     };
 
     const handleBack = () => {
-        // Check if there's a previous page in history, otherwise go to markets
         if (window.history.length > 2) {
             navigate(-1);
         } else {
@@ -142,6 +124,10 @@ const StockDetails = () => {
         }
         setTradeType(type);
         setQuantity('');
+        setOrderType(OrderType.MARKET);
+        setLimitPrice('');
+        setStopPrice('');
+        setValidity(OrderValidity.DAY);
         setTradeError(null);
         setTradeSuccess(null);
         setShowTradeModal(true);
@@ -150,8 +136,38 @@ const StockDetails = () => {
     const closeTradeModal = () => {
         setShowTradeModal(false);
         setQuantity('');
+        setOrderType(OrderType.MARKET);
+        setLimitPrice('');
+        setStopPrice('');
+        setValidity(OrderValidity.DAY);
         setTradeError(null);
         setTradeSuccess(null);
+    };
+
+    const handleQuantityButton = (value) => {
+        const currentQty = parseInt(quantity) || 0;
+        setQuantity(String(currentQty + value));
+    };
+
+    const needsLimitPrice = () => {
+        return orderType === OrderType.LIMIT || orderType === OrderType.STOP_LIMIT;
+    };
+
+    const needsStopPrice = () => {
+        return orderType === OrderType.STOP_LOSS || orderType === OrderType.STOP_LIMIT;
+    };
+
+    const getOrderPrice = () => {
+        if (orderType === OrderType.MARKET) {
+            return stockData?.price || 0;
+        }
+        return parseFloat(limitPrice) || stockData?.price || 0;
+    };
+
+    const calculateTotalValue = () => {
+        const qty = parseFloat(quantity) || 0;
+        const price = getOrderPrice();
+        return qty * price;
     };
 
     const handleTrade = async (e) => {
@@ -167,47 +183,54 @@ const StockDetails = () => {
             return;
         }
 
+        // Validate limit price for LIMIT/STOP_LIMIT orders
+        if (needsLimitPrice() && (!limitPrice || parseFloat(limitPrice) <= 0)) {
+            setTradeError('Please enter a valid limit price');
+            setTrading(false);
+            return;
+        }
+
+        // Validate stop price for STOP_LOSS/STOP_LIMIT orders
+        if (needsStopPrice() && (!stopPrice || parseFloat(stopPrice) <= 0)) {
+            setTradeError('Please enter a valid stop price');
+            setTrading(false);
+            return;
+        }
+
         try {
-            const endpoint = tradeType === 'buy' ? '/api/portfolios/buy' : '/api/portfolios/sell';
-            const body = tradeType === 'buy'
-                ? {
-                    symbol: stockData.symbol,
-                    quantity: qty,
-                    price: stockData.price,
-                    companyName: stockData.symbol
-                }
-                : {
-                    symbol: stockData.symbol,
-                    quantity: qty
-                };
+            const orderRequest = {
+                symbol: stockData.symbol,
+                side: tradeType === 'buy' ? OrderSide.BUY : OrderSide.SELL,
+                orderType: orderType,
+                quantity: qty,
+                validity: validity
+            };
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify(body)
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                setTradeSuccess(data.message);
-                setTimeout(() => {
-                    closeTradeModal();
-                }, 2000);
-            } else {
-                setTradeError(data.message || `${tradeType === 'buy' ? 'Buy' : 'Sell'} order failed`);
+            // Add price for LIMIT/STOP_LIMIT orders
+            if (needsLimitPrice()) {
+                orderRequest.price = parseFloat(limitPrice);
             }
+
+            // Add stop price for STOP_LOSS/STOP_LIMIT orders
+            if (needsStopPrice()) {
+                orderRequest.stopPrice = parseFloat(stopPrice);
+            }
+
+            const order = await createOrder(orderRequest);
+            setTradeSuccess(`Order placed successfully! Order ID: ${order.orderId.substring(0, 8)}...`);
+
+            setTimeout(() => {
+                closeTradeModal();
+            }, 2500);
         } catch (err) {
             console.error('Trade error:', err);
-            setTradeError('Failed to execute trade. Please try again.');
+            setTradeError(err.message || 'Failed to place order. Please try again.');
         } finally {
             setTrading(false);
         }
     };
 
-    const totalValue = quantity && stockData?.price
-        ? (parseFloat(quantity) * stockData.price).toFixed(2)
-        : 0;
+    const totalValue = calculateTotalValue();
 
     if (loading) {
         return (
@@ -390,7 +413,7 @@ const StockDetails = () => {
                 </div>
             </div>
 
-            {/* Trade Modal */}
+            {/* Enhanced Trade Modal */}
             {showTradeModal && (
                 <div className="trade-modal-overlay" onClick={closeTradeModal}>
                     <div className="trade-modal glass" onClick={e => e.stopPropagation()}>
@@ -418,11 +441,64 @@ const StockDetails = () => {
                                 </button>
                             </div>
 
+                            {/* Order Type Selector */}
+                            <div className="form-group">
+                                <label>Order Type</label>
+                                <div className="order-type-selector">
+                                    {Object.values(OrderType).map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            className={`order-type-btn ${orderType === type ? 'active' : ''}`}
+                                            onClick={() => setOrderType(type)}
+                                        >
+                                            {type === OrderType.MARKET && <Activity size={14} />}
+                                            {type === OrderType.LIMIT && <Target size={14} />}
+                                            {type === OrderType.STOP_LOSS && <TrendingDown size={14} />}
+                                            {type === OrderType.STOP_LIMIT && <Clock size={14} />}
+                                            <span>{type.replace('_', ' ')}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Current Price Display */}
                             <div className="price-display">
-                                <span className="label">Current Price</span>
+                                <span className="label">Market Price</span>
                                 <span className="price">{formatCurrency(stockData?.price)}</span>
                             </div>
+
+                            {/* Limit Price Input - for LIMIT and STOP_LIMIT */}
+                            {needsLimitPrice() && (
+                                <div className="form-group">
+                                    <label>Limit Price</label>
+                                    <input
+                                        type="number"
+                                        min="0.01"
+                                        step="0.05"
+                                        placeholder="Enter limit price"
+                                        value={limitPrice}
+                                        onChange={(e) => setLimitPrice(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            )}
+
+                            {/* Stop Price Input - for STOP_LOSS and STOP_LIMIT */}
+                            {needsStopPrice() && (
+                                <div className="form-group">
+                                    <label>Trigger Price (Stop)</label>
+                                    <input
+                                        type="number"
+                                        min="0.01"
+                                        step="0.05"
+                                        placeholder="Enter trigger price"
+                                        value={stopPrice}
+                                        onChange={(e) => setStopPrice(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            )}
 
                             {/* Trade Form */}
                             <form onSubmit={handleTrade}>
@@ -438,13 +514,47 @@ const StockDetails = () => {
                                         required
                                         autoFocus
                                     />
+                                    <div className="quantity-buttons">
+                                        {[10, 50, 100, 500].map((val) => (
+                                            <button
+                                                key={val}
+                                                type="button"
+                                                className="qty-btn"
+                                                onClick={() => handleQuantityButton(val)}
+                                            >
+                                                +{val}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Validity Selector */}
+                                <div className="form-group">
+                                    <label>Validity</label>
+                                    <div className="validity-selector">
+                                        {Object.values(OrderValidity).map((val) => (
+                                            <button
+                                                key={val}
+                                                type="button"
+                                                className={`validity-btn ${validity === val ? 'active' : ''}`}
+                                                onClick={() => setValidity(val)}
+                                            >
+                                                {val}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <span className="validity-hint">
+                                        {validity === OrderValidity.DAY && 'Expires at end of trading day (3:30 PM)'}
+                                        {validity === OrderValidity.IOC && 'Execute immediately or cancel'}
+                                        {validity === OrderValidity.GTC && 'Good until you cancel'}
+                                    </span>
                                 </div>
 
                                 {/* Total Value */}
                                 {quantity && parseFloat(quantity) > 0 && (
                                     <div className="total-display">
                                         <span className="label">
-                                            {tradeType === 'buy' ? 'Total Investment' : 'Expected Value'}
+                                            {tradeType === 'buy' ? 'Required Margin' : 'Expected Value'}
                                         </span>
                                         <span className="total">{formatCurrency(totalValue)}</span>
                                     </div>
@@ -473,7 +583,7 @@ const StockDetails = () => {
                                     disabled={trading || !quantity}
                                 >
                                     {trading
-                                        ? 'Processing...'
+                                        ? 'Placing Order...'
                                         : `${tradeType === 'buy' ? 'Buy' : 'Sell'} ${stockData?.symbol}`
                                     }
                                 </button>

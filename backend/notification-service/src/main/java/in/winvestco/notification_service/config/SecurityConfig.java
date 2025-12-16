@@ -11,27 +11,27 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Security configuration for notification service.
  */
-@Configuration
+@Configuration("notificationServiceSecurityConfig")
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Allow actuator endpoints
-                .requestMatchers("/actuator/**").permitAll()
-                // Allow OpenAPI documentation
-                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // Allow WebSocket endpoint
-                .requestMatchers("/ws/**").permitAll()
-                // All other requests need authentication (handled by gateway)
-                .anyRequest().permitAll() // Gateway handles auth
-            );
-        
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Allow actuator endpoints
+                        .requestMatchers("/actuator/**").permitAll()
+                        // Allow OpenAPI documentation
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        // Allow WebSocket endpoint
+                        .requestMatchers("/ws/**").permitAll()
+                        // All other requests need authentication (handled by gateway)
+                        .anyRequest().permitAll() // Gateway handles auth
+                );
+
         return http.build();
     }
 }

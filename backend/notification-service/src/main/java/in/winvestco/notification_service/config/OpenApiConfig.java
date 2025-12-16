@@ -10,21 +10,21 @@ import org.springframework.context.annotation.Configuration;
 /**
  * OpenAPI documentation configuration.
  */
-@Configuration
+@Configuration("notificationServiceOpenApiConfig")
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI notificationServiceOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Notification Service API")
-                        .description("Real-time notification service with WebSocket support for WinvestCo Trading Platform")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("WinvestCo")
-                                .url("https://winvestco.in"))
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")));
-    }
+        @Bean
+        public OpenAPI notificationServiceOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Notification Service API")
+                                                .description("Real-time notification service with WebSocket support for WinvestCo Trading Platform")
+                                                .version("1.0.0")
+                                                .contact(new Contact()
+                                                                .name("WinvestCo")
+                                                                .url("https://winvestco.in"))
+                                                .license(new License()
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")));
+        }
 }

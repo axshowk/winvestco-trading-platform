@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    TrendingUp, TrendingDown, Plus, RefreshCw, X,
-    Briefcase, AlertCircle, LogIn, Trash2, Edit2
+    TrendingUp, TrendingDown, RefreshCw, X,
+    Briefcase, AlertCircle, LogIn, Trash2
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -17,17 +17,6 @@ const Portfolio = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [addingHolding, setAddingHolding] = useState(false);
-
-    // Add Holding Form State
-    const [newHolding, setNewHolding] = useState({
-        symbol: '',
-        companyName: '',
-        exchange: 'NSE',
-        quantity: '',
-        averagePrice: ''
-    });
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('accessToken');
@@ -118,45 +107,6 @@ const Portfolio = () => {
             await fetchMarketPrices(holdings);
         }
         setRefreshing(false);
-    };
-
-    const handleAddHolding = async (e) => {
-        e.preventDefault();
-        setAddingHolding(true);
-
-        try {
-            const response = await fetch('/api/portfolios/holdings', {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    symbol: newHolding.symbol.toUpperCase(),
-                    companyName: newHolding.companyName,
-                    exchange: newHolding.exchange,
-                    quantity: parseFloat(newHolding.quantity),
-                    averagePrice: parseFloat(newHolding.averagePrice)
-                })
-            });
-
-            if (response.ok) {
-                setShowAddModal(false);
-                setNewHolding({
-                    symbol: '',
-                    companyName: '',
-                    exchange: 'NSE',
-                    quantity: '',
-                    averagePrice: ''
-                });
-                await loadData();
-            } else {
-                const errorData = await response.json();
-                setError(errorData.message || 'Failed to add holding');
-            }
-        } catch (err) {
-            console.error('Error adding holding:', err);
-            setError('Failed to add holding');
-        } finally {
-            setAddingHolding(false);
-        }
     };
 
     const handleDeleteHolding = async (holdingId) => {
@@ -283,10 +233,6 @@ const Portfolio = () => {
                         >
                             <RefreshCw size={18} />
                         </button>
-                        <button className="add-btn" onClick={() => setShowAddModal(true)}>
-                            <Plus size={18} />
-                            <span>Add Stock</span>
-                        </button>
                     </div>
                 </div>
 
@@ -329,10 +275,9 @@ const Portfolio = () => {
                     <div className="empty-state glass">
                         <Briefcase size={48} />
                         <h3>No Holdings Yet</h3>
-                        <p>Add your first stock to start tracking your portfolio</p>
-                        <button className="add-btn large" onClick={() => setShowAddModal(true)}>
-                            <Plus size={20} />
-                            <span>Add Your First Stock</span>
+                        <p>Place orders from the Markets page to build your portfolio</p>
+                        <button className="action-btn large" onClick={() => navigate('/markets')}>
+                            Explore Markets
                         </button>
                     </div>
                 ) : (
@@ -404,95 +349,6 @@ const Portfolio = () => {
                                 })}
                             </tbody>
                         </table>
-                    </div>
-                )}
-
-                {/* Add Holding Modal */}
-                {showAddModal && (
-                    <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-                        <div className="modal-content glass" onClick={e => e.stopPropagation()}>
-                            <div className="modal-header">
-                                <h2>Add Stock</h2>
-                                <button className="close-btn" onClick={() => setShowAddModal(false)}>
-                                    <X size={24} />
-                                </button>
-                            </div>
-                            <form onSubmit={handleAddHolding}>
-                                <div className="form-group">
-                                    <label>Symbol *</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g., RELIANCE"
-                                        value={newHolding.symbol}
-                                        onChange={e => setNewHolding({ ...newHolding, symbol: e.target.value })}
-                                        required
-                                        maxLength={20}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Company Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g., Reliance Industries Ltd"
-                                        value={newHolding.companyName}
-                                        onChange={e => setNewHolding({ ...newHolding, companyName: e.target.value })}
-                                        maxLength={100}
-                                    />
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Exchange</label>
-                                        <select
-                                            value={newHolding.exchange}
-                                            onChange={e => setNewHolding({ ...newHolding, exchange: e.target.value })}
-                                        >
-                                            <option value="NSE">NSE</option>
-                                            <option value="BSE">BSE</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Quantity *</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            min="0.01"
-                                            placeholder="e.g., 10"
-                                            value={newHolding.quantity}
-                                            onChange={e => setNewHolding({ ...newHolding, quantity: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Average Price (₹) *</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0.01"
-                                        placeholder="e.g., 2450.50"
-                                        value={newHolding.averagePrice}
-                                        onChange={e => setNewHolding({ ...newHolding, averagePrice: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-actions">
-                                    <button
-                                        type="button"
-                                        className="btn-secondary"
-                                        onClick={() => setShowAddModal(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="btn-primary"
-                                        disabled={addingHolding}
-                                    >
-                                        {addingHolding ? 'Adding...' : 'Add Stock'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
                     </div>
                 )}
             </div>

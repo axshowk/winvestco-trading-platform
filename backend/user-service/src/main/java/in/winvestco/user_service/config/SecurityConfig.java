@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 /**
  * Security configuration for the user service with OAuth2 Resource Server.
  */
-@Configuration
+@Configuration("userServiceSecurityConfig")
 @EnableWebSecurity
 @EnableMethodSecurity
 @Import(PasswordConfig.class)

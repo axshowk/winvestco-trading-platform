@@ -4,6 +4,8 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -19,8 +21,10 @@ import java.util.UUID;
 /**
  * Reactive logging configuration for WebFlux applications like the API Gateway.
  * Provides consistent logging setup, request tracing, and structured logging.
+ * Only active for reactive (WebFlux) applications.
  */
-@Configuration
+@Configuration("reactiveLoggingConfig")
+@ConditionalOnWebApplication(type = Type.REACTIVE)
 public class ReactiveLoggingConfig {
     private static final Logger log = LoggerFactory.getLogger(ReactiveLoggingConfig.class);
 
@@ -47,7 +51,7 @@ public class ReactiveLoggingConfig {
                     : UUID.randomUUID().toString();
 
             final String userId = request.getHeaders().getFirst(USER_ID_HEADER);
-            
+
             // Log incoming request
             MDC.put(REQUEST_ID_MDC_KEY, requestId);
             MDC.put(SERVICE_NAME_MDC_KEY, serviceName);
@@ -64,15 +68,15 @@ public class ReactiveLoggingConfig {
 
             // Continue with the filter chain
             return chain.filter(exchange)
-                .doFinally(signalType -> {
-                    // Log response
-                    log.info("Completed request: {} {} - Status: {} - RequestId: {}",
-                            request.getMethod(), request.getPath(),
-                            response.getStatusCode(), requestId);
-                    
-                    // Clear MDC context
-                    MDC.clear();
-                });
+                    .doFinally(signalType -> {
+                        // Log response
+                        log.info("Completed request: {} {} - Status: {} - RequestId: {}",
+                                request.getMethod(), request.getPath(),
+                                response.getStatusCode(), requestId);
+
+                        // Clear MDC context
+                        MDC.clear();
+                    });
         };
     }
 

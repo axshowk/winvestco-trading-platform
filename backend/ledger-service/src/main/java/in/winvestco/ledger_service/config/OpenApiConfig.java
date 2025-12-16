@@ -13,29 +13,29 @@ import org.springframework.context.annotation.Configuration;
 /**
  * OpenAPI/Swagger configuration for ledger service
  */
-@Configuration
+@Configuration("ledgerServiceOpenApiConfig")
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI ledgerServiceOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("WINVESTCO Ledger Service API")
-                        .description("IMMUTABLE audit-compliant ledger - Source of Truth for all financial transactions")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("WINVESTCO Team")
-                                .url("https://winvestco.in")
-                                .email("support@winvestco.in"))
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(new Components()
-                        .addSecuritySchemes("bearerAuth", new SecurityScheme()
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                                .description("JWT token from user-service authentication")));
-    }
+        @Bean
+        public OpenAPI ledgerServiceOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("WINVESTCO Ledger Service API")
+                                                .description("IMMUTABLE audit-compliant ledger - Source of Truth for all financial transactions")
+                                                .version("1.0.0")
+                                                .contact(new Contact()
+                                                                .name("WINVESTCO Team")
+                                                                .url("https://winvestco.in")
+                                                                .email("support@winvestco.in"))
+                                                .license(new License()
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")))
+                                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                                .components(new Components()
+                                                .addSecuritySchemes("bearerAuth", new SecurityScheme()
+                                                                .type(SecurityScheme.Type.HTTP)
+                                                                .scheme("bearer")
+                                                                .bearerFormat("JWT")
+                                                                .description("JWT token from user-service authentication")));
+        }
 }
