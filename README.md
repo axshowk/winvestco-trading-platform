@@ -48,7 +48,7 @@
 - **💼 Portfolio Management** - Track holdings, P&L calculations, and investment performance
 - **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking
 - **📒 Immutable Ledger** - Audit-compliant financial record keeping (source of truth)
-- **📋 Order Management** - Complete order lifecycle with market/limit orders
+- **📋 Order Management** - Complete order lifecycle with advanced order types (LIMIT, MARKET, SL) and product types (CNC, MIS, NRML)
 - **📈 Trade Execution** - Trade lifecycle management with state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
 - **💳 Payment Gateway** - Razorpay integration for deposits with webhook verification
 - **🔔 Real-time Notifications** - WebSocket-based push notifications
@@ -344,6 +344,7 @@ winvestco-trading-platform/
 │   │   │   ├── Profile.jsx
 │   │   │   ├── Stocks.jsx
 │   │   │   ├── StockDetails.jsx
+│   │   │   ├── Funds.jsx         # Funds management (Deposit/Withdraw)
 │   │   │   ├── Portfolio.jsx
 │   │   │   ├── Orders.jsx        # Order book & trade history (Zerodha-style)
 │   │   │   └── MarketData.jsx
@@ -702,9 +703,15 @@ Tests use H2 in-memory database and mock external services. Test configurations 
 ### Test Coverage
 
 The project includes:
-- **Unit Tests**: Service layer tests with mocked dependencies
-- **Controller Tests**: `@WebMvcTest` based API tests
-- **Integration Tests**: Full context tests with testcontainers (planned)
+- **Unit Tests**: Comprehensive JUnit 5 & Mockito tests for all microservices
+- **Integration Tests**: Work in progress
+- **Test Coverage**: JaCoCo configured for code coverage analysis
+- **Recent Implementations**:
+  - ✅ **Funds Service**: Wallet operations, locking, and transaction history
+  - ✅ **Ledger Service**: Immutable ledger entry recording
+  - ✅ **Portfolio Service**: Holdings and P&L calculation logic
+  - ✅ **Notification Service**: Email and WebSocket notification delivery
+  - ✅ **Order Service**: Order validation and lifecycle management
 
 ---
 
