@@ -5,7 +5,6 @@ import in.winvestco.trade_service.dto.CreateTradeRequest;
 import in.winvestco.trade_service.dto.TradeDTO;
 import in.winvestco.trade_service.exception.InvalidTradeStateException;
 import in.winvestco.trade_service.exception.TradeNotFoundException;
-import in.winvestco.trade_service.exception.TradeValidationException;
 import in.winvestco.trade_service.mapper.TradeMapper;
 import in.winvestco.trade_service.model.Trade;
 import in.winvestco.trade_service.repository.TradeRepository;
@@ -27,8 +26,9 @@ import java.util.UUID;
  * 
  * Responsibilities:
  * - Accept trade intent from validated orders
- * - Validate trade business rules  
- * - Manage trade state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
+ * - Validate trade business rules
+ * - Manage trade state machine (CREATED → VALIDATED → PLACED → EXECUTED →
+ * CLOSED)
  * - Trigger execution via events
  * - Emit trade lifecycle events
  * 
@@ -131,8 +131,8 @@ public class TradeService {
      * Updates filled quantity and transitions status.
      */
     @Transactional
-    public TradeDTO handleExecutionUpdate(String tradeId, BigDecimal executedQuantity, 
-                                          BigDecimal executedPrice, boolean isPartialFill) {
+    public TradeDTO handleExecutionUpdate(String tradeId, BigDecimal executedQuantity,
+            BigDecimal executedPrice, boolean isPartialFill) {
         Trade trade = findTradeByTradeId(tradeId);
 
         if (trade.isTerminal()) {
@@ -223,7 +223,6 @@ public class TradeService {
             throw new InvalidTradeStateException(tradeId, trade.getStatus(), "cancel");
         }
 
-        TradeStatus previousStatus = trade.getStatus();
         trade.setStatus(TradeStatus.CANCELLED);
         trade.setFailureReason("Cancelled: " + reason);
         trade = tradeRepository.save(trade);

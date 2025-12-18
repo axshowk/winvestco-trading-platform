@@ -60,6 +60,9 @@ class AuthControllerTest {
         private JwtService jwtService;
 
         @MockBean
+        private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
+        @MockBean
         private LoggingUtils loggingUtils;
 
         private UserResponse testUserResponse;

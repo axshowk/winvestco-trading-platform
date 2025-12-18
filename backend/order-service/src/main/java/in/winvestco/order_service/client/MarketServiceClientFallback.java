@@ -3,8 +3,6 @@ package in.winvestco.order_service.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 /**
  * Fallback for MarketServiceClient when market-service is unavailable
  */

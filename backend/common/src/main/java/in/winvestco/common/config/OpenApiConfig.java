@@ -97,11 +97,15 @@ public class OpenApiConfig {
                 return openApi -> {
                         openApi.getPaths().values().forEach(pathItem -> pathItem.readOperations().forEach(operation -> {
                                 // Add Accept-Language header
+                                Schema<String> schema = new Schema<>();
+                                schema.setType("string");
+                                schema.setDefault("en-US");
+
                                 operation.addParametersItem(new HeaderParameter()
                                                 .name("Accept-Language")
                                                 .description("Language preference")
                                                 .required(false)
-                                                .schema(new Schema<String>().type("string")._default("en-US")));
+                                                .schema(schema));
                         }));
                 };
         }
@@ -132,28 +136,31 @@ public class OpenApiConfig {
                                 .content(new Content().addMediaType(
                                                 org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
                                                 new MediaType().schema(new Schema<Map<String, Object>>()
-                                                                .addProperties("error", new Schema<Object>()
-                                                                                .type("object")
-                                                                                .addProperty("status",
-                                                                                                new Schema<Integer>()
-                                                                                                                .type("integer")
-                                                                                                                .example(400))
-                                                                                .addProperty("error",
-                                                                                                new Schema<String>()
-                                                                                                                .type("string")
-                                                                                                                .example("Bad Request"))
-                                                                                .addProperty("message",
-                                                                                                new Schema<String>()
-                                                                                                                .type("string")
-                                                                                                                .example(message))
-                                                                                .addProperty("path",
-                                                                                                new Schema<String>()
-                                                                                                                .type("string")
-                                                                                                                .example("/api/endpoint"))
-                                                                                .addProperty("timestamp",
-                                                                                                new Schema<String>()
-                                                                                                                .type("string")
-                                                                                                                .format("date-time"))))));
+                                                                .addProperty("timestamp",
+                                                                                new Schema<String>()
+                                                                                                .type("string")
+                                                                                                .example("2023-10-27T10:00:00Z"))
+                                                                .type("object")
+                                                                .addProperty("status",
+                                                                                new Schema<Integer>()
+                                                                                                .type("integer")
+                                                                                                .example(400))
+                                                                .addProperty("error",
+                                                                                new Schema<String>()
+                                                                                                .type("string")
+                                                                                                .example("Bad Request"))
+                                                                .addProperty("message",
+                                                                                new Schema<String>()
+                                                                                                .type("string")
+                                                                                                .example(message))
+                                                                .addProperty("path",
+                                                                                new Schema<String>()
+                                                                                                .type("string")
+                                                                                                .example("/api/endpoint"))
+                                                                .addProperty("timestamp",
+                                                                                new Schema<String>()
+                                                                                                .type("string")
+                                                                                                .format("date-time")))));
         }
 
         private Info getApiInfo() {

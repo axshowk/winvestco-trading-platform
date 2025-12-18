@@ -117,6 +117,9 @@ public class RabbitMQConfig {
     public static final String FUNDS_DEPOSITED_NOTIFICATION_QUEUE = "funds.deposited.notification.queue";
     public static final String FUNDS_WITHDRAWN_NOTIFICATION_QUEUE = "funds.withdrawn.notification.queue";
     public static final String TRADE_EXECUTED_NOTIFICATION_QUEUE = "trade.executed.notification.queue";
+    public static final String PAYMENT_SUCCESS_NOTIFICATION_QUEUE = "payment.success.notification.queue";
+    public static final String PAYMENT_FAILED_NOTIFICATION_QUEUE = "payment.failed.notification.queue";
+    public static final String PAYMENT_EXPIRED_NOTIFICATION_QUEUE = "payment.expired.notification.queue";
 
     // Routing Keys
     public static final String PORTFOLIO_HOLDINGS_SNAPSHOT_ROUTING_KEY = "portfolio.holdings.snapshot";
@@ -140,6 +143,11 @@ public class RabbitMQConfig {
     public static final String FUNDS_RELEASED_ROUTING_KEY = "funds.released";
     public static final String FUNDS_DEPOSITED_ROUTING_KEY = "funds.deposited";
     public static final String FUNDS_WITHDRAWN_ROUTING_KEY = "funds.withdrawn";
+
+    // Payment Routing Keys for Notification Service
+    public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
+    public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
+    public static final String PAYMENT_EXPIRED_ROUTING_KEY = "payment.expired";
 
     @Bean
     @Primary
@@ -653,6 +661,33 @@ public class RabbitMQConfig {
                 .build();
     }
 
+    @Bean
+    public Queue paymentSuccessNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_SUCCESS_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_SUCCESS_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentFailedNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_FAILED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_FAILED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue paymentExpiredNotificationQueue() {
+        return QueueBuilder.durable(PAYMENT_EXPIRED_NOTIFICATION_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_EXPIRED_NOTIFICATION_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
     // Notification Service Bindings
     @Bean
     public Binding orderCancelledNotificationBinding() {
@@ -715,6 +750,27 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(tradeExecutedNotificationQueue())
                 .to(tradeExchange())
                 .with(TRADE_EXECUTED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentSuccessNotificationBinding() {
+        return BindingBuilder.bind(paymentSuccessNotificationQueue())
+                .to(fundsExchange())
+                .with(PAYMENT_SUCCESS_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentFailedNotificationBinding() {
+        return BindingBuilder.bind(paymentFailedNotificationQueue())
+                .to(fundsExchange())
+                .with(PAYMENT_FAILED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentExpiredNotificationBinding() {
+        return BindingBuilder.bind(paymentExpiredNotificationQueue())
+                .to(fundsExchange())
+                .with(PAYMENT_EXPIRED_ROUTING_KEY);
     }
 
     // =====================================================
@@ -857,18 +913,12 @@ public class RabbitMQConfig {
     // Payment Exchange
     public static final String PAYMENT_EXCHANGE = "payment.exchange";
 
-    // Payment Queues
+    // Payment Queues (unique to Payment Service)
     public static final String PAYMENT_SUCCESS_FUNDS_QUEUE = "payment.success.funds.queue";
     public static final String PAYMENT_CREATED_NOTIFICATION_QUEUE = "payment.created.notification.queue";
-    public static final String PAYMENT_SUCCESS_NOTIFICATION_QUEUE = "payment.success.notification.queue";
-    public static final String PAYMENT_FAILED_NOTIFICATION_QUEUE = "payment.failed.notification.queue";
-    public static final String PAYMENT_EXPIRED_NOTIFICATION_QUEUE = "payment.expired.notification.queue";
 
-    // Payment Routing Keys
+    // Payment Routing Key (unique to Payment Service)
     public static final String PAYMENT_CREATED_ROUTING_KEY = "payment.created";
-    public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
-    public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
-    public static final String PAYMENT_EXPIRED_ROUTING_KEY = "payment.expired";
 
     @Bean
     public TopicExchange paymentExchange() {
@@ -893,33 +943,6 @@ public class RabbitMQConfig {
                 .build();
     }
 
-    @Bean
-    public Queue paymentSuccessNotificationQueue() {
-        return QueueBuilder.durable(PAYMENT_SUCCESS_NOTIFICATION_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", PAYMENT_SUCCESS_NOTIFICATION_QUEUE + ".dlq")
-                .withArgument("x-message-ttl", 3600000)
-                .build();
-    }
-
-    @Bean
-    public Queue paymentFailedNotificationQueue() {
-        return QueueBuilder.durable(PAYMENT_FAILED_NOTIFICATION_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", PAYMENT_FAILED_NOTIFICATION_QUEUE + ".dlq")
-                .withArgument("x-message-ttl", 3600000)
-                .build();
-    }
-
-    @Bean
-    public Queue paymentExpiredNotificationQueue() {
-        return QueueBuilder.durable(PAYMENT_EXPIRED_NOTIFICATION_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", PAYMENT_EXPIRED_NOTIFICATION_QUEUE + ".dlq")
-                .withArgument("x-message-ttl", 3600000)
-                .build();
-    }
-
     // Payment Bindings
     @Bean
     public Binding paymentSuccessFundsBinding() {
@@ -933,26 +956,5 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(paymentCreatedNotificationQueue())
                 .to(paymentExchange())
                 .with(PAYMENT_CREATED_ROUTING_KEY);
-    }
-
-    @Bean
-    public Binding paymentSuccessNotificationBinding() {
-        return BindingBuilder.bind(paymentSuccessNotificationQueue())
-                .to(paymentExchange())
-                .with(PAYMENT_SUCCESS_ROUTING_KEY);
-    }
-
-    @Bean
-    public Binding paymentFailedNotificationBinding() {
-        return BindingBuilder.bind(paymentFailedNotificationQueue())
-                .to(paymentExchange())
-                .with(PAYMENT_FAILED_ROUTING_KEY);
-    }
-
-    @Bean
-    public Binding paymentExpiredNotificationBinding() {
-        return BindingBuilder.bind(paymentExpiredNotificationQueue())
-                .to(paymentExchange())
-                .with(PAYMENT_EXPIRED_ROUTING_KEY);
     }
 }

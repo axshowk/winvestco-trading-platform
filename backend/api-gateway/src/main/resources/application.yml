@@ -162,13 +162,15 @@ management:
         enabled: true
     tags:
       application: ${spring.application.name}
-  # Disable Zipkin tracing (using PLG stack instead)
-  zipkin:
-    tracing:
-      enabled: false
+  # OpenTelemetry Tracing Configuration
   tracing:
+    enabled: true
     sampling:
-      probability: 0.0
+      probability: ${OTEL_TRACES_SAMPLER_ARG:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+      transport: http
 
 # JWT Configuration (must match user-service)
 jwt:

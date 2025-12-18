@@ -16,7 +16,7 @@
 .ticker-move {
     display: flex;
     width: max-content;
-    animation: ticker 210s linear infinite;
+    animation: ticker 1800s linear infinite;
 }
 
 .ticker-move:hover {

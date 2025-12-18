@@ -1,8 +1,7 @@
 package in.winvestco.portfolio_service.service;
 
 import in.winvestco.common.enums.PortfolioStatus;
-import in.winvestco.common.util.LoggingUtils;
-import in.winvestco.portfolio_service.dto.HoldingDTO;
+
 import in.winvestco.portfolio_service.dto.PortfolioDTO;
 import in.winvestco.portfolio_service.dto.UpdatePortfolioRequest;
 import in.winvestco.portfolio_service.exception.PortfolioNotFoundException;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+
 
 /**
  * Service for managing user portfolios.
@@ -30,7 +29,6 @@ public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
     private final PortfolioMapper portfolioMapper;
-    private final LoggingUtils loggingUtils;
 
     /**
      * Create a demo portfolio for a new user.

@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -19,12 +18,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Does NOT update balance directly - emits events for funds-service.
  */
 @SpringBootApplication(scanBasePackages = {
-    "in.winvestco.payment_service",
-    "in.winvestco.common"
+        "in.winvestco.payment_service",
+        "in.winvestco.common"
 })
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableJpaAuditing
 @EnableScheduling
 public class PaymentServiceApplication {
 

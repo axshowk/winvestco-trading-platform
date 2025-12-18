@@ -5,16 +5,16 @@ const Ticker = () => {
     const [tickers, setTickers] = React.useState([]);
 
     React.useEffect(() => {
-        const fetchNiftyData = async () => {
+        const fetchAllStocksData = async () => {
             try {
-                const response = await fetch('/api/market/indices/NIFTY 50');
+                const response = await fetch('/api/market/stocks/all');
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Nifty 50 Data:', data);
+                    console.log('All Stocks Data:', data);
 
                     if (data.data && Array.isArray(data.data)) {
                         const newTickers = data.data
-                            .filter(item => item.symbol && item.symbol !== 'NIFTY 50') // Exclude index summary if present in list
+                            .filter(item => item.symbol && !item.symbol.startsWith('NIFTY')) // Exclude index summaries
                             .map(item => ({
                                 symbol: item.symbol,
                                 price: item.lastPrice ? item.lastPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00',
@@ -25,18 +25,21 @@ const Ticker = () => {
                         // If we got valid tickers, update state
                         if (newTickers.length > 0) {
                             setTickers(newTickers);
+                            console.log(`Loaded ${newTickers.length} stocks for ticker`);
                         }
                     }
+                } else {
+                    console.error('Failed to fetch stocks data:', response.status);
                 }
             } catch (error) {
-                console.error('Error fetching Nifty 50 data:', error);
+                console.error('Error fetching all stocks data:', error);
             }
         };
 
-        fetchNiftyData();
-        // Auto-refresh disabled
-        // const interval = setInterval(fetchNiftyData, 10000);
-        // return () => clearInterval(interval);
+        fetchAllStocksData();
+        // Auto-refresh every 30 seconds for real-time updates
+        const interval = setInterval(fetchAllStocksData, 30000);
+        return () => clearInterval(interval);
     }, []);
 
     // Fallback/Loading state if no data yet

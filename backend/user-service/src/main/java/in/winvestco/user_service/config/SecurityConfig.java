@@ -67,9 +67,7 @@ public class SecurityConfig {
 
     @Bean
     public org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder() {
-        byte[] keyBytes = secretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        javax.crypto.SecretKey key = io.jsonwebtoken.security.Keys.hmacShaKeyFor(keyBytes);
-        return org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey(key).build();
+        return new in.winvestco.common.security.CommonJwtDecoder(secretKey);
     }
 
     @Bean

@@ -15,5 +15,7 @@ public class UserCreatedEvent implements Serializable {
 
     private Long userId;
     private String email;
+    private String firstName;
+    private String lastName;
 
 }

@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.lang.NonNull;
 
-import in.winvestco.common.service.RateLimitService;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

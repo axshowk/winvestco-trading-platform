@@ -1,9 +1,11 @@
 package in.winvestco.funds_service.config;
 
+import in.winvestco.common.config.PasswordConfig;
+import in.winvestco.common.security.CommonJwtDecoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import in.winvestco.common.config.PasswordConfig;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,7 +23,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 @Import(PasswordConfig.class)
 public class SecurityConfig {
 
-        @org.springframework.beans.factory.annotation.Value("${jwt.secret}")
+        @Value("${jwt.secret}")
         private String secretKey;
 
         @Bean
@@ -64,9 +66,7 @@ public class SecurityConfig {
 
         @Bean
         public org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder() {
-                byte[] keyBytes = secretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-                javax.crypto.SecretKey key = io.jsonwebtoken.security.Keys.hmacShaKeyFor(keyBytes);
-                return org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey(key).build();
+                return new CommonJwtDecoder(secretKey);
         }
 
         @Bean

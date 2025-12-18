@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static in.winvestco.common.config.RabbitMQConfig.DLQ_EXCHANGE;
-import static in.winvestco.common.config.RabbitMQConfig.USER_EXCHANGE;
 
 /**
  * Funds-service specific RabbitMQ configuration.

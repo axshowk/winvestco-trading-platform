@@ -334,8 +334,7 @@ winvestco-trading-platform/
 │   │   │   ├── Hero.jsx
 │   │   │   ├── Footer.jsx
 │   │   │   ├── Ticker.jsx
-│   │   │   ├── LightweightChart.jsx  # Financial charts with drawing tools
-│   │   │   ├── TradingViewChart.jsx
+│   │   │   ├── TradingViewChart.jsx  # TradingView financial charts
 │   │   │   ├── NotificationBell.jsx
 │   │   │   └── NotificationToast.jsx
 │   │   ├── 📁 pages/             # Page components
@@ -712,6 +711,7 @@ The project includes:
   - ✅ **Portfolio Service**: Holdings and P&L calculation logic
   - ✅ **Notification Service**: Email and WebSocket notification delivery
   - ✅ **Order Service**: Order validation and lifecycle management
+  - ✅ **Trade Service**: Trade lifecycle, execution, and state machine management
 
 ---
 
@@ -791,10 +791,13 @@ GET /actuator/prometheus  # Metrics for Prometheus
 
 ### Observability
 
-Access the PLG Stack dashboards:
+Access the PLG Stack + Jaeger dashboards:
 - **Grafana**: http://localhost:3000 (admin/winvestco)
+  - Golden Signals Dashboard for SRE monitoring (Latency, Traffic, Errors, Saturation)
+  - Custom alerting rules configured
 - **Prometheus**: http://localhost:9090
 - **Loki**: http://localhost:3100 (via Grafana)
+- **Jaeger**: http://localhost:16686 (Distributed Tracing)
 
 ---
 

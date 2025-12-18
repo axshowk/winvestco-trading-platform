@@ -37,3 +37,45 @@ scrape_configs:
       - targets: ['portfolio-service:8085']
         labels:
           service: 'portfolio-service'
+
+  - job_name: 'funds-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['funds-service:8086']
+        labels:
+          service: 'funds-service'
+
+  - job_name: 'ledger-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ledger-service:8087']
+        labels:
+          service: 'ledger-service'
+
+  - job_name: 'order-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['order-service:8089']
+        labels:
+          service: 'order-service'
+
+  - job_name: 'trade-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['trade-service:8092']
+        labels:
+          service: 'trade-service'
+
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8091']
+        labels:
+          service: 'notification-service'
+
+  - job_name: 'payment-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['payment-service:8093']
+        labels:
+          service: 'payment-service'

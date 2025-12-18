@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import LightweightChart from '../components/LightweightChart';
+
 import { createOrder, OrderType, OrderSide, OrderValidity, formatCurrency } from '../services/orderApi';
 import './StockDetails.css';
 
@@ -322,10 +322,7 @@ const StockDetails = () => {
                     </div>
                 </div>
 
-                {/* Chart Section */}
-                <div className="chart-section glass">
-                    <LightweightChart symbol={stockData?.symbol} />
-                </div>
+
 
                 {/* Intraday Section */}
                 <div className="data-section">

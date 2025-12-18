@@ -1,6 +1,5 @@
 package in.winvestco.funds_service.client;
 
-import in.winvestco.common.enums.LedgerEntryType;
 import in.winvestco.funds_service.dto.CreateLedgerEntryRequest;
 import in.winvestco.funds_service.dto.LedgerEntryDTO;
 import org.springframework.cloud.openfeign.FeignClient;

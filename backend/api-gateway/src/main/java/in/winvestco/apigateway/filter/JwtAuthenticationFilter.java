@@ -65,7 +65,6 @@ public class JwtAuthenticationFilter implements WebFilter {
                 Object userIdObj = jwt.getClaim("userId");
                 String userId = userIdObj != null ? userIdObj.toString() : null;
 
-                @SuppressWarnings("unchecked")
                 List<String> roles = jwt.getClaim("roles");
 
                 List<GrantedAuthority> authorities = roles != null

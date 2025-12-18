@@ -16,7 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import in.winvestco.common.config.JpaAuditingConfig;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -26,12 +26,12 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableJpaAuditing
+
 @EnableCaching
 @EnableScheduling
 @EnableRabbit
 @Import({ CommonSecurityConfig.class, RabbitMQConfig.class, LoggingConfig.class, MetricsConfig.class,
-        GlobalExceptionHandler.class, StressTestController.class })
+        GlobalExceptionHandler.class, StressTestController.class, JpaAuditingConfig.class })
 @RequiredArgsConstructor
 public class UserServiceApplication {
 

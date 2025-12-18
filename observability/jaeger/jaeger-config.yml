@@ -1,0 +1,18 @@
+# Jaeger All-in-One Configuration
+# For development and testing environments
+
+# Collector configuration
+collector:
+  queue-size: 2000
+  num-workers: 50
+
+# Query service configuration  
+query:
+  base-path: /jaeger
+
+# Sampling configuration
+sampling:
+  strategies:
+    default_strategy:
+      type: probabilistic
+      param: 1.0

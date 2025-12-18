@@ -82,18 +82,25 @@ public class LoggingConfig implements WebMvcConfigurer {
                 requestId = UUID.randomUUID().toString();
             }
 
-            // Set MDC context for structured logging
+            // Extract OpenTelemetry trace context
+            String traceId = OpenTelemetryConfig.getCurrentTraceId();
+            String spanId = OpenTelemetryConfig.getCurrentSpanId();
+
+            // Set MDC context for structured logging with trace correlation
             MDC.put("requestId", requestId);
+            MDC.put("traceId", traceId);
+            MDC.put("spanId", spanId);
             MDC.put("serviceName", getServiceNameFromRequest(request));
             MDC.put("userId", request.getHeader(USER_ID_HEADER));
 
-            // Log incoming request
-            log.info("Incoming request: {} {} from {} - RequestId: {}",
+            // Log incoming request with trace context
+            log.info("Incoming request: {} {} from {} - TraceId: {} - SpanId: {}",
                     request.getMethod(), request.getRequestURI(),
-                    request.getRemoteAddr(), requestId);
+                    request.getRemoteAddr(), traceId, spanId);
 
-            // Add request ID to response headers for tracing
+            // Add trace headers to response for correlation
             response.setHeader(REQUEST_ID_HEADER, requestId);
+            response.setHeader("X-Trace-ID", traceId);
 
             return true;
         }
