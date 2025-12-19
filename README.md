@@ -66,6 +66,8 @@
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
 - **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) for metrics & logging
 - **🔁 Event Sourcing Ready** - Domain events for all key business actions
+- **🛡️ Resilience4j Integration** - Circuit breakers, rate limiters, retries with exponential backoff and jitter
+- **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
 
 ---
 
@@ -150,7 +152,7 @@
 | **Spring Cloud Gateway** | - | API Gateway with reactive support |
 | **Netflix Eureka** | - | Service Discovery |
 | **OpenFeign** | - | Declarative REST client for inter-service communication |
-| **Resilience4j** | - | Circuit Breaker pattern |
+| **Resilience4j** | - | Circuit Breaker, Rate Limiter, Retry, Bulkhead, TimeLimiter patterns |
 | **Micrometer** | - | Distributed Tracing |
 
 ### Data & Messaging
@@ -344,9 +346,15 @@ winvestco-trading-platform/
 │   │   │   ├── Stocks.jsx
 │   │   │   ├── StockDetails.jsx
 │   │   │   ├── Funds.jsx         # Funds management (Deposit/Withdraw)
+│   │   │   ├── Wallet.jsx        # Wallet page with balance & transactions
+│   │   │   ├── Trades.jsx        # Trade history & management
 │   │   │   ├── Portfolio.jsx
 │   │   │   ├── Orders.jsx        # Order book & trade history (Zerodha-style)
 │   │   │   └── MarketData.jsx
+│   │   ├── 📁 services/          # API service modules
+│   │   │   ├── fundsApi.js       # Funds/Wallet API client
+│   │   │   ├── paymentApi.js     # Payment gateway API client
+│   │   │   └── tradeApi.js       # Trade management API client
 │   │   └── 📁 context/           # React context (Auth)
 │   ├── 📄 package.json
 │   ├── 📄 vite.config.js

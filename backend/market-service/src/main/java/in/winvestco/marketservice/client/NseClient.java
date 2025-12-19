@@ -3,6 +3,10 @@ package in.winvestco.marketservice.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import in.winvestco.marketservice.config.NseConfig;
 import in.winvestco.marketservice.dto.MarketDataDTO;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,12 @@ import java.util.stream.Collectors;
 /**
  * Client for fetching market data from NSE India's free public API.
  * This API requires browser-like headers and session cookies for access.
+ * 
+ * Protected with Resilience4j patterns:
+ * - Circuit Breaker: Fails fast when NSE API is unhealthy
+ * - Rate Limiter: Prevents overwhelming NSE API (10 calls/second)
+ * - Retry: Exponential backoff with jitter for transient failures
+ * - Bulkhead: Limits concurrent calls to NSE API
  */
 @Service
 @Slf4j
@@ -40,32 +50,38 @@ public class NseClient {
      * @param indexName The name of the index (e.g., "NIFTY 50", "NIFTY BANK")
      * @return MarketDataDTO with the index data, or null if fetch fails
      */
+    @CircuitBreaker(name = "nseApi", fallbackMethod = "getIndexQuoteFallback")
+    @RateLimiter(name = "nseApi")
+    @Retry(name = "nseApi")
+    @Bulkhead(name = "nseApi")
     public MarketDataDTO getIndexQuote(String indexName) {
-        try {
-            refreshCookieIfNeeded();
+        refreshCookieIfNeeded();
 
-            String encodedIndex = URLEncoder.encode(indexName, StandardCharsets.UTF_8);
-            String url = config.getApiBaseUrl() + "/equity-stockIndices?index=" + encodedIndex;
+        String encodedIndex = URLEncoder.encode(indexName, StandardCharsets.UTF_8);
+        String url = config.getApiBaseUrl() + "/equity-stockIndices?index=" + encodedIndex;
 
-            HttpHeaders headers = createHeaders();
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpHeaders headers = createHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            log.debug("Fetching NSE data for: {} from URL: {}", indexName, url);
+        log.debug("Fetching NSE data for: {} from URL: {}", indexName, url);
 
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, JsonNode.class);
+        ResponseEntity<JsonNode> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, JsonNode.class);
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return parseIndexData(response.getBody(), indexName);
-            }
-
-            log.warn("Unsuccessful response for {}: {}", indexName, response.getStatusCode());
-            return null;
-
-        } catch (Exception e) {
-            log.error("Error fetching NSE data for {}: {}", indexName, e.getMessage());
-            return null;
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            return parseIndexData(response.getBody(), indexName);
         }
+
+        log.warn("Unsuccessful response for {}: {}", indexName, response.getStatusCode());
+        return null;
+    }
+
+    /**
+     * Fallback method when NSE API is unavailable or circuit is open
+     */
+    private MarketDataDTO getIndexQuoteFallback(String indexName, Throwable t) {
+        log.warn("[FALLBACK] NSE API unavailable for {}: {}", indexName, t.getMessage());
+        return null;
     }
 
     /**
@@ -91,33 +107,39 @@ public class NseClient {
      * @param indexName The name of the index (e.g., "NIFTY 50", "NIFTY BANK")
      * @return JSON string with full index data, or null if fetch fails
      */
+    @CircuitBreaker(name = "nseApi", fallbackMethod = "getFullIndexDataFallback")
+    @RateLimiter(name = "nseApi")
+    @Retry(name = "nseApi")
+    @Bulkhead(name = "nseApi")
     public String getFullIndexData(String indexName) {
-        try {
-            refreshCookieIfNeeded();
+        refreshCookieIfNeeded();
 
-            String encodedIndex = URLEncoder.encode(indexName, StandardCharsets.UTF_8);
-            String url = config.getApiBaseUrl() + "/equity-stockIndices?index=" + encodedIndex;
+        String encodedIndex = URLEncoder.encode(indexName, StandardCharsets.UTF_8);
+        String url = config.getApiBaseUrl() + "/equity-stockIndices?index=" + encodedIndex;
 
-            HttpHeaders headers = createHeaders();
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpHeaders headers = createHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            log.debug("Fetching full NSE data for: {} from URL: {}", indexName, url);
+        log.debug("Fetching full NSE data for: {} from URL: {}", indexName, url);
 
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, String.class);
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                log.info("Successfully fetched full index data for: {}", indexName);
-                return response.getBody();
-            }
-
-            log.warn("Unsuccessful response for full data {}: {}", indexName, response.getStatusCode());
-            return null;
-
-        } catch (Exception e) {
-            log.error("Error fetching full NSE data for {}: {}", indexName, e.getMessage());
-            return null;
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            log.info("Successfully fetched full index data for: {}", indexName);
+            return response.getBody();
         }
+
+        log.warn("Unsuccessful response for full data {}: {}", indexName, response.getStatusCode());
+        return null;
+    }
+
+    /**
+     * Fallback method when NSE API is unavailable for full index data
+     */
+    private String getFullIndexDataFallback(String indexName, Throwable t) {
+        log.warn("[FALLBACK] NSE API unavailable for full index data {}: {}", indexName, t.getMessage());
+        return null;
     }
 
     /**

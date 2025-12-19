@@ -45,7 +45,10 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/actuator/**")
                         .permitAll()
-                        // All ledger endpoints require authentication
+                        // Internal service-to-service endpoints - no JWT in async message context
+                        .requestMatchers("/api/ledger/entries").permitAll()
+                        .requestMatchers("/api/ledger/wallet/**").permitAll()
+                        // All other ledger endpoints require authentication
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

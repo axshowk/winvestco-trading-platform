@@ -15,6 +15,8 @@ import MarketData from './pages/MarketData'
 import StockDetails from './pages/StockDetails'
 import Portfolio from './pages/Portfolio'
 import Orders from './pages/Orders'
+import Trades from './pages/Trades'
+import Wallet from './pages/Wallet'
 import './App.css'
 
 const Home = () => {
@@ -46,6 +48,8 @@ function App() {
           <Route path="/stock/:symbol" element={<StockDetails />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/trades" element={<Trades />} />
+          <Route path="/wallet" element={<Wallet />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />

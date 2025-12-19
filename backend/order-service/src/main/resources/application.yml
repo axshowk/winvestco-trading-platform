@@ -62,6 +62,11 @@ management:
       show-details: always
     prometheus:
       enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    prometheus:
+      enabled: true
   metrics:
     export:
       prometheus:
@@ -109,3 +114,73 @@ logging:
   level:
     in.winvestco: DEBUG
     org.springframework.security: DEBUG
+    io.github.resilience4j: INFO
+
+# Resilience4j Configuration
+resilience4j:
+  # Circuit Breaker - Fail-fast when market-service is unhealthy
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 2s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - feign.FeignException$ServiceUnavailable
+          - feign.FeignException$InternalServerError
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      marketService:
+        baseConfig: default
+
+  # Retry - Exponential Backoff with Jitter
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - feign.FeignException$Unauthorized
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      marketService:
+        baseConfig: default
+
+  # Bulkhead - Resource Isolation
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 100ms
+    instances:
+      marketService:
+        baseConfig: default
+
+  # TimeLimiter - Timeout Control
+  timelimiter:
+    instances:
+      marketService:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+

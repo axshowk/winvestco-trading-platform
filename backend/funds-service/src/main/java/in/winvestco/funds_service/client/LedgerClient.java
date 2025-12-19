@@ -11,12 +11,33 @@ import java.util.List;
 /**
  * Feign client to communicate with ledger-service.
  * The ledger-service is the SOURCE OF TRUTH for all financial transactions.
+ * 
+ * Protected by Resilience4j circuit breaker and retry (configured in
+ * application.yml).
+ * Uses idempotency keys for POST operations to ensure exactly-once semantics
+ * during retries.
  */
-@FeignClient(name = "ledger-service", path = "/api/ledger")
+@FeignClient(name = "ledger-service", path = "/api/ledger", fallback = LedgerClientFallback.class)
 public interface LedgerClient {
 
     /**
-     * Record a new ledger entry (APPEND ONLY)
+     * Record a new ledger entry (APPEND ONLY).
+     * Uses X-Idempotency-Key header to ensure exactly-once semantics during
+     * retries.
+     * 
+     * @param idempotencyKey Unique key for this operation (e.g.,
+     *                       "{walletId}:{transactionType}:{referenceId}")
+     * @param request        The ledger entry to record
+     * @return Created ledger entry
+     */
+    @PostMapping("/entries")
+    LedgerEntryDTO recordEntry(
+            @RequestHeader("X-Idempotency-Key") String idempotencyKey,
+            @RequestBody CreateLedgerEntryRequest request);
+
+    /**
+     * Record a new ledger entry without idempotency key (legacy support).
+     * WARNING: Avoid using this for retryable operations.
      */
     @PostMapping("/entries")
     LedgerEntryDTO recordEntry(@RequestBody CreateLedgerEntryRequest request);

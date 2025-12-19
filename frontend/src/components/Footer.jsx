@@ -27,10 +27,10 @@ const Footer = () => {
 
                     <div className="footer-links">
                         <h4 className="footer-heading">Platform</h4>
-                        <a href="#">Markets</a>
-                        <a href="#">Portfolio</a>
-                        <a href="#">Earn</a>
-                        <a href="#">Wallet</a>
+                        <a href="/markets">Markets</a>
+                        <a href="/portfolio">Portfolio</a>
+                        <a href="/orders">Orders</a>
+                        <a href="/wallet">Wallet</a>
                     </div>
 
                     <div className="footer-links">

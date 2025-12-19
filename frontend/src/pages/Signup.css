@@ -192,6 +192,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    min-width: 0%;
 }
 
 .form-group label {
@@ -218,6 +220,8 @@
     color: white;
     font-size: 0.95rem;
     transition: all 0.2s;
+    min-width: 0%;
+    box-sizing: border-box;
 }
 
 .form-input:focus {

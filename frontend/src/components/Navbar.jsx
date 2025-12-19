@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, TrendingUp, User } from 'lucide-react';
+import { Menu, X, TrendingUp, User, Wallet } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import './Navbar.css';
 
@@ -50,6 +50,8 @@ const Navbar = ({ onLogin }) => {
                         <a href="/market-data" className="nav-link">Market Data</a>
                         <a href="/portfolio" className="nav-link">Portfolio</a>
                         <a href="/orders" className="nav-link">Orders</a>
+                        <a href="/trades" className="nav-link">Trades</a>
+                        <a href="/wallet" className="nav-link">Wallet</a>
                         <a href="https://zerodha.com/varsity/modules" target="_blank" rel="noopener noreferrer" className="nav-link">Learn</a>
                     </div>
 
@@ -88,6 +90,8 @@ const Navbar = ({ onLogin }) => {
                         <a href="/market-data" className="nav-link mobile">Market Data</a>
                         <a href="/portfolio" className="nav-link mobile">Portfolio</a>
                         <a href="/orders" className="nav-link mobile">Orders</a>
+                        <a href="/trades" className="nav-link mobile">Trades</a>
+                        <a href="/wallet" className="nav-link mobile">Wallet</a>
                         <a href="https://zerodha.com/varsity/modules" target="_blank" rel="noopener noreferrer" className="nav-link mobile">Learn</a>
                         <hr className="divider" />
                         {isLoggedIn ? (

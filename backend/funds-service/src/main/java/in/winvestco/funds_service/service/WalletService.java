@@ -22,7 +22,8 @@ import java.util.List;
 
 /**
  * Service for managing user wallets and balances.
- * Uses LedgerClient to record all transactions to the ledger-service (SOURCE OF TRUTH).
+ * Uses LedgerClient to record all transactions to the ledger-service (SOURCE OF
+ * TRUTH).
  */
 @Service
 @Slf4j
@@ -94,11 +95,21 @@ public class WalletService {
     }
 
     /**
+     * Get wallet entity by wallet ID (internal use)
+     */
+    @Transactional(readOnly = true)
+    public Wallet getWalletById(Long walletId) {
+        return walletRepository.findById(walletId)
+                .orElseThrow(() -> new WalletNotFoundException("walletId", walletId));
+    }
+
+    /**
      * Credit funds to wallet (e.g., deposit confirmation)
      * Records entry to ledger-service (SOURCE OF TRUTH)
      */
     @Transactional
-    public Wallet creditFunds(Long userId, BigDecimal amount, String referenceId, String referenceType, String description) {
+    public Wallet creditFunds(Long userId, BigDecimal amount, String referenceId, String referenceType,
+            String description) {
         log.info("Crediting {} to user {} wallet", amount, userId);
 
         Wallet wallet = getWalletForUpdate(userId);
@@ -116,8 +127,7 @@ public class WalletService {
                 wallet.getAvailableBalance(),
                 referenceId,
                 referenceType,
-                description
-        );
+                description);
 
         // Publish FundsDepositedEvent for notifications
         fundsEventPublisher.publishFundsDeposited(userId, saved, amount, referenceId, referenceType);
@@ -131,11 +141,12 @@ public class WalletService {
      * Records entry to ledger-service (SOURCE OF TRUTH)
      */
     @Transactional
-    public Wallet debitFunds(Long userId, BigDecimal amount, String referenceId, String referenceType, String description) {
+    public Wallet debitFunds(Long userId, BigDecimal amount, String referenceId, String referenceType,
+            String description) {
         log.info("Debiting {} from user {} wallet", amount, userId);
 
         Wallet wallet = getWalletForUpdate(userId);
-        
+
         if (!wallet.hasSufficientBalance(amount)) {
             throw new InsufficientFundsException(amount, wallet.getAvailableBalance());
         }
@@ -153,8 +164,7 @@ public class WalletService {
                 wallet.getAvailableBalance(),
                 referenceId,
                 referenceType,
-                description
-        );
+                description);
 
         // Publish FundsWithdrawnEvent for notifications
         fundsEventPublisher.publishFundsWithdrawn(userId, saved, amount, referenceId, referenceType, null);
@@ -215,7 +225,7 @@ public class WalletService {
             String referenceId,
             String referenceType,
             String description) {
-        
+
         try {
             CreateLedgerEntryRequest request = CreateLedgerEntryRequest.builder()
                     .walletId(walletId)

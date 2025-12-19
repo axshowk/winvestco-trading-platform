@@ -97,6 +97,7 @@ public class RabbitMQConfig {
     public static final String TRADE_FAILED_NOTIFICATION_QUEUE = "trade.failed.notification.queue";
     public static final String TRADE_CLOSED_FUNDS_QUEUE = "trade.closed.funds.queue";
     public static final String TRADE_CANCELLED_FUNDS_QUEUE = "trade.cancelled.funds.queue";
+    public static final String TRADE_PLACED_MOCK_QUEUE = "trade.placed.mock.queue";
 
     public static final String TRADE_CREATED_ACCOUNT_QUEUE = "trade.created.account.queue";
     public static final String TRADE_CREATED_PORTFOLIO_QUEUE = "trade.created.portfolio.queue";
@@ -904,6 +905,23 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(tradeCancelledFundsQueue())
                 .to(tradeExchange())
                 .with(TRADE_CANCELLED_ROUTING_KEY);
+    }
+
+    // Mock Execution Engine Queue and Binding
+    @Bean
+    public Queue tradePlacedMockQueue() {
+        return QueueBuilder.durable(TRADE_PLACED_MOCK_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_PLACED_MOCK_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Binding tradePlacedMockBinding() {
+        return BindingBuilder.bind(tradePlacedMockQueue())
+                .to(tradeExchange())
+                .with(TRADE_PLACED_ROUTING_KEY);
     }
 
     // =====================================================

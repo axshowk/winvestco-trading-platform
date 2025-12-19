@@ -106,6 +106,16 @@ trading:
   min-order-value: 100       # 100 INR
   max-quantity-per-order: 100000
 
+  # Mock execution engine configuration
+  mock-execution:
+    enabled: true
+    min-delay-ms: 100
+    max-delay-ms: 500
+    max-slippage-percent: 0.1
+    auto-close: true
+    partial-fill-enabled: true
+    partial-fill-percent: 70
+
 # OpenAPI Configuration
 springdoc:
   api-docs:
@@ -113,3 +123,77 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
+
+# Logging
+logging:
+  level:
+    in.winvestco: DEBUG
+    io.github.resilience4j: INFO
+
+# Resilience4j Configuration
+resilience4j:
+  # Circuit Breaker - Fail-fast when market-service is unhealthy
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 2s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - feign.FeignException$ServiceUnavailable
+          - feign.FeignException$InternalServerError
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      marketService:
+        baseConfig: default
+
+  # Retry - Exponential Backoff with Jitter
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - feign.FeignException$Unauthorized
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      marketService:
+        baseConfig: default
+
+  # Bulkhead - Resource Isolation
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 100ms
+    instances:
+      marketService:
+        baseConfig: default
+
+  # TimeLimiter - Timeout Control
+  timelimiter:
+    instances:
+      marketService:
+        timeoutDuration: 3s
+        cancelRunningFuture: true

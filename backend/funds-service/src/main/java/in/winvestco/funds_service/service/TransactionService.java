@@ -82,8 +82,7 @@ public class TransactionService {
                 transaction.getAmount(),
                 externalReference,
                 "TRANSACTION",
-                "Deposit confirmed"
-        );
+                "Deposit confirmed");
 
         // Update transaction status
         transaction.complete();
@@ -145,8 +144,7 @@ public class TransactionService {
                 transaction.getAmount(),
                 externalReference,
                 "TRANSACTION",
-                "Withdrawal completed"
-        );
+                "Withdrawal completed");
 
         // Update transaction status
         transaction.complete();
@@ -218,8 +216,7 @@ public class TransactionService {
      * In a real system, this would be cached or part of a join
      */
     private Long getWalletUserId(Long walletId) {
-        // This is a simplified implementation
-        // In production, you might want to fetch this more efficiently
-        return walletService.getWalletEntityByUserId(walletId) != null ? walletId : null;
+        // Look up the wallet by its ID and return the userId
+        return walletService.getWalletById(walletId).getUserId();
     }
 }
