@@ -312,6 +312,37 @@ services:
     networks:
       - app-network
 
+  report-service:
+    build:
+      context: .
+      dockerfile: report-service/Dockerfile
+    container_name: report-service
+    ports:
+      - "8094:8094"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/winvestco_report_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - RABBITMQ_HOST=rabbitmq
+      - REPORT_STORAGE_PATH=/app/reports
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=report-service
+      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
+      - OTEL_TRACES_SAMPLER_ARG=1.0
+    volumes:
+      - report-storage:/app/reports
+    networks:
+      - app-network
+
   postgres:
     image: postgres:16-alpine
     container_name: postgres
@@ -499,3 +530,4 @@ volumes:
   prometheus_data:
   loki_data:
   grafana_data:
+  report-storage:

@@ -122,6 +122,11 @@ public class RabbitMQConfig {
     public static final String PAYMENT_FAILED_NOTIFICATION_QUEUE = "payment.failed.notification.queue";
     public static final String PAYMENT_EXPIRED_NOTIFICATION_QUEUE = "payment.expired.notification.queue";
 
+    // Report Service Queues (Event Sourcing projections)
+    public static final String TRADE_EXECUTED_REPORT_QUEUE = "trade.executed.report.queue";
+    public static final String FUNDS_DEPOSITED_REPORT_QUEUE = "funds.deposited.report.queue";
+    public static final String FUNDS_WITHDRAWN_REPORT_QUEUE = "funds.withdrawn.report.queue";
+
     // Routing Keys
     public static final String PORTFOLIO_HOLDINGS_SNAPSHOT_ROUTING_KEY = "portfolio.holdings.snapshot";
     public static final String STOCK_UPDATED = "stock.updated";

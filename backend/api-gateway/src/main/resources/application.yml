@@ -134,6 +134,15 @@ spring:
           predicates:
             - Path=/ws/notifications/**
 
+        # Report Service routes
+        - id: report-service
+          uri: lb://report-service
+          predicates:
+            - Path=/api/reports/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - TokenRelay=
+
 server:
   port: 8090
 
