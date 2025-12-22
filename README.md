@@ -33,6 +33,7 @@
 - [Testing](#-testing)
 - [Performance Benchmarks](#-performance-benchmarks)
 - [Deployment](#-deployment)
+- [Architecture Decision Records](#-architecture-decision-records)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -367,6 +368,7 @@ winvestco-trading-platform/
 │
 ├── 📁 cicd/                      # CI/CD configurations
 ├── 📁 docs/                      # Additional documentation
+│   └── 📁 adr/                   # Architecture Decision Records (10 ADRs)
 └── 📁 infra/                     # Infrastructure as Code
 ```
 
@@ -806,6 +808,25 @@ Access the PLG Stack + Jaeger dashboards:
 - **Prometheus**: http://localhost:9090
 - **Loki**: http://localhost:3100 (via Grafana)
 - **Jaeger**: http://localhost:16686 (Distributed Tracing)
+
+---
+
+## 📋 Architecture Decision Records
+
+We document significant architectural decisions using Architecture Decision Records (ADRs). These records explain why the system is built the way it is.
+
+| ADR | Decision |
+|-----|----------|
+| [ADR-0001](docs/adr/0001-record-architecture-decisions.md) | Record Architecture Decisions |
+| [ADR-0002](docs/adr/0002-microservices-architecture.md) | Microservices Architecture |
+| [ADR-0003](docs/adr/0003-dual-message-broker-strategy.md) | Dual Message Broker (Kafka + RabbitMQ) |
+| [ADR-0004](docs/adr/0004-event-driven-architecture.md) | Event-Driven Architecture |
+| [ADR-0005](docs/adr/0005-database-per-service.md) | Database per Service |
+| [ADR-0006](docs/adr/0006-java-21-virtual-threads.md) | Java 21 Virtual Threads |
+| [ADR-0007](docs/adr/0007-immutable-ledger-source-of-truth.md) | Immutable Ledger as Source of Truth |
+| [ADR-0008](docs/adr/0008-resilience4j-fault-tolerance.md) | Resilience4j for Fault Tolerance |
+| [ADR-0009](docs/adr/0009-api-gateway-pattern.md) | API Gateway Pattern |
+| [ADR-0010](docs/adr/0010-plg-stack-observability.md) | PLG Stack for Observability |
 
 ---
 
