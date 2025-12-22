@@ -12,7 +12,7 @@
 
     <artifactId>report-service</artifactId>
     <name>Report Service</name>
-    <description>Async report generation service for P&L, Tax, and Transaction reports</description>
+    <description>Async report generation service for P&amp;amp;L, Tax, and Transaction reports</description>
 
     <properties>
         <spring-cloud.version>2023.0.0</spring-cloud.version>

@@ -12,7 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Responsibilities:
  * - Accept trade intent from validated orders
  * - Validate trade business rules
- * - Manage trade state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
+ * - Manage trade state machine (CREATED → VALIDATED → PLACED → EXECUTED →
+ * CLOSED)
  * - Trigger execution via events
  * - Emit trade lifecycle events
  * 
@@ -23,8 +24,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * - Calculate permanent P&L (portfolio-service)
  */
 @SpringBootApplication(scanBasePackages = {
-    "in.winvestco.trade_service",
-    "in.winvestco.common"
+        "in.winvestco.trade_service",
+        "in.winvestco.common"
 })
 @EnableDiscoveryClient
 @EnableFeignClients

@@ -25,103 +25,128 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class ResilienceEventLogger {
 
-    @Autowired(required = false)
-    private CircuitBreakerRegistry circuitBreakerRegistry;
+        @Autowired(required = false)
+        private CircuitBreakerRegistry circuitBreakerRegistry;
 
-    @Autowired(required = false)
-    private RetryRegistry retryRegistry;
+        @Autowired(required = false)
+        private RetryRegistry retryRegistry;
 
-    @Autowired(required = false)
-    private BulkheadRegistry bulkheadRegistry;
+        @Autowired(required = false)
+        private BulkheadRegistry bulkheadRegistry;
 
-    @Autowired(required = false)
-    private RateLimiterRegistry rateLimiterRegistry;
+        @Autowired(required = false)
+        private RateLimiterRegistry rateLimiterRegistry;
 
-    @PostConstruct
-    public void registerEventLoggers() {
-        if (circuitBreakerRegistry != null) {
-            registerCircuitBreakerEventLoggers();
+        @PostConstruct
+        public void registerEventLoggers() {
+                if (circuitBreakerRegistry != null) {
+                        registerCircuitBreakerEventLoggers();
+                }
+                if (retryRegistry != null) {
+                        registerRetryEventLoggers();
+                }
+                if (bulkheadRegistry != null) {
+                        registerBulkheadEventLoggers();
+                }
+                if (rateLimiterRegistry != null) {
+                        registerRateLimiterEventLoggers();
+                }
+                log.info("Resilience4j event loggers registered successfully");
         }
-        if (retryRegistry != null) {
-            registerRetryEventLoggers();
+
+        public void circuitBreakerEventLogger(CircuitBreakerRegistry registry) {
+                registry.getAllCircuitBreakers().forEach(this::registerCircuitBreakerEvents);
+                registry.getEventPublisher()
+                                .onEntryAdded(event -> registerCircuitBreakerEvents(event.getAddedEntry()));
         }
-        if (bulkheadRegistry != null) {
-            registerBulkheadEventLoggers();
+
+        public void retryEventLogger(RetryRegistry registry) {
+                registry.getAllRetries().forEach(retry -> {
+                        retry.getEventPublisher()
+                                        .onRetry(event -> log.info("[RETRY] {} - Attempt {} after {}ms, exception: {}",
+                                                        event.getName(),
+                                                        event.getNumberOfRetryAttempts(),
+                                                        event.getWaitInterval().toMillis(),
+                                                        event.getLastThrowable() != null
+                                                                        ? event.getLastThrowable().getMessage()
+                                                                        : "N/A"))
+                                        .onSuccess(event -> log.debug("[RETRY] {} - Success after {} attempts",
+                                                        event.getName(),
+                                                        event.getNumberOfRetryAttempts()))
+                                        .onError(event -> log.warn("[RETRY] {} - Failed after {} attempts: {}",
+                                                        event.getName(),
+                                                        event.getNumberOfRetryAttempts(),
+                                                        event.getLastThrowable().getMessage()))
+                                        .onIgnoredError(event -> log.debug(
+                                                        "[RETRY] {} - Ignored non-retryable error: {}",
+                                                        event.getName(),
+                                                        event.getLastThrowable().getClass().getSimpleName()));
+                });
+                registry.getEventPublisher().onEntryAdded(event -> {
+                        var retry = event.getAddedEntry();
+                        retry.getEventPublisher()
+                                        .onRetry(e -> log.info("[RETRY] {} - Attempt {} after {}ms",
+                                                        e.getName(), e.getNumberOfRetryAttempts(),
+                                                        e.getWaitInterval().toMillis()));
+                });
         }
-        if (rateLimiterRegistry != null) {
-            registerRateLimiterEventLoggers();
+
+        public void bulkheadEventLogger(BulkheadRegistry registry) {
+                registry.getAllBulkheads().forEach(bulkhead -> {
+                        bulkhead.getEventPublisher()
+                                        .onCallRejected(event -> log.warn(
+                                                        "[BULKHEAD] {} - Call rejected, available permits: {}",
+                                                        event.getBulkheadName(),
+                                                        bulkhead.getMetrics().getAvailableConcurrentCalls()))
+                                        .onCallFinished(event -> log.trace("[BULKHEAD] {} - Call finished",
+                                                        event.getBulkheadName()));
+                });
         }
-        log.info("Resilience4j event loggers registered successfully");
-    }
 
-    private void registerCircuitBreakerEventLoggers() {
-        circuitBreakerRegistry.getAllCircuitBreakers().forEach(this::registerCircuitBreakerEvents);
-        circuitBreakerRegistry.getEventPublisher()
-                .onEntryAdded(event -> registerCircuitBreakerEvents(event.getAddedEntry()));
-    }
+        public void rateLimiterEventLogger(RateLimiterRegistry registry) {
+                registry.getAllRateLimiters().forEach(rateLimiter -> {
+                        rateLimiter.getEventPublisher()
+                                        .onSuccess(event -> log.trace("[RATE_LIMITER] {} - Request permitted",
+                                                        event.getRateLimiterName()))
+                                        .onFailure(event -> log.warn(
+                                                        "[RATE_LIMITER] {} - Request denied, available permits: {}",
+                                                        event.getRateLimiterName(),
+                                                        rateLimiter.getMetrics().getAvailablePermissions()));
+                });
+        }
 
-    private void registerRetryEventLoggers() {
-        retryRegistry.getAllRetries().forEach(retry -> {
-            retry.getEventPublisher()
-                    .onRetry(event -> log.info("[RETRY] {} - Attempt {} after {}ms, exception: {}",
-                            event.getName(),
-                            event.getNumberOfRetryAttempts(),
-                            event.getWaitInterval().toMillis(),
-                            event.getLastThrowable() != null ? event.getLastThrowable().getMessage() : "N/A"))
-                    .onSuccess(event -> log.debug("[RETRY] {} - Success after {} attempts",
-                            event.getName(),
-                            event.getNumberOfRetryAttempts()))
-                    .onError(event -> log.warn("[RETRY] {} - Failed after {} attempts: {}",
-                            event.getName(),
-                            event.getNumberOfRetryAttempts(),
-                            event.getLastThrowable().getMessage()))
-                    .onIgnoredError(event -> log.debug("[RETRY] {} - Ignored non-retryable error: {}",
-                            event.getName(),
-                            event.getLastThrowable().getClass().getSimpleName()));
-        });
-        retryRegistry.getEventPublisher().onEntryAdded(event -> {
-            var retry = event.getAddedEntry();
-            retry.getEventPublisher()
-                    .onRetry(e -> log.info("[RETRY] {} - Attempt {} after {}ms",
-                            e.getName(), e.getNumberOfRetryAttempts(), e.getWaitInterval().toMillis()));
-        });
-    }
+        private void registerCircuitBreakerEventLoggers() {
+                circuitBreakerEventLogger(circuitBreakerRegistry);
+        }
 
-    private void registerBulkheadEventLoggers() {
-        bulkheadRegistry.getAllBulkheads().forEach(bulkhead -> {
-            bulkhead.getEventPublisher()
-                    .onCallRejected(event -> log.warn("[BULKHEAD] {} - Call rejected, available permits: {}",
-                            event.getBulkheadName(),
-                            bulkhead.getMetrics().getAvailableConcurrentCalls()))
-                    .onCallFinished(event -> log.trace("[BULKHEAD] {} - Call finished",
-                            event.getBulkheadName()));
-        });
-    }
+        private void registerRetryEventLoggers() {
+                retryEventLogger(retryRegistry);
+        }
 
-    private void registerRateLimiterEventLoggers() {
-        rateLimiterRegistry.getAllRateLimiters().forEach(rateLimiter -> {
-            rateLimiter.getEventPublisher()
-                    .onSuccess(event -> log.trace("[RATE_LIMITER] {} - Request permitted",
-                            event.getRateLimiterName()))
-                    .onFailure(event -> log.warn("[RATE_LIMITER] {} - Request denied, available permits: {}",
-                            event.getRateLimiterName(),
-                            rateLimiter.getMetrics().getAvailablePermissions()));
-        });
-    }
+        private void registerBulkheadEventLoggers() {
+                bulkheadEventLogger(bulkheadRegistry);
+        }
 
-    private void registerCircuitBreakerEvents(CircuitBreaker circuitBreaker) {
-        circuitBreaker.getEventPublisher()
-                .onStateTransition(event -> log.warn("[CIRCUIT_BREAKER] {} - State transition: {} → {}",
-                        event.getCircuitBreakerName(),
-                        event.getStateTransition().getFromState(),
-                        event.getStateTransition().getToState()))
-                .onSlowCallRateExceeded(event -> log.warn("[CIRCUIT_BREAKER] {} - Slow call rate exceeded: {}%",
-                        event.getCircuitBreakerName(),
-                        event.getSlowCallRate()))
-                .onFailureRateExceeded(event -> log.warn("[CIRCUIT_BREAKER] {} - Failure rate exceeded: {}%",
-                        event.getCircuitBreakerName(),
-                        event.getFailureRate()))
-                .onCallNotPermitted(event -> log.debug("[CIRCUIT_BREAKER] {} - Call not permitted (circuit OPEN)",
-                        event.getCircuitBreakerName()));
-    }
+        private void registerRateLimiterEventLoggers() {
+                rateLimiterEventLogger(rateLimiterRegistry);
+        }
+
+        private void registerCircuitBreakerEvents(CircuitBreaker circuitBreaker) {
+                circuitBreaker.getEventPublisher()
+                                .onStateTransition(event -> log.warn("[CIRCUIT_BREAKER] {} - State transition: {} → {}",
+                                                event.getCircuitBreakerName(),
+                                                event.getStateTransition().getFromState(),
+                                                event.getStateTransition().getToState()))
+                                .onSlowCallRateExceeded(
+                                                event -> log.warn("[CIRCUIT_BREAKER] {} - Slow call rate exceeded: {}%",
+                                                                event.getCircuitBreakerName(),
+                                                                event.getSlowCallRate()))
+                                .onFailureRateExceeded(
+                                                event -> log.warn("[CIRCUIT_BREAKER] {} - Failure rate exceeded: {}%",
+                                                                event.getCircuitBreakerName(),
+                                                                event.getFailureRate()))
+                                .onCallNotPermitted(event -> log.debug(
+                                                "[CIRCUIT_BREAKER] {} - Call not permitted (circuit OPEN)",
+                                                event.getCircuitBreakerName()));
+        }
 }

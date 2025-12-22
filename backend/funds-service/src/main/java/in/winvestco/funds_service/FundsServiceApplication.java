@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Funds Service Application
@@ -15,10 +14,12 @@ import org.springframework.context.annotation.ComponentScan;
  * - Funds Locking for orders
  * - Deposits & Withdrawals
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "in.winvestco.funds_service",
+        "in.winvestco.common"
+})
 @EnableDiscoveryClient
 @EnableFeignClients
-@ComponentScan(basePackages = { "in.winvestco.funds_service", "in.winvestco.common" })
 public class FundsServiceApplication {
 
     public static void main(String[] args) {

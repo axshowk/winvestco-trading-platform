@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import in.winvestco.common.util.LoggingUtils;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 /**
  * Centralized global exception handler for all services.
@@ -24,177 +24,198 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
-    private final LoggingUtils loggingUtils;
+        private final LoggingUtils loggingUtils;
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(
-            ResourceNotFoundException ex, WebRequest request) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+                        MethodArgumentNotValidException ex, WebRequest request) {
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleResourceNotFound", ex,
-                             "errorCode=" + ex.getErrorCode(),
-                             "message=" + ex.getMessage());
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleMethodArgumentNotValid", ex,
+                                "errorType=validation_error",
+                                "fieldErrorCount=" + ex.getBindingResult().getFieldErrorCount());
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.NOT_FOUND,
-                ex.getErrorCode(),
-                ex.getUserMessage(),
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                Map<String, String> errors = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .collect(Collectors.toMap(
+                                                org.springframework.validation.FieldError::getField,
+                                                fieldError -> fieldError.getDefaultMessage() != null
+                                                                ? fieldError.getDefaultMessage()
+                                                                : "Invalid value",
+                                                (existing, replacement) -> existing + ", " + replacement));
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "VALIDATION_ERROR",
+                                "Validation failed",
+                                request.getDescription(false).replace("uri=", ""),
+                                errors);
 
-    @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedAccess(
-            UnauthorizedAccessException ex, WebRequest request) {
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleUnauthorizedAccess", ex,
-                             "errorCode=" + ex.getErrorCode(),
-                             "message=" + ex.getMessage());
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleResourceNotFound(
+                        ResourceNotFoundException ex, WebRequest request) {
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.FORBIDDEN,
-                ex.getErrorCode(),
-                ex.getUserMessage(),
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleResourceNotFound", ex,
+                                "errorCode=" + ex.getErrorCode(),
+                                "message=" + ex.getMessage());
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.NOT_FOUND,
+                                ex.getErrorCode(),
+                                ex.getUserMessage(),
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
 
-    @ExceptionHandler(BusinessValidationException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessValidation(
-            BusinessValidationException ex, WebRequest request) {
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleBusinessValidation", ex,
-                             "errorCode=" + ex.getErrorCode(),
-                             "message=" + ex.getMessage());
+        @ExceptionHandler(UnauthorizedAccessException.class)
+        public ResponseEntity<ErrorResponse> handleUnauthorizedAccess(
+                        UnauthorizedAccessException ex, WebRequest request) {
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                ex.getErrorCode(),
-                ex.getUserMessage(),
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleUnauthorizedAccess", ex,
+                                "errorCode=" + ex.getErrorCode(),
+                                "message=" + ex.getMessage());
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.FORBIDDEN,
+                                ex.getErrorCode(),
+                                ex.getUserMessage(),
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolation(
-            ConstraintViolationException ex, WebRequest request) {
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleConstraintViolation", ex,
-                             "errorType=validation_error",
-                             "violationCount=" + ex.getConstraintViolations().size());
+        @ExceptionHandler(BusinessValidationException.class)
+        public ResponseEntity<ErrorResponse> handleBusinessValidation(
+                        BusinessValidationException ex, WebRequest request) {
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation ->
-            errors.put(violation.getPropertyPath().toString(), violation.getMessage())
-        );
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleBusinessValidation", ex,
+                                "errorCode=" + ex.getErrorCode(),
+                                "message=" + ex.getMessage());
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "VALIDATION_ERROR",
-                "Validation failed",
-                request.getDescription(false).replace("uri=", ""),
-                errors
-        );
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getErrorCode(),
+                                ex.getUserMessage(),
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(
-            IllegalArgumentException ex, WebRequest request) {
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ErrorResponse> handleConstraintViolation(
+                        ConstraintViolationException ex, WebRequest request) {
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleIllegalArgument", ex,
-                             "errorType=illegal_argument");
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleConstraintViolation", ex,
+                                "errorType=validation_error",
+                                "violationCount=" + ex.getConstraintViolations().size());
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "ILLEGAL_ARGUMENT",
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                Map<String, String> errors = new HashMap<>();
+                ex.getConstraintViolations().forEach(violation -> errors.put(violation.getPropertyPath().toString(),
+                                violation.getMessage()));
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "VALIDATION_ERROR",
+                                "Validation failed",
+                                request.getDescription(false).replace("uri=", ""),
+                                errors);
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(
-            IllegalStateException ex, WebRequest request) {
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleIllegalState", ex,
-                             "errorType=illegal_state");
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ErrorResponse> handleIllegalArgument(
+                        IllegalArgumentException ex, WebRequest request) {
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "ILLEGAL_STATE",
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleIllegalArgument", ex,
+                                "errorType=illegal_argument");
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "ILLEGAL_ARGUMENT",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllExceptions(
-            Exception ex, WebRequest request) {
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-        loggingUtils.setServiceName("GlobalExceptionHandler");
-        loggingUtils.logError("GlobalExceptionHandler", "handleAllExceptions", ex,
-                             "errorType=unexpected_error",
-                             "exceptionClass=" + ex.getClass().getSimpleName());
+        @ExceptionHandler(IllegalStateException.class)
+        public ResponseEntity<ErrorResponse> handleIllegalState(
+                        IllegalStateException ex, WebRequest request) {
 
-        ErrorResponse errorResponse = createErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "INTERNAL_SERVER_ERROR",
-                "An unexpected error occurred",
-                request.getDescription(false).replace("uri=", ""),
-                null
-        );
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleIllegalState", ex,
+                                "errorType=illegal_state");
 
-        loggingUtils.clearContext();
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "ILLEGAL_STATE",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
 
-    /**
-     * Create a standardized error response
-     */
-    private ErrorResponse createErrorResponse(HttpStatus status, String errorCode,
-                                            String message, String path, Map<String, String> details) {
-        String requestId = loggingUtils.generateRequestId();
-        String timestamp = LocalDateTime.now().toString();
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
 
-        return new ErrorResponse(
-                timestamp,
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                path,
-                errorCode,
-                requestId,
-                details
-        );
-    }
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleAllExceptions(
+                        Exception ex, WebRequest request) {
+
+                loggingUtils.setServiceName("GlobalExceptionHandler");
+                loggingUtils.logError("GlobalExceptionHandler", "handleAllExceptions", ex,
+                                "errorType=unexpected_error",
+                                "exceptionClass=" + ex.getClass().getSimpleName());
+
+                ErrorResponse errorResponse = createErrorResponse(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "INTERNAL_SERVER_ERROR",
+                                "An unexpected error occurred",
+                                request.getDescription(false).replace("uri=", ""),
+                                null);
+
+                loggingUtils.clearContext();
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        /**
+         * Create a standardized error response
+         */
+        private ErrorResponse createErrorResponse(HttpStatus status, String errorCode,
+                        String message, String path, Map<String, String> details) {
+                String requestId = loggingUtils.generateRequestId();
+                String timestamp = LocalDateTime.now().toString();
+
+                return new ErrorResponse(
+                                timestamp,
+                                status.value(),
+                                status.getReasonPhrase(),
+                                message,
+                                path,
+                                errorCode,
+                                requestId,
+                                details);
+        }
 }
