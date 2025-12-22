@@ -155,6 +155,21 @@ public class RabbitMQConfig {
     public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
     public static final String PAYMENT_EXPIRED_ROUTING_KEY = "payment.expired";
 
+    // Schedule Service Constants
+    public static final String SCHEDULE_EXCHANGE = "schedule.exchange";
+
+    // Trigger Queues
+    public static final String REPORT_CLEANUP_TRIGGER_QUEUE = "report.cleanup.trigger.queue";
+    public static final String PAYMENT_EXPIRE_TRIGGER_QUEUE = "payment.expire.trigger.queue";
+    public static final String ORDER_EXPIRE_TRIGGER_QUEUE = "order.expire.trigger.queue";
+    public static final String MARKET_FETCH_TRIGGER_QUEUE = "market.fetch.trigger.queue";
+
+    // Trigger Routing Keys
+    public static final String REPORT_CLEANUP_TRIGGER_ROUTING_KEY = "report.cleanup.trigger";
+    public static final String PAYMENT_EXPIRE_TRIGGER_ROUTING_KEY = "payment.expire.trigger";
+    public static final String ORDER_EXPIRE_TRIGGER_ROUTING_KEY = "order.expire.trigger";
+    public static final String MARKET_FETCH_TRIGGER_ROUTING_KEY = "market.fetch.trigger";
+
     @Bean
     @Primary
     public MessageConverter messageConverter() {
@@ -979,5 +994,74 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(paymentCreatedNotificationQueue())
                 .to(paymentExchange())
                 .with(PAYMENT_CREATED_ROUTING_KEY);
+    }
+
+    // =====================================================
+    // Schedule Service Exchange, Queues, and Bindings
+    // =====================================================
+
+    @Bean
+    public TopicExchange scheduleExchange() {
+        return new TopicExchange(SCHEDULE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Queue reportCleanupTriggerQueue() {
+        return QueueBuilder.durable(REPORT_CLEANUP_TRIGGER_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", REPORT_CLEANUP_TRIGGER_QUEUE + ".dlq")
+                .build();
+    }
+
+    @Bean
+    public Queue paymentExpireTriggerQueue() {
+        return QueueBuilder.durable(PAYMENT_EXPIRE_TRIGGER_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", PAYMENT_EXPIRE_TRIGGER_QUEUE + ".dlq")
+                .build();
+    }
+
+    @Bean
+    public Queue orderExpireTriggerQueue() {
+        return QueueBuilder.durable(ORDER_EXPIRE_TRIGGER_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", ORDER_EXPIRE_TRIGGER_QUEUE + ".dlq")
+                .build();
+    }
+
+    @Bean
+    public Queue marketFetchTriggerQueue() {
+        return QueueBuilder.durable(MARKET_FETCH_TRIGGER_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", MARKET_FETCH_TRIGGER_QUEUE + ".dlq")
+                .build();
+    }
+
+    @Bean
+    public Binding reportCleanupTriggerBinding() {
+        return BindingBuilder.bind(reportCleanupTriggerQueue())
+                .to(scheduleExchange())
+                .with(REPORT_CLEANUP_TRIGGER_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding paymentExpireTriggerBinding() {
+        return BindingBuilder.bind(paymentExpireTriggerQueue())
+                .to(scheduleExchange())
+                .with(PAYMENT_EXPIRE_TRIGGER_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding orderExpireTriggerBinding() {
+        return BindingBuilder.bind(orderExpireTriggerQueue())
+                .to(scheduleExchange())
+                .with(ORDER_EXPIRE_TRIGGER_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding marketFetchTriggerBinding() {
+        return BindingBuilder.bind(marketFetchTriggerQueue())
+                .to(scheduleExchange())
+                .with(MARKET_FETCH_TRIGGER_ROUTING_KEY);
     }
 }

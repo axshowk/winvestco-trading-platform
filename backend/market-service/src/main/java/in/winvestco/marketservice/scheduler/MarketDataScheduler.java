@@ -19,7 +19,9 @@ public class MarketDataScheduler {
     private final in.winvestco.marketservice.service.MarketDataService marketDataService;
     private final in.winvestco.marketservice.service.CandleService candleService;
 
-    @Scheduled(initialDelay = 0, fixedRate = 180000)
+    /**
+     * Fetch and publish market data - triggered via RabbitMQ
+     */
     public void fetchAndPublishMarketData() {
         log.info("Scheduled task started: Fetching market data from NSE India");
         try {

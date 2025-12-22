@@ -20,9 +20,8 @@ public class OrderExpiryScheduler {
     private int marketCloseHour;
 
     /**
-     * Run expiry check every minute during market hours
+     * Run expiry check - triggered via RabbitMQ
      */
-    @Scheduled(cron = "0 * * * * *")
     public void checkExpiredOrders() {
         try {
             int expiredCount = orderService.expireOrders();
@@ -35,9 +34,8 @@ public class OrderExpiryScheduler {
     }
 
     /**
-     * Run expiry check at market close (15:30 IST)
+     * Run expiry check at market close - triggered via RabbitMQ
      */
-    @Scheduled(cron = "0 30 15 * * MON-FRI", zone = "Asia/Kolkata")
     public void expireOrdersAtMarketClose() {
         log.info("Market close: Running order expiry check");
         try {

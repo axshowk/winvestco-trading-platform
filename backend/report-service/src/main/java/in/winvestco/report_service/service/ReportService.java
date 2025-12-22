@@ -156,9 +156,8 @@ public class ReportService {
     }
 
     /**
-     * Cleanup expired reports - runs daily at 2 AM
+     * Cleanup expired reports - triggered via RabbitMQ
      */
-    @Scheduled(cron = "0 0 2 * * *")
     @Transactional
     public void cleanupExpiredReports() {
         log.info("Starting expired reports cleanup");

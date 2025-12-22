@@ -25,20 +25,17 @@ public class PaymentExpiryScheduler {
     private final PaymentEventPublisher eventPublisher;
 
     /**
-     * Run every minute to check for expired payments
+     * Run to check for expired payments - triggered via RabbitMQ
      */
-    @Scheduled(fixedRate = 60000)
     @Transactional
     public void expirePayments() {
         List<PaymentStatus> statuses = List.of(
-            PaymentStatus.INITIATED,
-            PaymentStatus.PENDING
-        );
+                PaymentStatus.INITIATED,
+                PaymentStatus.PENDING);
 
         List<Payment> expiredPayments = paymentRepository.findExpiredPayments(
-            statuses,
-            Instant.now()
-        );
+                statuses,
+                Instant.now());
 
         if (expiredPayments.isEmpty()) {
             return;

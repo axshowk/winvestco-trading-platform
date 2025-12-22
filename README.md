@@ -54,6 +54,7 @@
 - **💳 Payment Gateway** - Razorpay integration for deposits with webhook verification
 - **🔔 Real-time Notifications** - WebSocket-based push notifications
 - **📄 Stock Details** - Comprehensive stock information with interactive charts
+- **📄 Async Report Generation** - Generate P&L, Tax, and Transaction reports asynchronously via Event Sourcing
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
@@ -69,6 +70,8 @@
 - **🔁 Event Sourcing Ready** - Domain events for all key business actions
 - **🛡️ Resilience4j Integration** - Circuit breakers, rate limiters, retries with exponential backoff and jitter
 - **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
+- **🌐 Environment-Specific Profiles** - 48 profile files (dev, docker, staging, prod) for secure and flexible deployment
+- **📝 Structured Logging** - JSON-formatted logging with consistent fields across all services for better log aggregation
 
 ---
 
@@ -212,6 +215,8 @@
 | **Trade Service** | 8092 | Trade lifecycle, execution, state machine | `winvestco_trade_db` |
 | **Payment Service** | 8093 | Razorpay integration, payment lifecycle, webhooks | `winvestco_payment_db` |
 | **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
+| **Report Service** | 8094 | Async report generation (P&L, Tax, Transaction) | `winvestco_report_db` |
+| **Schedule Service** | 8095 | Centralized platform-wide task scheduling | - |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
 ### Domain Events (RabbitMQ)
@@ -330,6 +335,18 @@ winvestco-trading-platform/
 │       ├── 📁 model/             # Notification, Preference entities
 │       └── 📄 Dockerfile
 │
+│   ├── 📁 report-service/        # Async Report Generation (Port: 8094)
+│   │   ├── 📁 controller/        # Report request controllers
+│   │   ├── 📁 service/           # Report generation logic
+│   │   ├── 📁 repository/        # Projection tables (Lead/Trade read models)
+│   │   ├── 📁 messaging/         # Event listeners for report triggers
+│   │   ├── 📁 model/             # Report & Projection entities
+│   │   └── 📄 Dockerfile
+│   │
+│   └── 📁 schedule-service/      # Centralized Scheduling (Port: 8095)
+│       ├── 📁 scheduler/         # Centralized platform schedulers
+│       └── 📄 Dockerfile
+│
 ├── 📁 frontend/                  # React Frontend (Vite)
 │   ├── 📁 src/
 │   │   ├── 📁 components/        # Reusable UI components
@@ -368,7 +385,7 @@ winvestco-trading-platform/
 │
 ├── 📁 cicd/                      # CI/CD configurations
 ├── 📁 docs/                      # Additional documentation
-│   └── 📁 adr/                   # Architecture Decision Records (10 ADRs)
+│   └── 📁 adr/                   # Architecture Decision Records (11 ADRs)
 └── 📁 infra/                     # Infrastructure as Code
 ```
 
@@ -473,6 +490,9 @@ Ensure you have the following installed:
 
    # Terminal 11: Notification Service
    cd notification-service && mvn spring-boot:run
+
+   # Terminal 12: Schedule Service
+   cd schedule-service && mvn spring-boot:run
    ```
 
 5. **Start the frontend**
@@ -502,6 +522,8 @@ Ensure you have the following installed:
 | Trade Service | 8092 | Trade lifecycle & execution |
 | Payment Service | 8093 | Razorpay payment gateway |
 | Notification Service | 8091 | Notifications & WebSocket |
+| Report Service | 8094 | Async report generation |
+| Schedule Service | 8095 | Centralized platform scheduling |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |
@@ -526,6 +548,7 @@ Ensure you have the following installed:
 | `/api/payments/**` | payment-service | Payment operations |
 | `/api/payments/webhook/**` | payment-service | Razorpay webhooks (public) |
 | `/api/v1/notifications/**` | notification-service | Notifications |
+| `/api/reports/**` | report-service | Report generation |
 | `/ws/notifications/**` | notification-service | WebSocket endpoint |
 | `/api/admin/docs/**` | user-service | API documentation |
 
@@ -545,6 +568,7 @@ When services are running, access OpenAPI documentation at:
 - **Trade Service**: http://localhost:8092/swagger-ui.html
 - **Payment Service**: http://localhost:8093/api/payments/swagger-ui.html
 - **Notification Service**: http://localhost:8091/swagger-ui.html
+- **Report Service**: http://localhost:8094/swagger-ui.html
 
 ### Key API Endpoints
 
@@ -625,6 +649,16 @@ POST /api/v1/notifications/{id}/read  # Mark as read
 POST /api/v1/notifications/read-all   # Mark all as read
 DELETE /api/v1/notifications/{id}     # Delete notification
 WS   /ws/notifications                # WebSocket for real-time
+```
+
+#### Report Management
+```
+POST /api/reports/request/pnl          # Request P&L statement
+POST /api/reports/request/tax          # Request tax report
+POST /api/reports/request/transaction  # Request transaction history
+GET  /api/reports/user/{userId}        # Get user's report requests
+GET  /api/reports/{id}/download        # Download report file
+GET  /api/reports/{id}/status          # Check report generation status
 ```
 
 ### Sample Requests
