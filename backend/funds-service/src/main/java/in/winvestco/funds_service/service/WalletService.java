@@ -246,4 +246,59 @@ public class WalletService {
             throw new RuntimeException("Failed to record ledger entry", e);
         }
     }
+
+    /**
+     * Apply a ledger event to the wallet state (CQRS Projection)
+     */
+    @Transactional
+    public void applyLedgerEvent(in.winvestco.common.event.LedgerEntryEvent event) {
+        log.debug("Applying ledger event {} to wallet {}", event.getId(), event.getWalletId());
+
+        Wallet wallet = walletRepository.findByIdForUpdate(event.getWalletId())
+                .orElseThrow(() -> new WalletNotFoundException("walletId", event.getWalletId()));
+
+        // Idempotency check: Skip if already processed
+        if (wallet.getLastProcessedLedgerId() != null && wallet.getLastProcessedLedgerId() >= event.getId()) {
+            log.debug("Ledger event {} already processed for wallet {}. Skipping.", event.getId(), wallet.getId());
+            return;
+        }
+
+        // Update balance from event (Source of Truth)
+        // Since the ledger event contains balanceAfter, we just set it
+        wallet.setAvailableBalance(event.getBalanceAfter());
+        wallet.setLastProcessedLedgerId(event.getId());
+
+        walletRepository.save(wallet);
+        log.info("Applied ledger event {}. New wallet {} balance: {}",
+                event.getId(), wallet.getId(), wallet.getAvailableBalance());
+    }
+
+    /**
+     * Rebuild wallet state from all ledger events (Event Sourcing Rebuild)
+     */
+    @Transactional
+    public void rebuildWalletStateFromLedger(Long userId) {
+        log.info("Triggering wallet state rebuild for user {}", userId);
+        Wallet wallet = getWalletForUpdate(userId);
+
+        List<LedgerEntryDTO> entries = ledgerClient.getAllWalletEntries(wallet.getId());
+
+        if (entries.isEmpty()) {
+            wallet.setAvailableBalance(BigDecimal.ZERO);
+            wallet.setLockedBalance(BigDecimal.ZERO);
+            wallet.setLastProcessedLedgerId(null);
+        } else {
+            // Replay events (or just take the latest one since it has the balance snapshot)
+            LedgerEntryDTO latest = entries.get(entries.size() - 1);
+            wallet.setAvailableBalance(latest.getBalanceAfter());
+            wallet.setLastProcessedLedgerId(latest.getId());
+
+            // Note: Locked balance might need separate events or a more complex
+            // reconstruction
+            // For now, we assume available balance is the main source of truth from ledger
+        }
+
+        walletRepository.save(wallet);
+        log.info("Rebuilt wallet state for user {}. New balance: {}", userId, wallet.getAvailableBalance());
+    }
 }

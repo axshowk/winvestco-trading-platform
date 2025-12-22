@@ -65,7 +65,7 @@ public interface LedgerEntryRepository extends JpaRepository<LedgerEntry, Long> 
      * Get entries within a date range (for audit/reconciliation)
      */
     @Query("SELECT le FROM LedgerEntry le WHERE le.walletId = :walletId " +
-           "AND le.createdAt BETWEEN :startDate AND :endDate ORDER BY le.createdAt ASC")
+            "AND le.createdAt BETWEEN :startDate AND :endDate ORDER BY le.createdAt ASC")
     List<LedgerEntry> findByWalletIdAndDateRange(
             @Param("walletId") Long walletId,
             @Param("startDate") Instant startDate,
@@ -82,10 +82,16 @@ public interface LedgerEntryRepository extends JpaRepository<LedgerEntry, Long> 
     Optional<LedgerEntry> findFirstByWalletIdOrderByCreatedAtDesc(Long walletId);
 
     /**
+     * Get the latest entry for a wallet before or at a specific time
+     */
+    Optional<LedgerEntry> findFirstByWalletIdAndCreatedAtLessThanEqualOrderByCreatedAtDesc(
+            Long walletId, Instant timestamp);
+
+    /**
      * Sum of amounts by type for a wallet (for reconciliation)
      */
     @Query("SELECT COALESCE(SUM(le.amount), 0) FROM LedgerEntry le " +
-           "WHERE le.walletId = :walletId AND le.entryType = :entryType")
+            "WHERE le.walletId = :walletId AND le.entryType = :entryType")
     java.math.BigDecimal sumAmountByWalletIdAndEntryType(
             @Param("walletId") Long walletId,
             @Param("entryType") LedgerEntryType entryType);
@@ -94,7 +100,7 @@ public interface LedgerEntryRepository extends JpaRepository<LedgerEntry, Long> 
      * Get all entries in date range (for global audit)
      */
     @Query("SELECT le FROM LedgerEntry le " +
-           "WHERE le.createdAt BETWEEN :startDate AND :endDate ORDER BY le.createdAt ASC")
+            "WHERE le.createdAt BETWEEN :startDate AND :endDate ORDER BY le.createdAt ASC")
     List<LedgerEntry> findAllByDateRange(
             @Param("startDate") Instant startDate,
             @Param("endDate") Instant endDate);

@@ -152,4 +152,25 @@ public class LedgerController {
         List<LedgerEntryDTO> entries = ledgerService.getEntriesInDateRange(walletId, startDate, endDate);
         return ResponseEntity.ok(entries);
     }
+
+    // ==============================================
+    // EVENT SOURCING / CQRS ENDPOINTS
+    // ==============================================
+
+    @GetMapping("/wallet/{walletId}/balance-at")
+    @Operation(summary = "Balance at time", description = "Get wallet balance at a specific point in time")
+    public ResponseEntity<BigDecimal> getBalanceAt(
+            @PathVariable Long walletId,
+            @RequestParam Instant timestamp) {
+
+        BigDecimal balance = ledgerService.getWalletBalanceAt(walletId, timestamp);
+        return ResponseEntity.ok(balance);
+    }
+
+    @PostMapping("/wallet/{walletId}/rebuild")
+    @Operation(summary = "Rebuild state", description = "Rebuild wallet state from all events")
+    public ResponseEntity<BigDecimal> rebuildState(@PathVariable Long walletId) {
+        BigDecimal balance = ledgerService.rebuildWalletState(walletId);
+        return ResponseEntity.ok(balance);
+    }
 }

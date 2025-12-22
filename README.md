@@ -47,8 +47,8 @@
 - **🔐 User Authentication** - Secure JWT-based authentication with OAuth2/Google support
 - **👤 User Management** - Complete user registration, login, and profile management
 - **💼 Portfolio Management** - Track holdings, P&L calculations, and investment performance
-- **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking
-- **📒 Immutable Ledger** - Audit-compliant financial record keeping (source of truth)
+- **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking with CQRS read model
+- **📒 Full Event Sourcing Ledger** - Immutable financial facts, point-in-time queries, and state rebuild capability (Source of Truth)
 - **📋 Order Management** - Complete order lifecycle with advanced order types (LIMIT, MARKET, SL) and product types (CNC, MIS, NRML)
 - **📈 Trade Execution** - Trade lifecycle management with state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
 - **💳 Payment Gateway** - Razorpay integration for deposits with webhook verification
@@ -230,6 +230,7 @@ The platform uses an event-driven architecture with the following domain events 
 | **Funds Events** | `FundsDepositedEvent`, `FundsWithdrawnEvent`, `FundsLockedEvent`, `FundsReleasedEvent` |
 | **Trade Events** | `TradeCreatedEvent`, `TradePlacedEvent`, `TradeExecutedEvent`, `TradeClosedEvent`, `TradeCancelledEvent`, `TradeFailedEvent` |
 | **Payment Events** | `PaymentCreatedEvent`, `PaymentSuccessEvent`, `PaymentFailedEvent`, `PaymentExpiredEvent` |
+| **Ledger Events** | `LedgerEntryEvent` |
 
 ---
 

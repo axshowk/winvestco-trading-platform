@@ -35,7 +35,7 @@ public class WalletController {
     public ResponseEntity<WalletDTO> getWallet(@AuthenticationPrincipal Jwt jwt) {
         Long userId = extractUserId(jwt);
         log.debug("Getting wallet for user: {}", userId);
-        
+
         WalletDTO wallet = walletService.getWalletByUserId(userId);
         return ResponseEntity.ok(wallet);
     }
@@ -46,13 +46,13 @@ public class WalletController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Long userId = extractUserId(jwt);
         log.debug("Getting ledger for user: {} (page: {}, size: {})", userId, page, size);
-        
+
         WalletDTO wallet = walletService.getWalletByUserId(userId);
         Page<LedgerEntryDTO> ledger = walletService.getLedgerEntries(wallet.getId(), page, size);
-        
+
         return ResponseEntity.ok(ledger);
     }
 
@@ -61,10 +61,10 @@ public class WalletController {
     public ResponseEntity<List<LedgerEntryDTO>> getAllLedger(@AuthenticationPrincipal Jwt jwt) {
         Long userId = extractUserId(jwt);
         log.debug("Getting all ledger entries for user: {}", userId);
-        
+
         WalletDTO wallet = walletService.getWalletByUserId(userId);
         List<LedgerEntryDTO> ledger = walletService.getAllLedgerEntries(wallet.getId());
-        
+
         return ResponseEntity.ok(ledger);
     }
 
@@ -73,12 +73,11 @@ public class WalletController {
     public ResponseEntity<BalanceSummary> getBalanceSummary(@AuthenticationPrincipal Jwt jwt) {
         Long userId = extractUserId(jwt);
         WalletDTO wallet = walletService.getWalletByUserId(userId);
-        
+
         return ResponseEntity.ok(new BalanceSummary(
                 wallet.getAvailableBalance(),
                 wallet.getLockedBalance(),
-                wallet.getTotalBalance()
-        ));
+                wallet.getTotalBalance()));
     }
 
     private Long extractUserId(Jwt jwt) {
@@ -92,10 +91,19 @@ public class WalletController {
         return Long.parseLong(userIdClaim.toString());
     }
 
+    @PostMapping("/rebuild")
+    @Operation(summary = "Rebuild wallet state", description = "Rebuild the authenticated user's wallet state from ledger events")
+    public ResponseEntity<Void> rebuildWallet(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = extractUserId(jwt);
+        log.info("Request to rebuild wallet for user: {}", userId);
+        walletService.rebuildWalletStateFromLedger(userId);
+        return ResponseEntity.ok().build();
+    }
+
     // Inner class for balance summary response
     public record BalanceSummary(
             java.math.BigDecimal available,
             java.math.BigDecimal locked,
-            java.math.BigDecimal total
-    ) {}
+            java.math.BigDecimal total) {
+    }
 }

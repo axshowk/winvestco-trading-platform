@@ -20,6 +20,8 @@ import static in.winvestco.common.config.RabbitMQConfig.DLQ_EXCHANGE;
 @Configuration("fundsServiceRabbitMQConfig")
 public class RabbitMQConfig {
 
+    public static final String LEDGER_RECORDED_FUNDS_QUEUE = "ledger.recorded.funds.queue";
+
     @Value("${rabbitmq.queues.user-created:user.created.funds}")
     private String userCreatedQueue;
 
@@ -50,5 +52,28 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(userCreatedFundsQueue)
                 .to(userExchange)
                 .with(userCreatedRoutingKey);
+    }
+
+    /**
+     * Queue for receiving ledger entry recorded events in funds service.
+     */
+    @Bean("ledgerRecordedFundsQueue")
+    public Queue ledgerRecordedFundsQueue() {
+        return QueueBuilder.durable(LEDGER_RECORDED_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", LEDGER_RECORDED_FUNDS_QUEUE + ".dlq")
+                .build();
+    }
+
+    /**
+     * Binding for ledger events to funds service queue.
+     */
+    @Bean("ledgerRecordedFundsBinding")
+    public Binding ledgerRecordedFundsBinding(
+            @Qualifier("ledgerRecordedFundsQueue") Queue ledgerRecordedFundsQueue,
+            @Qualifier("ledgerExchange") TopicExchange ledgerExchange) {
+        return BindingBuilder.bind(ledgerRecordedFundsQueue)
+                .to(ledgerExchange)
+                .with(in.winvestco.common.config.RabbitMQConfig.LEDGER_ENTRY_RECORDED_ROUTING_KEY);
     }
 }

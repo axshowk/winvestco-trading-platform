@@ -24,7 +24,7 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "wallets", indexes = {
-    @Index(name = "idx_wallets_user_id", columnList = "user_id", unique = true)
+        @Index(name = "idx_wallets_user_id", columnList = "user_id", unique = true)
 })
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -33,7 +33,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Wallet implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -71,6 +71,9 @@ public class Wallet implements Serializable {
     @LastModifiedDate
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column(name = "last_processed_ledger_id")
+    private Long lastProcessedLedgerId;
 
     /**
      * Get total balance (available + locked)

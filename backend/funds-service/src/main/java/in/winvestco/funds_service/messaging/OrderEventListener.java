@@ -2,7 +2,6 @@ package in.winvestco.funds_service.messaging;
 
 import com.rabbitmq.client.Channel;
 import in.winvestco.common.config.RabbitMQConfig;
-import in.winvestco.common.event.OrderRejectedEvent;
 import in.winvestco.common.event.OrderValidatedEvent;
 import in.winvestco.funds_service.dto.FundsLockDTO;
 import in.winvestco.funds_service.exception.InsufficientFundsException;
@@ -15,8 +14,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 /**
  * Listener for order-related events from RabbitMQ.

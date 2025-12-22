@@ -34,6 +34,7 @@ public class LedgerService {
 
     private final LedgerEntryRepository ledgerEntryRepository;
     private final LedgerMapper ledgerMapper;
+    private final in.winvestco.ledger_service.messaging.LedgerEventPublisher ledgerEventPublisher;
 
     // ==============================================
     // WRITE OPERATION - INSERT ONLY
@@ -56,12 +57,14 @@ public class LedgerService {
                 request.getBalanceAfter(),
                 request.getReferenceId(),
                 request.getReferenceType(),
-                request.getDescription()
-        );
+                request.getDescription());
 
         LedgerEntry saved = ledgerEntryRepository.save(entry);
-        log.info("Recorded ledger entry: id={}, wallet={}, type={}", 
+        log.info("Recorded ledger entry: id={}, wallet={}, type={}",
                 saved.getId(), saved.getWalletId(), saved.getEntryType());
+
+        // Publish event for CQRS projections
+        ledgerEventPublisher.publishLedgerEntryRecorded(saved);
 
         return ledgerMapper.toDTO(saved);
     }
@@ -156,5 +159,37 @@ public class LedgerService {
     public List<LedgerEntryDTO> getAllEntriesInDateRange(Instant startDate, Instant endDate) {
         List<LedgerEntry> entries = ledgerEntryRepository.findAllByDateRange(startDate, endDate);
         return ledgerMapper.toDTOList(entries);
+    }
+
+    /**
+     * Get wallet balance at a specific point in time (Point-in-Time Query)
+     */
+    @Transactional(readOnly = true)
+    public BigDecimal getWalletBalanceAt(Long walletId, Instant timestamp) {
+        log.info("Querying balance for wallet {} at {}", walletId, timestamp);
+        return ledgerEntryRepository
+                .findFirstByWalletIdAndCreatedAtLessThanEqualOrderByCreatedAtDesc(walletId, timestamp)
+                .map(LedgerEntry::getBalanceAfter)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    /**
+     * Rebuild wallet state from all events (Full Replay)
+     * This is used for reconciliation and to verify the current balance.
+     */
+    @Transactional(readOnly = true)
+    public BigDecimal rebuildWalletState(Long walletId) {
+        log.info("Rebuilding state for wallet {} from all events", walletId);
+        List<LedgerEntry> entries = ledgerEntryRepository.findByWalletIdOrderByCreatedAtAsc(walletId);
+
+        BigDecimal balance = BigDecimal.ZERO;
+        for (LedgerEntry entry : entries) {
+            // In a more complex system, we would apply events to a state object
+            // For now, we just sum them up or trust the balanceAfter of the last entry
+            balance = entry.getBalanceAfter();
+        }
+
+        log.info("Rebuilt balance for wallet {}: {}", walletId, balance);
+        return balance;
     }
 }

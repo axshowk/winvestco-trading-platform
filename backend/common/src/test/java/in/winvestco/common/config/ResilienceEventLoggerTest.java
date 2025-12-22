@@ -1,12 +1,12 @@
 package in.winvestco.common.config;
 
-import io.github.resilience4j.bulkhead.Bulkhead;
+
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.ratelimiter.RateLimiter;
+
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.retry.Retry;
+
 import io.github.resilience4j.retry.RetryRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +36,7 @@ class ResilienceEventLoggerTest {
     @DisplayName("Should register circuit breaker event logger without exception")
     void shouldRegisterCircuitBreakerEventLogger() {
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.ofDefaults();
-        CircuitBreaker circuitBreaker = registry.circuitBreaker("testCircuitBreaker");
+        registry.circuitBreaker("testCircuitBreaker");
 
         assertThatNoException().isThrownBy(() -> eventLogger.circuitBreakerEventLogger(registry));
 
@@ -47,7 +47,7 @@ class ResilienceEventLoggerTest {
     @DisplayName("Should register retry event logger without exception")
     void shouldRegisterRetryEventLogger() {
         RetryRegistry registry = RetryRegistry.ofDefaults();
-        Retry retry = registry.retry("testRetry");
+        registry.retry("testRetry");
 
         assertThatNoException().isThrownBy(() -> eventLogger.retryEventLogger(registry));
 
@@ -58,7 +58,7 @@ class ResilienceEventLoggerTest {
     @DisplayName("Should register bulkhead event logger without exception")
     void shouldRegisterBulkheadEventLogger() {
         BulkheadRegistry registry = BulkheadRegistry.ofDefaults();
-        Bulkhead bulkhead = registry.bulkhead("testBulkhead");
+        registry.bulkhead("testBulkhead");
 
         assertThatNoException().isThrownBy(() -> eventLogger.bulkheadEventLogger(registry));
 
@@ -69,7 +69,7 @@ class ResilienceEventLoggerTest {
     @DisplayName("Should register rate limiter event logger without exception")
     void shouldRegisterRateLimiterEventLogger() {
         RateLimiterRegistry registry = RateLimiterRegistry.ofDefaults();
-        RateLimiter rateLimiter = registry.rateLimiter("testRateLimiter");
+        registry.rateLimiter("testRateLimiter");
 
         assertThatNoException().isThrownBy(() -> eventLogger.rateLimiterEventLogger(registry));
 

@@ -64,6 +64,7 @@ public class RabbitMQConfig {
     public static final String PORTFOLIO_EXCHANGE = "portfolio.exchange";
     public static final String MARKET_DATA_EXCHANGE = "market.data.exchange";
     public static final String FUNDS_EXCHANGE = "funds.exchange";
+    public static final String LEDGER_EXCHANGE = "ledger.exchange";
     public static final String DLQ_EXCHANGE = "dlq.exchange";
 
     // Queues
@@ -149,6 +150,7 @@ public class RabbitMQConfig {
     public static final String FUNDS_RELEASED_ROUTING_KEY = "funds.released";
     public static final String FUNDS_DEPOSITED_ROUTING_KEY = "funds.deposited";
     public static final String FUNDS_WITHDRAWN_ROUTING_KEY = "funds.withdrawn";
+    public static final String LEDGER_ENTRY_RECORDED_ROUTING_KEY = "ledger.entry.recorded";
 
     // Payment Routing Keys for Notification Service
     public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
@@ -541,10 +543,15 @@ public class RabbitMQConfig {
                 .with(STOCK_UPDATED);
     }
 
-    // Funds Exchange
     @Bean
     public TopicExchange fundsExchange() {
         return new TopicExchange(FUNDS_EXCHANGE, true, false);
+    }
+
+    // Ledger Exchange
+    @Bean
+    public TopicExchange ledgerExchange() {
+        return new TopicExchange(LEDGER_EXCHANGE, true, false);
     }
 
     // Order Service Queues
