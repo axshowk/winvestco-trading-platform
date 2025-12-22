@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * This endpoint is public (no JWT auth) but secured via signature verification.
  */
 @RestController
-@RequestMapping("/api/payments/webhook")
+@RequestMapping("/api/v1/payments/webhook")
 @RequiredArgsConstructor
 @Slf4j
 public class WebhookController {

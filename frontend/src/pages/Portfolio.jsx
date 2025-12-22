@@ -28,7 +28,7 @@ const Portfolio = () => {
 
     const fetchPortfolio = useCallback(async () => {
         try {
-            const response = await fetch('/api/portfolios', {
+            const response = await fetch('/api/v1/portfolios', {
                 headers: getAuthHeaders()
             });
 
@@ -59,7 +59,7 @@ const Portfolio = () => {
         const prices = {};
         for (const holding of holdingsList) {
             try {
-                const response = await fetch(`/api/market/stocks/${holding.symbol}`);
+                const response = await fetch(`/api/v1/market/stocks/${holding.symbol}`);
                 if (response.ok) {
                     const data = await response.json();
                     prices[holding.symbol] = {
@@ -115,7 +115,7 @@ const Portfolio = () => {
         }
 
         try {
-            const response = await fetch(`/api/portfolios/holdings/${holdingId}`, {
+            const response = await fetch(`/api/v1/portfolios/holdings/${holdingId}`, {
                 method: 'DELETE',
                 headers: getAuthHeaders()
             });

@@ -32,7 +32,7 @@ import java.util.List;
  * All endpoints require authentication.
  */
 @RestController
-@RequestMapping("/api/portfolios")
+@RequestMapping("/api/v1/portfolios")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Portfolio", description = "Portfolio management endpoints")

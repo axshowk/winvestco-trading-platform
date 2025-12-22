@@ -1,0 +1,66 @@
+# Production Profile - Production-grade settings
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    password: ${RABBITMQ_PASSWORD}
+
+  flyway:
+    repair-on-migrate: false
+    validate-on-migrate: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Production Resilience4j overrides for stricter fault tolerance
+resilience4j:
+  circuitbreaker:
+    instances:
+      ledgerService:
+        failureRateThreshold: 20
+        waitDurationInOpenState: 120s
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+
+logging:
+  level:
+    root: WARN
+    in.winvestco.funds_service: INFO
+
+server:
+  port: ${SERVER_PORT:8086}

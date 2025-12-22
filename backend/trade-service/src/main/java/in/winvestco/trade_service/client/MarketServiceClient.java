@@ -15,6 +15,6 @@ public interface MarketServiceClient {
      * Get stock quote data including current price.
      * Returns JSON string with lastPrice, open, high, low, etc.
      */
-    @GetMapping("/api/market/stocks/{symbol}")
+    @GetMapping("/api/v1/market/stocks/{symbol}")
     String getStockQuote(@PathVariable("symbol") String symbol);
 }

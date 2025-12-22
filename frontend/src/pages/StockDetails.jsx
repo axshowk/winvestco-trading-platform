@@ -34,7 +34,7 @@ const StockDetails = () => {
     const fetchStockData = async () => {
         try {
             setRefreshing(true);
-            const response = await fetch(`/api/market/stocks/${symbol}`);
+            const response = await fetch(`/api/v1/market/stocks/${symbol}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data) {

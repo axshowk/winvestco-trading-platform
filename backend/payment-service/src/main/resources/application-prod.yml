@@ -1,0 +1,66 @@
+# Production Profile - Production-grade settings
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    password: ${RABBITMQ_PASSWORD}
+    # Production: Enable publisher confirms for payment reliability
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+  flyway:
+    validate-on-migrate: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# PRODUCTION: Use Razorpay LIVE keys (mandatory env vars)
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID}
+  key-secret: ${RAZORPAY_KEY_SECRET}
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+
+logging:
+  level:
+    root: WARN
+    in.winvestco.payment_service: INFO
+    com.razorpay: INFO
+
+server:
+  port: ${SERVER_PORT:8093}

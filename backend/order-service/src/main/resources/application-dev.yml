@@ -1,0 +1,37 @@
+# Development Profile - Local development
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/winvestco_order_db
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  rabbitmq:
+    host: localhost
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+jwt:
+  secret: dev-secret-key-for-local-development-only-change-in-production-minimum-256-bits
+  expiration: 86400000
+
+logging:
+  level:
+    root: INFO
+    in.winvestco: DEBUG
+    org.springframework.security: DEBUG
+    io.github.resilience4j: DEBUG
+
+server:
+  port: 8089

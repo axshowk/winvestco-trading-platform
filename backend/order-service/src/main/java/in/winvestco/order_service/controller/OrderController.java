@@ -25,7 +25,7 @@ import java.util.List;
  * REST controller for order management
  */
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Orders", description = "Order management endpoints")
@@ -39,10 +39,10 @@ public class OrderController {
     public ResponseEntity<OrderDTO> createOrder(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody CreateOrderRequest request) {
-        
+
         Long userId = extractUserId(jwt);
         log.info("Creating order for user: {}", userId);
-        
+
         OrderDTO order = orderService.createOrder(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
@@ -59,7 +59,7 @@ public class OrderController {
     public ResponseEntity<Page<OrderDTO>> getOrders(
             @AuthenticationPrincipal Jwt jwt,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
-        
+
         Long userId = extractUserId(jwt);
         Page<OrderDTO> orders = orderService.getOrdersForUser(userId, pageable);
         return ResponseEntity.ok(orders);
@@ -79,10 +79,10 @@ public class OrderController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String orderId,
             @Valid @RequestBody CancelOrderRequest request) {
-        
+
         Long userId = extractUserId(jwt);
         log.info("Cancelling order {} for user {}", orderId, userId);
-        
+
         OrderDTO order = orderService.cancelOrder(orderId, userId, request.getReason());
         return ResponseEntity.ok(order);
     }

@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "market-service", fallback = MarketServiceClientFallback.class)
 public interface MarketServiceClient {
 
-    @GetMapping("/api/market/stocks/{symbol}/exists")
+    @GetMapping("/api/v1/market/stocks/{symbol}/exists")
     Boolean symbolExists(@PathVariable("symbol") String symbol);
 
-    @GetMapping("/api/market/stocks/{symbol}/price")
+    @GetMapping("/api/v1/market/stocks/{symbol}/price")
     MarketPriceResponse getMarketPrice(@PathVariable("symbol") String symbol);
 
     record MarketPriceResponse(
             String symbol,
             java.math.BigDecimal lastPrice,
             java.math.BigDecimal bidPrice,
-            java.math.BigDecimal askPrice
-    ) {}
+            java.math.BigDecimal askPrice) {
+    }
 }

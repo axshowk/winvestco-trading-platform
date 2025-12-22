@@ -3,7 +3,7 @@
  * Provides functions to interact with the trade-service backend
  */
 
-const API_BASE_URL = '/api/trades';
+const API_BASE_URL = '/api/v1/trades';
 
 /**
  * Get auth headers with JWT token

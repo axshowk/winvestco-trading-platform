@@ -21,7 +21,7 @@ import java.util.List;
  * Ledger entries are fetched via ledger-service (SOURCE OF TRUTH).
  */
 @RestController
-@RequestMapping("/api/funds/wallet")
+@RequestMapping("/api/v1/funds/wallet")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Wallet", description = "Wallet and balance operations")

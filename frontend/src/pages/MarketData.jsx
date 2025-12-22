@@ -27,7 +27,7 @@ const MarketData = () => {
         const fetchAllStocks = async () => {
             setLoading(true);
             try {
-                const response = await fetch('/api/market/stocks/all');
+                const response = await fetch('/api/v1/market/stocks/all');
                 if (response.ok) {
                     const data = await response.json();
                     if (data.data && Array.isArray(data.data)) {

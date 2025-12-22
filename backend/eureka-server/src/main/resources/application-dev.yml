@@ -1,0 +1,15 @@
+# Development Profile - Local development with sensible defaults
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
+
+# Development defaults - minimal security, verbose logging
+server:
+  port: 8761

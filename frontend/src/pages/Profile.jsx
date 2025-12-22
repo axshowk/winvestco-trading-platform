@@ -32,7 +32,7 @@ const Profile = () => {
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch('http://localhost:8090/api/auth/me', {
+                const response = await fetch('http://localhost:8090/api/v1/auth/me', {
                     credentials: 'include', // Still include for OAuth2 session-based auth
                     headers
                 });

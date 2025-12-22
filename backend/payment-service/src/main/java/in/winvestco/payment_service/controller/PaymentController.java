@@ -19,7 +19,7 @@ import java.util.List;
  * REST API controller for payment operations
  */
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Payments", description = "Payment operations API")

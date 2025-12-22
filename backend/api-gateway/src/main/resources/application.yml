@@ -35,7 +35,7 @@ spring:
         - id: user-service-register
           uri: lb://user-service
           predicates:
-            - Path=/api/users/register, /api/users/register/**
+            - Path=/api/v1/users/register, /api/v1/users/register/**
           filters:
             - RemoveRequestHeader=Cookie
             - RemoveRequestHeader=Authorization
@@ -44,7 +44,7 @@ spring:
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/api/auth/**, /api/users/**
+            - Path=/api/v1/auth/**, /api/v1/users/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -53,7 +53,7 @@ spring:
         - id: market-service
           uri: lb://market-service
           predicates:
-            - Path=/api/market/**
+            - Path=/api/v1/market/**
           filters:
             - RemoveRequestHeader=Cookie
 
@@ -61,7 +61,7 @@ spring:
         - id: portfolio-service
           uri: lb://portfolio-service
           predicates:
-            - Path=/api/portfolios/**
+            - Path=/api/v1/portfolios/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -70,7 +70,7 @@ spring:
         - id: funds-service
           uri: lb://funds-service
           predicates:
-            - Path=/api/funds/**
+            - Path=/api/v1/funds/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -79,7 +79,7 @@ spring:
         - id: ledger-service
           uri: lb://ledger-service
           predicates:
-            - Path=/api/ledger/**
+            - Path=/api/v1/ledger/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -88,7 +88,7 @@ spring:
         - id: order-service
           uri: lb://order-service
           predicates:
-            - Path=/api/orders/**
+            - Path=/api/v1/orders/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -97,7 +97,7 @@ spring:
         - id: trade-service
           uri: lb://trade-service
           predicates:
-            - Path=/api/trades/**
+            - Path=/api/v1/trades/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -106,7 +106,7 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/api/payments/**
+            - Path=/api/v1/payments/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=
@@ -115,7 +115,7 @@ spring:
         - id: payment-webhook
           uri: lb://payment-service
           predicates:
-            - Path=/api/payments/webhook/**
+            - Path=/api/v1/payments/webhook/**
           filters:
             - RemoveRequestHeader=Cookie
 
@@ -138,7 +138,7 @@ spring:
         - id: report-service
           uri: lb://report-service
           predicates:
-            - Path=/api/reports/**
+            - Path=/api/v1/reports/**
           filters:
             - RemoveRequestHeader=Cookie
             - TokenRelay=

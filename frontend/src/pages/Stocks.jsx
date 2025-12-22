@@ -51,7 +51,7 @@ const Stocks = () => {
 
             for (const index of INDICES) {
                 try {
-                    const response = await fetch(`/api/market/indices/${index.name}`);
+                    const response = await fetch(`/api/v1/market/indices/${index.name}`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data.data && Array.isArray(data.data)) {
@@ -88,7 +88,7 @@ const Stocks = () => {
         const fetchStocks = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`/api/market/indices/${selectedIndex}`);
+                const response = await fetch(`/api/v1/market/indices/${selectedIndex}`);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.data && Array.isArray(data.data)) {

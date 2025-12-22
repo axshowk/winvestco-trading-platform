@@ -1,0 +1,21 @@
+# Docker Profile - Configuration for Docker Compose environment
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+eureka:
+  instance:
+    hostname: eureka-server
+    prefer-ip-address: false
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+logging:
+  level:
+    root: INFO
+    com.netflix.eureka: INFO
+
+server:
+  port: 8761

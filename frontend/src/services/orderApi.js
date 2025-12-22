@@ -3,7 +3,7 @@
  * Provides functions to interact with the order-service backend
  */
 
-const API_BASE_URL = '/api/orders';
+const API_BASE_URL = '/api/v1/orders';
 
 /**
  * Get auth headers with JWT token

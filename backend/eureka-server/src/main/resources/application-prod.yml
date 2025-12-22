@@ -1,0 +1,28 @@
+# Production Profile - Production-grade settings
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOSTNAME}
+    prefer-ip-address: true
+  server:
+    # Production: slower eviction, higher renewal threshold
+    eviction-interval-timer-in-ms: 60000
+    renewal-percent-threshold: 0.85
+    enable-self-preservation: true
+  client:
+    service-url:
+      # Production Eureka cluster - comma-separated for HA
+      defaultZone: ${EUREKA_SERVER_URL}
+
+logging:
+  level:
+    root: WARN
+    com.netflix.eureka: WARN
+    com.netflix.discovery: WARN
+
+server:
+  port: ${SERVER_PORT:8761}

@@ -3,7 +3,7 @@
  * Handles wallet balance, deposits, withdrawals, and transaction history
  */
 
-const API_BASE_URL = '/api/funds';
+const API_BASE_URL = '/api/v1/funds';
 
 /**
  * Get auth headers with JWT token

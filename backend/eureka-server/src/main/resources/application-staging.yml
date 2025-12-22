@@ -1,0 +1,23 @@
+# Staging Profile - Pre-production environment
+spring:
+  config:
+    activate:
+      on-profile: staging
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOSTNAME:eureka-staging}
+    prefer-ip-address: true
+  server:
+    # Faster eviction for testing
+    eviction-interval-timer-in-ms: 30000
+    renewal-percent-threshold: 0.85
+
+logging:
+  level:
+    root: INFO
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO
+
+server:
+  port: ${SERVER_PORT:8761}

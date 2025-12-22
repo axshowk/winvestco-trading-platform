@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for deposit and withdrawal operations
  */
 @RestController
-@RequestMapping("/api/funds")
+@RequestMapping("/api/v1/funds")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Transactions", description = "Deposit and withdrawal operations")

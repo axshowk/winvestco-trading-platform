@@ -31,7 +31,7 @@ import java.util.List;
  * NO PUT, PATCH, or DELETE endpoints exist.
  */
 @RestController
-@RequestMapping("/api/ledger")
+@RequestMapping("/api/v1/ledger")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Ledger", description = "Immutable ledger operations - Source of Truth")
@@ -70,7 +70,7 @@ public class LedgerController {
             @PathVariable Long walletId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<LedgerEntryDTO> entries = ledgerService.getEntriesForWallet(walletId, pageable);
         return ResponseEntity.ok(entries);
@@ -98,7 +98,7 @@ public class LedgerController {
             @PathVariable LedgerEntryType entryType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<LedgerEntryDTO> entries = ledgerService.getEntriesByType(walletId, entryType, pageable);
         return ResponseEntity.ok(entries);
@@ -120,7 +120,7 @@ public class LedgerController {
     public ResponseEntity<BigDecimal> getSumByType(
             @PathVariable Long walletId,
             @PathVariable LedgerEntryType entryType) {
-        
+
         BigDecimal sum = ledgerService.sumAmountsByType(walletId, entryType);
         return ResponseEntity.ok(sum);
     }
@@ -137,7 +137,7 @@ public class LedgerController {
     public ResponseEntity<List<LedgerEntryDTO>> getAuditEntries(
             @RequestParam Instant startDate,
             @RequestParam Instant endDate) {
-        
+
         List<LedgerEntryDTO> entries = ledgerService.getAllEntriesInDateRange(startDate, endDate);
         return ResponseEntity.ok(entries);
     }
@@ -148,7 +148,7 @@ public class LedgerController {
             @PathVariable Long walletId,
             @RequestParam Instant startDate,
             @RequestParam Instant endDate) {
-        
+
         List<LedgerEntryDTO> entries = ledgerService.getEntriesInDateRange(walletId, startDate, endDate);
         return ResponseEntity.ok(entries);
     }

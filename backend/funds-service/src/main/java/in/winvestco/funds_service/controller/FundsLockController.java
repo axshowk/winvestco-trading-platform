@@ -24,7 +24,7 @@ import java.util.List;
  * Used internally by order service for order placement.
  */
 @RestController
-@RequestMapping("/api/funds/locks")
+@RequestMapping("/api/v1/funds/locks")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Funds Locks", description = "Funds locking operations for orders")
@@ -39,16 +39,15 @@ public class FundsLockController {
     public ResponseEntity<FundsLockDTO> lockFunds(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody LockFundsRequest request) {
-        
+
         Long userId = extractUserId(jwt);
         log.info("Locking funds for user {} order {}", userId, request.getOrderId());
-        
+
         FundsLockDTO lock = fundsLockService.lockFunds(
                 userId,
                 request.getOrderId(),
                 request.getAmount(),
-                request.getReason()
-        );
+                request.getReason());
         return ResponseEntity.ok(lock);
     }
 
@@ -56,7 +55,7 @@ public class FundsLockController {
     @Operation(summary = "Unlock funds", description = "Release locked funds (order cancel/reject)")
     public ResponseEntity<FundsLockDTO> unlockFunds(@Valid @RequestBody ReleaseFundsRequest request) {
         log.info("Unlocking funds for order {}", request.getOrderId());
-        
+
         FundsLockDTO lock = fundsLockService.releaseFunds(request.getOrderId(), request.getReason());
         return ResponseEntity.ok(lock);
     }
@@ -65,7 +64,7 @@ public class FundsLockController {
     @Operation(summary = "Settle funds", description = "Settle locked funds (trade execution)")
     public ResponseEntity<FundsLockDTO> settleFunds(@Valid @RequestBody ReleaseFundsRequest request) {
         log.info("Settling funds for order {}", request.getOrderId());
-        
+
         FundsLockDTO lock = fundsLockService.settleFunds(request.getOrderId(), request.getReason());
         return ResponseEntity.ok(lock);
     }
@@ -75,7 +74,7 @@ public class FundsLockController {
     public ResponseEntity<List<FundsLockDTO>> getActiveLocks(@AuthenticationPrincipal Jwt jwt) {
         Long userId = extractUserId(jwt);
         WalletDTO wallet = walletService.getWalletByUserId(userId);
-        
+
         List<FundsLockDTO> locks = fundsLockService.getActiveLocksForWallet(wallet.getId());
         return ResponseEntity.ok(locks);
     }

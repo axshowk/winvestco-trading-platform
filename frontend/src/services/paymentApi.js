@@ -3,7 +3,7 @@
  * Handles Razorpay payment integration for deposits
  */
 
-const API_BASE_URL = '/api/payments';
+const API_BASE_URL = '/api/v1/payments';
 
 /**
  * Get auth headers with JWT token

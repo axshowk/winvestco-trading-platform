@@ -17,7 +17,7 @@ import java.util.Map;
  * Provides historical and latest candle data for charting.
  */
 @RestController
-@RequestMapping("/api/market")
+@RequestMapping("/api/v1/market")
 @RequiredArgsConstructor
 @Slf4j
 public class CandleController {
