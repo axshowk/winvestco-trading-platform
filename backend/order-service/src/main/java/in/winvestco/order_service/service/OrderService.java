@@ -46,9 +46,8 @@ public class OrderService {
     private String timezone;
 
     private static final List<OrderStatus> TERMINAL_STATUSES = List.of(
-            OrderStatus.FILLED, OrderStatus.CANCELLED, 
-            OrderStatus.REJECTED, OrderStatus.EXPIRED
-    );
+            OrderStatus.FILLED, OrderStatus.CANCELLED,
+            OrderStatus.REJECTED, OrderStatus.EXPIRED);
 
     /**
      * Create a new order
@@ -158,6 +157,29 @@ public class OrderService {
     }
 
     /**
+     * Handle order rejected event (e.g., from FundsService due to insufficient
+     * funds)
+     */
+    @Transactional
+    public void handleOrderRejected(String orderId, String reason) {
+        Order order = findOrderByOrderId(orderId);
+
+        // Transition to REJECTED if not already in terminal state
+        if (TERMINAL_STATUSES.contains(order.getStatus())) {
+            log.warn("Order {} already in terminal state: {}", orderId, order.getStatus());
+            return;
+        }
+
+        order.setStatus(OrderStatus.REJECTED);
+        order = orderRepository.save(order);
+
+        log.info("Order {} rejected: {}", orderId, reason);
+
+        // Publish updated event for notifications/UI
+        eventPublisher.publishOrderUpdated(order);
+    }
+
+    /**
      * Handle funds locked event - transition order to FUNDS_LOCKED
      */
     @Transactional
@@ -185,8 +207,8 @@ public class OrderService {
      * Handle trade executed event - update order fill
      */
     @Transactional
-    public void handleTradeExecuted(String orderId, BigDecimal executedQuantity, 
-                                    BigDecimal executedPrice, boolean isPartialFill) {
+    public void handleTradeExecuted(String orderId, BigDecimal executedQuantity,
+            BigDecimal executedPrice, boolean isPartialFill) {
         Order order = findOrderByOrderId(orderId);
 
         // Update filled quantity
@@ -214,7 +236,7 @@ public class OrderService {
         }
 
         order = orderRepository.save(order);
-        
+
         // Publish filled event for notifications
         eventPublisher.publishOrderFilled(order);
         eventPublisher.publishOrderUpdated(order);
@@ -226,10 +248,9 @@ public class OrderService {
     @Transactional
     public int expireOrders() {
         List<OrderStatus> activeStatuses = List.of(
-                OrderStatus.NEW, OrderStatus.VALIDATED, 
-                OrderStatus.FUNDS_LOCKED, OrderStatus.PENDING, 
-                OrderStatus.PARTIALLY_FILLED
-        );
+                OrderStatus.NEW, OrderStatus.VALIDATED,
+                OrderStatus.FUNDS_LOCKED, OrderStatus.PENDING,
+                OrderStatus.PARTIALLY_FILLED);
 
         List<Order> expiredOrders = orderRepository.findExpiredOrders(activeStatuses, Instant.now());
 

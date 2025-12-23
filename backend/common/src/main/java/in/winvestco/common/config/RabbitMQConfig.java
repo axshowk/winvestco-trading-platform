@@ -86,6 +86,9 @@ public class RabbitMQConfig {
 
     // Order Service specific queues
     public static final String ORDER_VALIDATED_FUNDS_QUEUE = "order.validated.funds.queue";
+    public static final String ORDER_REJECTED_ORDER_QUEUE = "order.rejected.order.queue";
+    public static final String ORDER_CANCELLED_FUNDS_QUEUE = "order.cancelled.funds.queue";
+    public static final String ORDER_CANCELLED_TRADE_QUEUE = "order.cancelled.trade.queue";
     public static final String FUNDS_LOCKED_ORDER_QUEUE = "funds.locked.order.queue";
     public static final String TRADE_EXECUTED_ORDER_QUEUE = "trade.executed.order.queue";
 
@@ -96,6 +99,7 @@ public class RabbitMQConfig {
     public static final String TRADE_CLOSED_NOTIFICATION_QUEUE = "trade.closed.notification.queue";
     public static final String TRADE_CANCELLED_NOTIFICATION_QUEUE = "trade.cancelled.notification.queue";
     public static final String TRADE_FAILED_NOTIFICATION_QUEUE = "trade.failed.notification.queue";
+    public static final String TRADE_FAILED_FUNDS_QUEUE = "trade.failed.funds.queue";
     public static final String TRADE_CLOSED_FUNDS_QUEUE = "trade.closed.funds.queue";
     public static final String TRADE_CANCELLED_FUNDS_QUEUE = "trade.cancelled.funds.queue";
     public static final String TRADE_PLACED_MOCK_QUEUE = "trade.placed.mock.queue";
@@ -582,6 +586,33 @@ public class RabbitMQConfig {
                 .build();
     }
 
+    @Bean
+    public Queue orderRejectedOrderQueue() {
+        return QueueBuilder.durable(ORDER_REJECTED_ORDER_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", ORDER_REJECTED_ORDER_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue orderCancelledFundsQueue() {
+        return QueueBuilder.durable(ORDER_CANCELLED_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", ORDER_CANCELLED_FUNDS_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    @Bean
+    public Queue orderCancelledTradeQueue() {
+        return QueueBuilder.durable(ORDER_CANCELLED_TRADE_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", ORDER_CANCELLED_TRADE_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
     // Order Service Bindings
     @Bean
     public Binding orderValidatedFundsBinding() {
@@ -602,6 +633,27 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(tradeExecutedOrderQueue())
                 .to(tradeExchange())
                 .with(TRADE_EXECUTED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding orderRejectedOrderBinding() {
+        return BindingBuilder.bind(orderRejectedOrderQueue())
+                .to(orderExchange())
+                .with(ORDER_REJECTED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding orderCancelledFundsBinding() {
+        return BindingBuilder.bind(orderCancelledFundsQueue())
+                .to(orderExchange())
+                .with(ORDER_CANCELLED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding orderCancelledTradeBinding() {
+        return BindingBuilder.bind(orderCancelledTradeQueue())
+                .to(orderExchange())
+                .with(ORDER_CANCELLED_ROUTING_KEY);
     }
 
     // =====================================================
@@ -877,6 +929,15 @@ public class RabbitMQConfig {
                 .build();
     }
 
+    @Bean
+    public Queue tradeFailedFundsQueue() {
+        return QueueBuilder.durable(TRADE_FAILED_FUNDS_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", TRADE_FAILED_FUNDS_QUEUE + ".dlq")
+                .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
     // Trade Service Bindings
     @Bean
     public Binding fundsLockedTradeBinding() {
@@ -932,6 +993,13 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(tradeCancelledFundsQueue())
                 .to(tradeExchange())
                 .with(TRADE_CANCELLED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tradeFailedFundsBinding() {
+        return BindingBuilder.bind(tradeFailedFundsQueue())
+                .to(tradeExchange())
+                .with(TRADE_FAILED_ROUTING_KEY);
     }
 
     // Mock Execution Engine Queue and Binding

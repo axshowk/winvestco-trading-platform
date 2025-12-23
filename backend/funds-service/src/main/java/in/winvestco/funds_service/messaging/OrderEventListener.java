@@ -2,6 +2,7 @@ package in.winvestco.funds_service.messaging;
 
 import com.rabbitmq.client.Channel;
 import in.winvestco.common.config.RabbitMQConfig;
+import in.winvestco.common.event.OrderCancelledEvent;
 import in.winvestco.common.event.OrderValidatedEvent;
 import in.winvestco.funds_service.dto.FundsLockDTO;
 import in.winvestco.funds_service.exception.InsufficientFundsException;
@@ -93,6 +94,36 @@ public class OrderEventListener {
                 channel.basicNack(deliveryTag, false, true);
             } catch (Exception nackEx) {
                 log.error("Failed to nack message for order: {}", event.getOrderId(), nackEx);
+            }
+        }
+    }
+
+    /**
+     * Handle OrderCancelledEvent - release locked funds for the order.
+     */
+    @RabbitListener(queues = RabbitMQConfig.ORDER_CANCELLED_FUNDS_QUEUE)
+    public void handleOrderCancelled(OrderCancelledEvent event, Channel channel,
+            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
+        log.info("Received OrderCancelledEvent for order: {}, user: {}, reason: {}",
+                event.getOrderId(), event.getUserId(), event.getCancelReason());
+
+        try {
+            // compensation: release locked funds
+            fundsLockService.releaseFunds(
+                    event.getOrderId(),
+                    "Order cancelled: " + event.getCancelReason());
+
+            // Acknowledge message
+            channel.basicAck(deliveryTag, false);
+            log.info("Successfully released funds for cancelled order: {}", event.getOrderId());
+
+        } catch (Exception e) {
+            log.error("Failed to process OrderCancelledEvent for order: {}", event.getOrderId(), e);
+            try {
+                // Reject and requeue for retry
+                channel.basicNack(deliveryTag, false, true);
+            } catch (Exception nackEx) {
+                log.error("Failed to nack message for order cancellation: {}", event.getOrderId(), nackEx);
             }
         }
     }
