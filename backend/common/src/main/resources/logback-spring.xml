@@ -10,19 +10,30 @@
 
     <!-- Console appender with JSON structured logging -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>traceId</includeMdcKeyName>
-            <includeMdcKeyName>spanId</includeMdcKeyName>
-            <includeMdcKeyName>requestId</includeMdcKeyName>
-            <includeMdcKeyName>userId</includeMdcKeyName>
-            <includeMdcKeyName>serviceName</includeMdcKeyName>
-            <customFields>{"service":"${spring.application.name:-unknown}","environment":"${spring.profiles.active:-default}"}</customFields>
-            <fieldNames>
-                <timestamp>@timestamp</timestamp>
-                <version>[ignore]</version>
-            </fieldNames>
-            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampPattern>
-        </encoder>
+        <!-- Human-readable logs for development -->
+        <springProfile name="dev | default">
+            <encoder>
+                <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr([%X{traceId:-},%X{spanId:-}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </springProfile>
+        
+        <!-- Structured JSON logs for other environments (e.g., staging, prod, docker) -->
+        <springProfile name="!dev &amp; !default">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <includeMdcKeyName>spanId</includeMdcKeyName>
+                <includeMdcKeyName>requestId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+                <includeMdcKeyName>serviceName</includeMdcKeyName>
+                <customFields>{"service":"${spring.application.name:-unknown}","environment":"${spring.profiles.active:-default}"}</customFields>
+                <fieldNames>
+                    <timestamp>@timestamp</timestamp>
+                    <version>[ignore]</version>
+                </fieldNames>
+                <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampPattern>
+            </encoder>
+        </springProfile>
     </appender>
 
     <!-- File appender for all logs with JSON format -->

@@ -22,12 +22,13 @@ import java.util.List;
 @Slf4j
 public class ExcelReportGenerator {
 
-    private static final DateTimeFormatter DATE_FORMATTER = 
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
 
+    @SuppressWarnings("unchecked")
     public byte[] generate(Object data, String title) {
         try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
             // Create header style
             CellStyle headerStyle = workbook.createCellStyle();
@@ -66,7 +67,7 @@ public class ExcelReportGenerator {
         // Summary sheet
         Sheet summarySheet = workbook.createSheet("Summary");
         int row = 0;
-        
+
         addRow(summarySheet, row++, "P&L Report");
         addRow(summarySheet, row++, "Period", data.getFromDate() + " to " + data.getToDate());
         addRow(summarySheet, row++, "Generated", data.getGeneratedAt());
@@ -78,7 +79,7 @@ public class ExcelReportGenerator {
         // Holdings sheet
         if (data.getHoldings() != null && !data.getHoldings().isEmpty()) {
             Sheet holdingsSheet = workbook.createSheet("Holdings");
-            String[] headers = {"Symbol", "Quantity", "Avg Price", "Current Price", "P&L", "P&L %"};
+            String[] headers = { "Symbol", "Quantity", "Avg Price", "Current Price", "P&L", "P&L %" };
             createHeaderRow(holdingsSheet, headers, headerStyle);
 
             int r = 1;
@@ -110,7 +111,7 @@ public class ExcelReportGenerator {
 
     private void generateTradeHistory(Workbook workbook, List<TradeProjection> trades, CellStyle headerStyle) {
         Sheet sheet = workbook.createSheet("Trade History");
-        String[] headers = {"Symbol", "Side", "Quantity", "Price", "Value", "Date"};
+        String[] headers = { "Symbol", "Side", "Quantity", "Price", "Value", "Date" };
         createHeaderRow(sheet, headers, headerStyle);
 
         int row = 1;
@@ -128,7 +129,7 @@ public class ExcelReportGenerator {
 
     private void generateHoldingsSummary(Workbook workbook, List<HoldingProjection> holdings, CellStyle headerStyle) {
         Sheet sheet = workbook.createSheet("Holdings");
-        String[] headers = {"Symbol", "Quantity", "Avg Price", "Total Invested"};
+        String[] headers = { "Symbol", "Quantity", "Avg Price", "Total Invested" };
         createHeaderRow(sheet, headers, headerStyle);
 
         int row = 1;
@@ -144,7 +145,7 @@ public class ExcelReportGenerator {
 
     private void generateTransactionHistory(Workbook workbook, List<LedgerProjection> ledger, CellStyle headerStyle) {
         Sheet sheet = workbook.createSheet("Transactions");
-        String[] headers = {"Date", "Type", "Amount", "Balance Before", "Balance After", "Description"};
+        String[] headers = { "Date", "Type", "Amount", "Balance Before", "Balance After", "Description" };
         createHeaderRow(sheet, headers, headerStyle);
 
         int row = 1;

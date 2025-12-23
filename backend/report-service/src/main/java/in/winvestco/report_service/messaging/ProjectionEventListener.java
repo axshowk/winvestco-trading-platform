@@ -13,11 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-import static in.winvestco.common.config.RabbitMQConfig.*;
-
 /**
  * Event listener for building local projections from domain events.
- * Implements Event Sourcing pattern - subscribes to events and updates local tables.
+ * Implements Event Sourcing pattern - subscribes to events and updates local
+ * tables.
  */
 @Component
 @RequiredArgsConstructor
@@ -33,8 +32,7 @@ public class ProjectionEventListener {
     /**
      * Handle TradeExecutedEvent - update trade and holding projections
      */
-    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).TRADE_EXECUTED_REPORT_QUEUE}", 
-                    containerFactory = "rabbitListenerContainerFactory")
+    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).TRADE_EXECUTED_REPORT_QUEUE}", containerFactory = "rabbitListenerContainerFactory")
     @Transactional
     public void handleTradeExecuted(TradeExecutedEvent event) {
         String eventId = "trade-executed-" + event.getTradeId();
@@ -43,7 +41,7 @@ public class ProjectionEventListener {
             return;
         }
 
-        log.info("Processing TradeExecutedEvent: tradeId={}, symbol={}, side={}", 
+        log.info("Processing TradeExecutedEvent: tradeId={}, symbol={}, side={}",
                 event.getTradeId(), event.getSymbol(), event.getSide());
 
         try {
@@ -54,8 +52,8 @@ public class ProjectionEventListener {
                     .userId(event.getUserId())
                     .symbol(event.getSymbol())
                     .side(event.getSide().name())
-                    .quantity(event.getQuantity())
-                    .price(event.getPrice())
+                    .quantity(event.getExecutedQuantity())
+                    .price(event.getExecutedPrice())
                     .executedAt(event.getExecutedAt())
                     .status("EXECUTED")
                     .build();
@@ -76,16 +74,15 @@ public class ProjectionEventListener {
     /**
      * Handle FundsDepositedEvent - update ledger and wallet projections
      */
-    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).FUNDS_DEPOSITED_REPORT_QUEUE}",
-                    containerFactory = "rabbitListenerContainerFactory")
+    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).FUNDS_DEPOSITED_REPORT_QUEUE}", containerFactory = "rabbitListenerContainerFactory")
     @Transactional
     public void handleFundsDeposited(FundsDepositedEvent event) {
-        String eventId = "funds-deposited-" + event.getTransactionId();
-        if (isEventProcessed(eventId)) {
+        String eventId = "funds-deposited-" + event.getReferenceId();
+        if (eventId == null || isEventProcessed(eventId)) {
             return;
         }
 
-        log.info("Processing FundsDepositedEvent: userId={}, amount={}", 
+        log.info("Processing FundsDepositedEvent: userId={}, amount={}",
                 event.getUserId(), event.getAmount());
 
         try {
@@ -96,8 +93,8 @@ public class ProjectionEventListener {
                     .entryType("DEPOSIT")
                     .amount(event.getAmount())
                     .balanceBefore(event.getBalanceBefore())
-                    .balanceAfter(event.getBalanceAfter())
-                    .referenceId(event.getTransactionId())
+                    .balanceAfter(event.getNewBalance())
+                    .referenceId(event.getReferenceId())
                     .referenceType("DEPOSIT")
                     .description("Funds deposit")
                     .createdAt(event.getDepositedAt())
@@ -105,8 +102,8 @@ public class ProjectionEventListener {
             ledgerProjectionRepository.save(ledger);
 
             // Update wallet projection
-            updateWalletProjection(event.getUserId(), event.getWalletId(), 
-                    event.getBalanceAfter(), BigDecimal.ZERO);
+            updateWalletProjection(event.getUserId(), event.getWalletId(),
+                    event.getNewBalance(), BigDecimal.ZERO);
 
             markEventProcessed(eventId, "FundsDepositedEvent");
 
@@ -119,16 +116,15 @@ public class ProjectionEventListener {
     /**
      * Handle FundsWithdrawnEvent - update ledger projection
      */
-    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).FUNDS_WITHDRAWN_REPORT_QUEUE}",
-                    containerFactory = "rabbitListenerContainerFactory")
+    @RabbitListener(queues = "#{T(in.winvestco.common.config.RabbitMQConfig).FUNDS_WITHDRAWN_REPORT_QUEUE}", containerFactory = "rabbitListenerContainerFactory")
     @Transactional
     public void handleFundsWithdrawn(FundsWithdrawnEvent event) {
-        String eventId = "funds-withdrawn-" + event.getTransactionId();
-        if (isEventProcessed(eventId)) {
+        String eventId = "funds-withdrawn-" + event.getReferenceId();
+        if (eventId == null || isEventProcessed(eventId)) {
             return;
         }
 
-        log.info("Processing FundsWithdrawnEvent: userId={}, amount={}", 
+        log.info("Processing FundsWithdrawnEvent: userId={}, amount={}",
                 event.getUserId(), event.getAmount());
 
         try {
@@ -138,8 +134,8 @@ public class ProjectionEventListener {
                     .entryType("WITHDRAWAL")
                     .amount(event.getAmount().negate())
                     .balanceBefore(event.getBalanceBefore())
-                    .balanceAfter(event.getBalanceAfter())
-                    .referenceId(event.getTransactionId())
+                    .balanceAfter(event.getNewBalance())
+                    .referenceId(event.getReferenceId())
                     .referenceType("WITHDRAWAL")
                     .description("Funds withdrawal")
                     .createdAt(event.getWithdrawnAt())
@@ -147,7 +143,7 @@ public class ProjectionEventListener {
             ledgerProjectionRepository.save(ledger);
 
             updateWalletProjection(event.getUserId(), event.getWalletId(),
-                    event.getBalanceAfter(), BigDecimal.ZERO);
+                    event.getNewBalance(), BigDecimal.ZERO);
 
             markEventProcessed(eventId, "FundsWithdrawnEvent");
 
@@ -171,16 +167,16 @@ public class ProjectionEventListener {
                         .build());
 
         if ("BUY".equalsIgnoreCase(event.getSide().name())) {
-            holding.applyBuy(event.getQuantity(), event.getPrice());
+            holding.applyBuy(event.getExecutedQuantity(), event.getExecutedPrice());
         } else {
-            holding.applySell(event.getQuantity());
+            holding.applySell(event.getExecutedQuantity());
         }
 
         holdingProjectionRepository.save(holding);
     }
 
-    private void updateWalletProjection(Long userId, Long walletId, 
-                                         BigDecimal availableBalance, BigDecimal lockedBalance) {
+    private void updateWalletProjection(Long userId, Long walletId,
+            BigDecimal availableBalance, BigDecimal lockedBalance) {
         WalletProjection wallet = walletProjectionRepository.findByUserId(userId)
                 .orElse(WalletProjection.builder()
                         .userId(userId)

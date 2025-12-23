@@ -1,17 +1,17 @@
 package in.winvestco.common.event;
 
-import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class UserCreatedEvent implements Serializable {
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class UserCreatedEvent extends BaseEvent {
 
     private Long userId;
     private String email;

@@ -10,12 +10,15 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 /**
  * Centralized RabbitMQ configuration with modern practices:
@@ -210,7 +213,8 @@ public class RabbitMQConfig {
 
     @Bean
     public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(
-            ConnectionFactory connectionFactory, MessageConverter messageConverter) {
+            ConnectionFactory connectionFactory, MessageConverter messageConverter,
+            RetryOperationsInterceptor retryInterceptor) {
 
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
@@ -226,12 +230,24 @@ public class RabbitMQConfig {
         // Set prefetch count for better performance
         factory.setPrefetchCount(10);
 
+        // Use the common retry interceptor
+        factory.setAdviceChain(retryInterceptor);
+
         // Enable retry with default configuration
         // Note: For more advanced retry configuration, consider using @Retryable
         // annotation on message handlers
         factory.setDefaultRequeueRejected(false);
 
         return factory;
+    }
+
+    @Bean
+    public RetryOperationsInterceptor retryInterceptor(RabbitTemplate rabbitTemplate) {
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 10000) // Initial 1s, multiplier 2.0, max 10s
+                .recoverer(new RepublishMessageRecoverer(rabbitTemplate, DLQ_EXCHANGE, DLQ_QUEUE))
+                .build();
     }
 
     @Bean

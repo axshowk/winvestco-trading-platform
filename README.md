@@ -60,6 +60,8 @@
 ### Technical Highlights
 - **☁️ Cloud-Native Architecture** - 12 microservices with service discovery and API gateway
 - **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events
+- **🔀 SAGA Orchestration** - Choreography-based distributed transactions with compensation logic for order-to-trade lifecycle
+- **📨 Message Queue Reliability** - Idempotency service, Outbox pattern, DLQ with retry interceptor for guaranteed delivery
 - **💾 Redis Caching** - High-performance caching for market data and sessions
 - **📝 Database Migrations** - Flyway for version-controlled schema management
 - **🛡️ API Security** - OAuth2/JWT authentication with Spring Security
@@ -67,11 +69,12 @@
 - **🐳 Docker Support** - Complete containerization with Docker Compose
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
 - **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) for metrics & logging
-- **🔁 Event Sourcing Ready** - Domain events for all key business actions
+- **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs
 - **🛡️ Resilience4j Integration** - Circuit breakers, rate limiters, retries with exponential backoff and jitter
 - **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
 - **🌐 Environment-Specific Profiles** - 48 profile files (dev, docker, staging, prod) for secure and flexible deployment
 - **📝 Structured Logging** - JSON-formatted logging with consistent fields across all services for better log aggregation
+- **🧪 Comprehensive Unit Tests** - 26 test classes across all microservices with JUnit 5 & Mockito
 
 ---
 
@@ -232,6 +235,52 @@ The platform uses an event-driven architecture with the following domain events 
 | **Payment Events** | `PaymentCreatedEvent`, `PaymentSuccessEvent`, `PaymentFailedEvent`, `PaymentExpiredEvent` |
 | **Ledger Events** | `LedgerEntryEvent` |
 
+### SAGA Pattern Architecture
+
+The platform implements choreography-based SAGA for distributed transactions with compensation logic:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│                           ORDER-TO-TRADE SAGA FLOW                                       │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│  ┌─────────────┐    OrderValidatedEvent    ┌─────────────┐    FundsLockedEvent          │
+│  │   ORDER     │ ─────────────────────────►│   FUNDS     │ ────────────────────┐        │
+│  │   SERVICE   │                           │   SERVICE   │                     │        │
+│  │             │◄───────────────────────── │             │◄──────────────┐     │        │
+│  │ NEW→VALIDATED│   OrderRejectedEvent     │ Lock Funds  │               │     │        │
+│  │ →FUNDS_LOCKED│   (Insufficient Funds)   └─────────────┘               │     ▼        │
+│  │ →PENDING     │                                                        │  ┌─────────┐ │
+│  └──────┬───────┘                                                        │  │ TRADE   │ │
+│         │                                                                │  │ SERVICE │ │
+│         │ OrderFilledEvent                 ┌─────────────┐               │  │         │ │
+│         └─────────────────────────────────►│ PORTFOLIO   │               │  │ CREATED │ │
+│                                            │ SERVICE     │               │  │→VALIDATED│ │
+│  ┌─────────────────────────────────────────│             │               │  │→PLACED  │ │
+│  │ TradeExecutedEvent                      │Update       │               │  │→EXECUTED│ │
+│  │ (triggers position update)              │Holdings     │               │  └────┬────┘ │
+│  │                                         └─────────────┘               │       │      │
+│  │                                                                       │       │      │
+│  │  COMPENSATION FLOWS:                                                  │       │      │
+│  │  ─────────────────                                                    │       │      │
+│  │  • TradeFailedEvent    → FundsService releases locked funds           │       │      │
+│  │  • OrderCancelledEvent → FundsService releases locked funds           │       │      │
+│  │  • OrderCancelledEvent → TradeService cancels trade                   │       │      │
+│  │                                                                       │       │      │
+└──┴───────────────────────────────────────────────────────────────────────┴───────┴──────┘
+```
+
+### Message Queue Reliability Infrastructure
+
+| Component | Purpose |
+|-----------|---------|
+| **BaseEvent** | Abstract base with `correlationId` and `timestamp` for tracing & deduplication |
+| **IdempotencyService** | Tracks processed events to prevent duplicate handling |
+| **OutboxService** | Captures events in DB within same transaction for guaranteed delivery |
+| **OutboxProcessor** | Background job publishes pending outbox events to RabbitMQ |
+| **RetryInterceptor** | Automatic retries with exponential backoff (1s initial, 2x multiplier, 10s max) |
+| **Dead Letter Queue** | Failed messages republished to DLQ after max retry attempts |
+
 ---
 
 ## 📁 Project Structure
@@ -248,12 +297,13 @@ winvestco-trading-platform/
 │   ├── 📄 .env.example           # Environment variables template
 │   │
 │   ├── 📁 common/                # Shared library module
-│   │   ├── 📁 config/            # Common configurations (Redis, Cache, Security)
+│   │   ├── 📁 config/            # Common configurations (Redis, Cache, Security, RabbitMQ)
 │   │   ├── 📁 dto/               # Shared DTOs
 │   │   ├── 📁 enums/             # Enumerations (17 enums: Order, Trade, Payment, Wallet, Ledger types)
-│   │   ├── 📁 event/             # Domain events (26 events for User, Order, Funds, Trade, Payment)
+│   │   ├── 📁 event/             # Domain events (26 events with BaseEvent for correlation IDs)
 │   │   ├── 📁 exception/         # Global exception handling
 │   │   ├── 📁 interceptor/       # Rate limiting interceptors
+│   │   ├── 📁 messaging/         # Message reliability (IdempotencyService, OutboxService)
 │   │   ├── 📁 security/          # JWT & auth utilities
 │   │   ├── 📁 service/           # Shared services (Redis, RateLimit)
 │   │   └── 📁 util/              # Logging & utility classes
@@ -746,17 +796,26 @@ Tests use H2 in-memory database and mock external services. Test configurations 
 
 ### Test Coverage
 
-The project includes:
+The project includes **26 test classes** across all microservices:
+
+| Module | Test Classes |
+|--------|--------------|
+| **Common** | `GlobalExceptionHandlerTest`, `ResourceNotFoundExceptionTest`, `NonRetryableExceptionTest`, `ResilienceEventLoggerTest`, `LoggingUtilsTest` |
+| **API Gateway** | `JwtAuthenticationFilterTest` |
+| **User Service** | `AuthControllerTest`, `UserServiceTest`, `JwtServiceTest`, `UserRepositoryTest`, `RegisterRequestTest` |
+| **Market Service** | `MarketDataServiceTest`, `NseClientResilienceTest` |
+| **Funds Service** | `WalletServiceTest`, `LedgerClientFallbackTest` |
+| **Ledger Service** | `LedgerServiceTest` |
+| **Order Service** | `OrderServiceTest`, `OrderServiceObservabilityTest` |
+| **Trade Service** | `TradeServiceTest`, `TradeServiceObservabilityTest`, `MockExecutionEngineTest` |
+| **Portfolio Service** | `PortfolioServiceTest` |
+| **Payment Service** | `PaymentServiceTest`, `PaymentServiceObservabilityTest` |
+| **Notification Service** | `NotificationServiceTest` |
+| **Report Service** | `ReportServiceTest` |
+
 - **Unit Tests**: Comprehensive JUnit 5 & Mockito tests for all microservices
 - **Integration Tests**: Work in progress
 - **Test Coverage**: JaCoCo configured for code coverage analysis
-- **Recent Implementations**:
-  - ✅ **Funds Service**: Wallet operations, locking, and transaction history
-  - ✅ **Ledger Service**: Immutable ledger entry recording
-  - ✅ **Portfolio Service**: Holdings and P&L calculation logic
-  - ✅ **Notification Service**: Email and WebSocket notification delivery
-  - ✅ **Order Service**: Order validation and lifecycle management
-  - ✅ **Trade Service**: Trade lifecycle, execution, and state machine management
 
 ---
 
@@ -862,6 +921,7 @@ We document significant architectural decisions using Architecture Decision Reco
 | [ADR-0008](docs/adr/0008-resilience4j-fault-tolerance.md) | Resilience4j for Fault Tolerance |
 | [ADR-0009](docs/adr/0009-api-gateway-pattern.md) | API Gateway Pattern |
 | [ADR-0010](docs/adr/0010-plg-stack-observability.md) | PLG Stack for Observability |
+| [ADR-0011](docs/adr/0011-environment-specific-profiles.md) | Environment-Specific Profiles |
 
 ---
 

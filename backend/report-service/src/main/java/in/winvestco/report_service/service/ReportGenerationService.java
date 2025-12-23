@@ -1,7 +1,6 @@
 package in.winvestco.report_service.service;
 
 import in.winvestco.common.enums.ReportFormat;
-import in.winvestco.common.enums.ReportType;
 import in.winvestco.common.event.ReportCompletedEvent;
 import in.winvestco.common.event.ReportFailedEvent;
 import in.winvestco.report_service.dto.PnLReportData;
@@ -17,7 +16,6 @@ import in.winvestco.report_service.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -52,11 +50,11 @@ public class ReportGenerationService {
     private final TradeProjectionRepository tradeProjectionRepository;
     private final HoldingProjectionRepository holdingProjectionRepository;
     private final LedgerProjectionRepository ledgerProjectionRepository;
-    
+
     private final PdfReportGenerator pdfGenerator;
     private final ExcelReportGenerator excelGenerator;
     private final CsvReportGenerator csvGenerator;
-    
+
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${report.storage.path:./reports}")
@@ -69,7 +67,7 @@ public class ReportGenerationService {
     @Transactional
     public void generateReportAsync(Long reportId) {
         log.info("Starting async report generation for ID: {}", reportId);
-        
+
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found: " + reportId));
 
@@ -89,14 +87,14 @@ public class ReportGenerationService {
             // Save file
             String fileName = buildFileName(report);
             Path filePath = saveReportFile(content, fileName);
-            
+
             // Update report status
             report.complete(filePath.toString(), (long) content.length);
             reportRepository.save(report);
 
             // Publish completion event
             publishCompletionEvent(report);
-            
+
             log.info("Report {} generated successfully: {}", report.getReportId(), fileName);
 
         } catch (Exception e) {
@@ -109,7 +107,7 @@ public class ReportGenerationService {
 
     private byte[] generatePnLReport(Report report) {
         Long userId = report.getUserId();
-        Instant fromDate = report.getFromDate() != null ? report.getFromDate() 
+        Instant fromDate = report.getFromDate() != null ? report.getFromDate()
                 : Instant.now().minus(365, ChronoUnit.DAYS);
         Instant toDate = report.getToDate() != null ? report.getToDate() : Instant.now();
 
@@ -128,7 +126,7 @@ public class ReportGenerationService {
 
     private byte[] generateTaxReport(Report report) {
         Long userId = report.getUserId();
-        Instant fromDate = report.getFromDate() != null ? report.getFromDate() 
+        Instant fromDate = report.getFromDate() != null ? report.getFromDate()
                 : getFinancialYearStart();
         Instant toDate = report.getToDate() != null ? report.getToDate() : Instant.now();
 
@@ -142,7 +140,7 @@ public class ReportGenerationService {
 
     private byte[] generateTransactionHistoryReport(Report report) {
         Long userId = report.getUserId();
-        Instant fromDate = report.getFromDate() != null ? report.getFromDate() 
+        Instant fromDate = report.getFromDate() != null ? report.getFromDate()
                 : Instant.now().minus(90, ChronoUnit.DAYS);
         Instant toDate = report.getToDate() != null ? report.getToDate() : Instant.now();
 
@@ -161,7 +159,7 @@ public class ReportGenerationService {
 
     private byte[] generateTradeHistoryReport(Report report) {
         Long userId = report.getUserId();
-        Instant fromDate = report.getFromDate() != null ? report.getFromDate() 
+        Instant fromDate = report.getFromDate() != null ? report.getFromDate()
                 : Instant.now().minus(365, ChronoUnit.DAYS);
         Instant toDate = report.getToDate() != null ? report.getToDate() : Instant.now();
 
@@ -180,20 +178,21 @@ public class ReportGenerationService {
     }
 
     private PnLReportData buildPnLReportData(Long userId, List<TradeProjection> trades,
-                                              List<HoldingProjection> holdings,
-                                              Instant fromDate, Instant toDate) {
+            List<HoldingProjection> holdings,
+            Instant fromDate, Instant toDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.systemDefault());
-        
-        // Calculate realized P&L from trades (simplified - actual would need buy/sell matching)
+
+        // Calculate realized P&L from trades (simplified - actual would need buy/sell
+        // matching)
         BigDecimal realizedPnL = BigDecimal.ZERO;
         List<PnLReportData.TradePnL> tradePnLs = new ArrayList<>();
-        
+
         for (TradeProjection trade : trades) {
             if (trade.isSell()) {
                 // Simplified: assuming profit = sell price - some average (mock)
                 BigDecimal profit = trade.getValue().multiply(new BigDecimal("0.05")); // Mock 5% profit
                 realizedPnL = realizedPnL.add(profit);
-                
+
                 tradePnLs.add(PnLReportData.TradePnL.builder()
                         .tradeId(trade.getTradeId())
                         .symbol(trade.getSymbol())
@@ -209,7 +208,7 @@ public class ReportGenerationService {
         // Calculate unrealized P&L from holdings (mock current prices)
         BigDecimal unrealizedPnL = BigDecimal.ZERO;
         List<PnLReportData.HoldingPnL> holdingPnLs = new ArrayList<>();
-        
+
         for (HoldingProjection holding : holdings) {
             if (holding.getQuantity().compareTo(BigDecimal.ZERO) > 0) {
                 // Mock current price as 5% above average (for demo)
@@ -222,7 +221,7 @@ public class ReportGenerationService {
                         : BigDecimal.ZERO;
 
                 unrealizedPnL = unrealizedPnL.add(pnl);
-                
+
                 holdingPnLs.add(PnLReportData.HoldingPnL.builder()
                         .symbol(holding.getSymbol())
                         .quantity(holding.getQuantity())
@@ -250,9 +249,9 @@ public class ReportGenerationService {
     }
 
     private TaxReportData buildTaxReportData(Long userId, List<TradeProjection> trades,
-                                              Instant fromDate, Instant toDate) {
+            Instant fromDate, Instant toDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.systemDefault());
-        
+
         // Group by STCG (< 365 days) and LTCG (>= 365 days)
         BigDecimal stcg = BigDecimal.ZERO;
         BigDecimal ltcg = BigDecimal.ZERO;
@@ -264,7 +263,7 @@ public class ReportGenerationService {
                 // Mock holding period (would need actual buy date in production)
                 int holdingDays = (int) (Math.random() * 500); // Mock
                 BigDecimal gain = trade.getValue().multiply(new BigDecimal("0.05")); // Mock 5% gain
-                
+
                 TaxReportData.CapitalGainEntry entry = TaxReportData.CapitalGainEntry.builder()
                         .symbol(trade.getSymbol())
                         .quantity(trade.getQuantity())
@@ -286,7 +285,7 @@ public class ReportGenerationService {
         }
 
         String fy = getFinancialYearString();
-        
+
         return TaxReportData.builder()
                 .userId(userId)
                 .financialYear(fy)
@@ -307,10 +306,10 @@ public class ReportGenerationService {
             case EXCEL -> ".xlsx";
             case CSV -> ".csv";
         };
-        
+
         String typeName = report.getReportType().name().toLowerCase().replace("_", "-");
-        return String.format("%s_%s_%s%s", 
-                typeName, 
+        return String.format("%s_%s_%s%s",
+                typeName,
                 report.getUserId(),
                 report.getReportId().substring(0, 8),
                 extension);
@@ -321,7 +320,7 @@ public class ReportGenerationService {
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
-        
+
         Path filePath = dir.resolve(fileName);
         Files.write(filePath, content);
         return filePath;
@@ -337,7 +336,7 @@ public class ReportGenerationService {
                     .fileSizeBytes(report.getFileSizeBytes())
                     .completedAt(report.getCompletedAt())
                     .build();
-            
+
             rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "report.completed", event);
         } catch (Exception e) {
             log.warn("Failed to publish report completion event: {}", e.getMessage());
@@ -353,7 +352,7 @@ public class ReportGenerationService {
                     .reason(reason)
                     .failedAt(Instant.now())
                     .build();
-            
+
             rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "report.failed", event);
         } catch (Exception e) {
             log.warn("Failed to publish report failure event: {}", e.getMessage());

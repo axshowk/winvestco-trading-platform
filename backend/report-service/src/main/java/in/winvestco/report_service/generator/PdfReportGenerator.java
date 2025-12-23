@@ -28,9 +28,10 @@ import java.util.List;
 @Slf4j
 public class PdfReportGenerator {
 
-    private static final DateTimeFormatter DATE_FORMATTER = 
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
 
+    @SuppressWarnings("unchecked")
     public byte[] generate(Object data, String title) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);

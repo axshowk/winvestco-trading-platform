@@ -1,0 +1,38 @@
+groups:
+  - name: winvestco-alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "Service {{ $labels.service }} instance has been down for more than 30 seconds."
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[1m])) by (service) / sum(rate(http_server_requests_seconds_count[1m])) by (service) > 0.01
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate on {{ $labels.service }} is above 1% for the last minute."
+
+      - alert: SlowTradeExecution
+        expr: rate(trade_execution_latency_seconds_sum[5m]) / rate(trade_execution_latency_seconds_count[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow trade execution detected"
+          description: "Average trade execution latency is above 5 seconds."
+
+      - alert: DLQDepthHigh
+        expr: rabbitmq_queue_messages{queue="dlq.queue"} > 100
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dead Letter Queue depth is high"
+          description: "The number of messages in the dead letter queue is above 100."

@@ -8,6 +8,9 @@ import in.winvestco.trade_service.exception.TradeNotFoundException;
 import in.winvestco.trade_service.mapper.TradeMapper;
 import in.winvestco.trade_service.model.Trade;
 import in.winvestco.trade_service.repository.TradeRepository;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +51,8 @@ public class TradeService {
     private final TradeMapper tradeMapper;
     private final TradeValidationService validationService;
     private final TradeEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
+    private final ObservationRegistry observationRegistry;
 
     private static final List<TradeStatus> TERMINAL_STATUSES = List.of(
             TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.FAILED);
@@ -133,50 +139,62 @@ public class TradeService {
     @Transactional
     public TradeDTO handleExecutionUpdate(String tradeId, BigDecimal executedQuantity,
             BigDecimal executedPrice, boolean isPartialFill) {
-        Trade trade = findTradeByTradeId(tradeId);
+        return Observation.createNotStarted("trade.execution", observationRegistry)
+                .contextualName("execute-trade-" + tradeId)
+                .observe(() -> {
+                    Trade trade = findTradeByTradeId(tradeId);
 
-        if (trade.isTerminal()) {
-            log.warn("Ignoring execution update for terminal trade: {}", tradeId);
-            return tradeMapper.toDTO(trade);
-        }
+                    if (trade.isTerminal()) {
+                        log.warn("Ignoring execution update for terminal trade: {}", tradeId);
+                        return tradeMapper.toDTO(trade);
+                    }
 
-        // Update to EXECUTING if not already
-        if (trade.getStatus() == TradeStatus.PLACED) {
-            trade.setStatus(TradeStatus.EXECUTING);
-        }
+                    // Update to EXECUTING if not already
+                    if (trade.getStatus() == TradeStatus.PLACED) {
+                        trade.setStatus(TradeStatus.EXECUTING);
+                    }
 
-        // Calculate new filled quantity
-        BigDecimal previousFilledQty = trade.getExecutedQuantity();
-        BigDecimal newFilledQty = previousFilledQty.add(executedQuantity);
-        trade.setExecutedQuantity(newFilledQty);
+                    // Calculate new filled quantity
+                    BigDecimal previousFilledQty = trade.getExecutedQuantity();
+                    BigDecimal newFilledQty = previousFilledQty.add(executedQuantity);
+                    trade.setExecutedQuantity(newFilledQty);
 
-        // Calculate weighted average price
-        if (trade.getAveragePrice() == null) {
-            trade.setAveragePrice(executedPrice);
-        } else {
-            BigDecimal totalValue = trade.getAveragePrice().multiply(previousFilledQty)
-                    .add(executedPrice.multiply(executedQuantity));
-            trade.setAveragePrice(totalValue.divide(newFilledQty, 4, RoundingMode.HALF_UP));
-        }
+                    // Calculate weighted average price
+                    if (trade.getAveragePrice() == null) {
+                        trade.setAveragePrice(executedPrice);
+                    } else {
+                        BigDecimal totalValue = trade.getAveragePrice().multiply(previousFilledQty)
+                                .add(executedPrice.multiply(executedQuantity));
+                        trade.setAveragePrice(totalValue.divide(newFilledQty, 4, RoundingMode.HALF_UP));
+                    }
 
-        // Update execution time
-        trade.setExecutedAt(Instant.now());
+                    // Update execution time
+                    trade.setExecutedAt(Instant.now());
 
-        // Determine new status
-        if (trade.isFullyFilled()) {
-            trade.setStatus(TradeStatus.FILLED);
-            log.info("Trade {} fully filled at avg price {}", tradeId, trade.getAveragePrice());
-        } else {
-            trade.setStatus(TradeStatus.PARTIALLY_FILLED);
-            log.info("Trade {} partially filled: {}/{}", tradeId, newFilledQty, trade.getQuantity());
-        }
+                    // Determine new status
+                    if (trade.isFullyFilled()) {
+                        trade.setStatus(TradeStatus.FILLED);
+                        log.info("Trade {} fully filled at avg price {}", tradeId, trade.getAveragePrice());
+                    } else {
+                        trade.setStatus(TradeStatus.PARTIALLY_FILLED);
+                        log.info("Trade {} partially filled: {}/{}", tradeId, newFilledQty, trade.getQuantity());
+                    }
 
-        trade = tradeRepository.save(trade);
+                    trade = tradeRepository.save(trade);
 
-        // Publish execution event
-        eventPublisher.publishTradeExecuted(trade, !trade.isFullyFilled());
+                    // Record business metric: execution latency
+                    if (trade.getPlacedAt() != null) {
+                        meterRegistry.timer("trade.execution.latency",
+                                "symbol", trade.getSymbol(),
+                                "side", trade.getSide().name())
+                                .record(Duration.between(trade.getPlacedAt(), Instant.now()));
+                    }
 
-        return tradeMapper.toDTO(trade);
+                    // Publish execution event
+                    eventPublisher.publishTradeExecuted(trade, !trade.isFullyFilled());
+
+                    return tradeMapper.toDTO(trade);
+                });
     }
 
     // ==================== Trade Closure ====================

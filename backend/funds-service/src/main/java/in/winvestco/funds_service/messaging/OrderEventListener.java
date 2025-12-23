@@ -1,9 +1,9 @@
 package in.winvestco.funds_service.messaging;
 
-import com.rabbitmq.client.Channel;
 import in.winvestco.common.config.RabbitMQConfig;
 import in.winvestco.common.event.OrderCancelledEvent;
 import in.winvestco.common.event.OrderValidatedEvent;
+import in.winvestco.common.messaging.idempotency.IdempotencyService;
 import in.winvestco.funds_service.dto.FundsLockDTO;
 import in.winvestco.funds_service.exception.InsufficientFundsException;
 import in.winvestco.funds_service.repository.WalletRepository;
@@ -12,9 +12,8 @@ import in.winvestco.funds_service.service.FundsLockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Listener for order-related events from RabbitMQ.
@@ -28,16 +27,22 @@ public class OrderEventListener {
     private final FundsLockService fundsLockService;
     private final FundsEventPublisher fundsEventPublisher;
     private final WalletRepository walletRepository;
+    private final IdempotencyService idempotencyService;
 
     /**
      * Handle OrderValidatedEvent - lock funds for BUY orders.
      * If insufficient funds, publishes OrderRejectedEvent.
      */
     @RabbitListener(queues = RabbitMQConfig.ORDER_VALIDATED_FUNDS_QUEUE)
-    public void handleOrderValidated(OrderValidatedEvent event, Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
-        log.info("Received OrderValidatedEvent for order: {}, user: {}, amount: {}",
-                event.getOrderId(), event.getUserId(), event.getTotalAmount());
+    @Transactional
+    public void handleOrderValidated(OrderValidatedEvent event) {
+        log.info("Received OrderValidatedEvent for order: {}, correlationId: {}",
+                event.getOrderId(), event.getCorrelationId());
+
+        if (idempotencyService.exists(event.getCorrelationId())) {
+            log.warn("Skipping already processed event: {}", event.getCorrelationId());
+            return;
+        }
 
         try {
             // Lock funds for the order
@@ -60,8 +65,8 @@ public class OrderEventListener {
                         event.getPrice());
             });
 
-            // Acknowledge message
-            channel.basicAck(deliveryTag, false);
+            // Mark as processed
+            idempotencyService.markAsProcessed(event.getCorrelationId(), "FundsService-OrderValidated");
             log.info("Successfully locked funds for order: {}", event.getOrderId());
 
         } catch (InsufficientFundsException e) {
@@ -80,21 +85,11 @@ public class OrderEventListener {
                     String.format("Insufficient funds: requested %.2f, available %.2f",
                             e.getRequested(), e.getAvailable()));
 
-            // Acknowledge message (don't retry - this is a business rule rejection)
-            try {
-                channel.basicAck(deliveryTag, false);
-            } catch (Exception ackEx) {
-                log.error("Failed to ack message for rejected order: {}", event.getOrderId(), ackEx);
-            }
-
+            // Still mark as processed even if rejected (business logic success)
+            idempotencyService.markAsProcessed(event.getCorrelationId(), "FundsService-OrderValidated-Rejected");
         } catch (Exception e) {
-            log.error("Failed to process OrderValidatedEvent for order: {}", event.getOrderId(), e);
-            try {
-                // Reject and requeue for retry
-                channel.basicNack(deliveryTag, false, true);
-            } catch (Exception nackEx) {
-                log.error("Failed to nack message for order: {}", event.getOrderId(), nackEx);
-            }
+            log.error("Error processing OrderValidatedEvent for order: {}. Will be retried.", event.getOrderId(), e);
+            throw e; // Rethrow to trigger RabbitMQ retry
         }
     }
 
@@ -102,10 +97,15 @@ public class OrderEventListener {
      * Handle OrderCancelledEvent - release locked funds for the order.
      */
     @RabbitListener(queues = RabbitMQConfig.ORDER_CANCELLED_FUNDS_QUEUE)
-    public void handleOrderCancelled(OrderCancelledEvent event, Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
-        log.info("Received OrderCancelledEvent for order: {}, user: {}, reason: {}",
-                event.getOrderId(), event.getUserId(), event.getCancelReason());
+    @Transactional
+    public void handleOrderCancelled(OrderCancelledEvent event) {
+        log.info("Received OrderCancelledEvent for order: {}, correlationId: {}",
+                event.getOrderId(), event.getCorrelationId());
+
+        if (idempotencyService.exists(event.getCorrelationId())) {
+            log.warn("Skipping already processed event: {}", event.getCorrelationId());
+            return;
+        }
 
         try {
             // compensation: release locked funds
@@ -113,18 +113,13 @@ public class OrderEventListener {
                     event.getOrderId(),
                     "Order cancelled: " + event.getCancelReason());
 
-            // Acknowledge message
-            channel.basicAck(deliveryTag, false);
+            // Mark as processed
+            idempotencyService.markAsProcessed(event.getCorrelationId(), "FundsService-OrderCancelled");
             log.info("Successfully released funds for cancelled order: {}", event.getOrderId());
 
         } catch (Exception e) {
-            log.error("Failed to process OrderCancelledEvent for order: {}", event.getOrderId(), e);
-            try {
-                // Reject and requeue for retry
-                channel.basicNack(deliveryTag, false, true);
-            } catch (Exception nackEx) {
-                log.error("Failed to nack message for order cancellation: {}", event.getOrderId(), nackEx);
-            }
+            log.error("Error processing OrderCancelledEvent for order: {}. Will be retried.", event.getOrderId(), e);
+            throw e; // Rethrow to trigger RabbitMQ retry
         }
     }
 }

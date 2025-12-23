@@ -1,42 +1,88 @@
-import API from './api';
-
 /**
  * Report API service for generating and downloading reports
  */
 
+const API_BASE_URL = '/api/v1/reports';
+
+/**
+ * Get auth headers with JWT token
+ */
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('accessToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+};
+
+/**
+ * Handle API response
+ */
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    }
+    // For void responses (like delete), .json() might fail or be empty
+    if (response.status === 204) return null;
+    return response.json().catch(() => ({}));
+};
+
 // Request a new report
 export const requestReport = async (type, format, fromDate, toDate) => {
-    const response = await API.post('/v1/reports', {
-        type,
-        format,
-        fromDate: fromDate?.toISOString(),
-        toDate: toDate?.toISOString()
+    const response = await fetch(`${API_BASE_URL}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+            type,
+            format,
+            fromDate: fromDate?.toISOString(),
+            toDate: toDate?.toISOString()
+        })
     });
-    return response.data;
+    return handleResponse(response);
 };
 
 // Get report by ID
 export const getReport = async (reportId) => {
-    const response = await API.get(`/v1/reports/${reportId}`);
-    return response.data;
+    const response = await fetch(`${API_BASE_URL}/${reportId}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+    });
+    return handleResponse(response);
 };
 
 // Get all reports for the user
 export const getUserReports = async (page = 0, size = 10) => {
-    const response = await API.get('/v1/reports', {
-        params: { page, size, sort: 'requestedAt,desc' }
+    const params = new URLSearchParams({
+        page,
+        size,
+        sort: 'requestedAt,desc'
     });
-    return response.data;
+    const response = await fetch(`${API_BASE_URL}?${params}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+    });
+    return handleResponse(response);
 };
 
 // Download a report
 export const downloadReport = async (reportId, fileName) => {
-    const response = await API.get(`/v1/reports/${reportId}/download`, {
-        responseType: 'blob'
+    const response = await fetch(`${API_BASE_URL}/${reportId}/download`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
     });
 
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Download failed with status ${response.status}`);
+    }
+
+    const blob = await response.blob();
     // Create download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', fileName || `report-${reportId}`);
@@ -48,7 +94,11 @@ export const downloadReport = async (reportId, fileName) => {
 
 // Delete a report
 export const deleteReport = async (reportId) => {
-    await API.delete(`/v1/reports/${reportId}`);
+    const response = await fetch(`${API_BASE_URL}/${reportId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    });
+    return handleResponse(response);
 };
 
 // Report types for UI

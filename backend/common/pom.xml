@@ -201,6 +201,12 @@
             <artifactId>opentelemetry-exporter-otlp</artifactId>
         </dependency>
 
+        <!-- Micrometer Observation for custom spans -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-observation</artifactId>
+        </dependency>
+
         <!-- Micrometer Tracing Bridge for OpenTelemetry -->
         <dependency>
             <groupId>io.micrometer</groupId>

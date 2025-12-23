@@ -18,12 +18,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 /**
  * Service for managing funds locks.
- * Uses LedgerClient to record all lock/unlock/settle operations to ledger-service (SOURCE OF TRUTH).
+ * Uses LedgerClient to record all lock/unlock/settle operations to
+ * ledger-service (SOURCE OF TRUTH).
  */
 @Service
 @Slf4j
@@ -35,6 +39,7 @@ public class FundsLockService {
     private final LedgerClient ledgerClient;
     private final FundsMapper fundsMapper;
     private final FundsEventPublisher fundsEventPublisher;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Lock funds for an order
@@ -83,8 +88,7 @@ public class FundsLockService {
                 wallet.getAvailableBalance(),
                 orderId,
                 "ORDER",
-                "Funds locked for order: " + orderId
-        );
+                "Funds locked for order: " + orderId);
 
         log.info("Locked {} for order {}. Lock ID: {}", amount, orderId, saved.getId());
         return fundsMapper.toFundsLockDTO(saved);
@@ -119,6 +123,10 @@ public class FundsLockService {
         lock.release(reason != null ? reason : "Order cancelled/rejected");
         FundsLock saved = fundsLockRepository.save(lock);
 
+        // Record business metric: lock duration
+        meterRegistry.timer("funds.lock.duration", "status", "RELEASED")
+                .record(Duration.between(lock.getCreatedAt(), Instant.now()));
+
         // Record to ledger-service (SOURCE OF TRUTH)
         recordToLedger(
                 wallet.getId(),
@@ -128,16 +136,14 @@ public class FundsLockService {
                 wallet.getAvailableBalance(),
                 orderId,
                 "ORDER",
-                "Funds released: " + (reason != null ? reason : "Order cancelled")
-        );
+                "Funds released: " + (reason != null ? reason : "Order cancelled"));
 
         // Publish FundsReleasedEvent for notifications
         fundsEventPublisher.publishFundsReleased(
                 wallet.getUserId(),
                 wallet,
                 saved,
-                reason != null ? reason : "Order cancelled"
-        );
+                reason != null ? reason : "Order cancelled");
 
         log.info("Released {} for order {}", lock.getAmount(), orderId);
         return fundsMapper.toFundsLockDTO(saved);
@@ -172,6 +178,10 @@ public class FundsLockService {
         lock.settle(reason != null ? reason : "Trade executed");
         FundsLock saved = fundsLockRepository.save(lock);
 
+        // Record business metric: lock duration
+        meterRegistry.timer("funds.lock.duration", "status", "SETTLED")
+                .record(Duration.between(lock.getCreatedAt(), Instant.now()));
+
         // Record to ledger-service (SOURCE OF TRUTH)
         recordToLedger(
                 wallet.getId(),
@@ -181,8 +191,7 @@ public class FundsLockService {
                 wallet.getLockedBalance(),
                 orderId,
                 "TRADE",
-                "Trade executed for order: " + orderId
-        );
+                "Trade executed for order: " + orderId);
 
         log.info("Settled {} for order {}", lock.getAmount(), orderId);
         return fundsMapper.toFundsLockDTO(saved);
@@ -228,7 +237,7 @@ public class FundsLockService {
             String referenceId,
             String referenceType,
             String description) {
-        
+
         try {
             CreateLedgerEntryRequest request = CreateLedgerEntryRequest.builder()
                     .walletId(walletId)

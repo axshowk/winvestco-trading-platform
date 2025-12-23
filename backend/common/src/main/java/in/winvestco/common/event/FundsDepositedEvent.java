@@ -22,6 +22,7 @@ public class FundsDepositedEvent implements Serializable {
     private Long userId;
     private Long walletId;
     private BigDecimal amount;
+    private BigDecimal balanceBefore;
     private BigDecimal newBalance;
     private String referenceId; // Transaction reference
     private String depositMethod; // "BANK_TRANSFER", "UPI", "CARD", etc.

@@ -1,5 +1,8 @@
 package in.winvestco.order_service.service;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
 import in.winvestco.common.enums.OrderSide;
 import in.winvestco.common.enums.OrderStatus;
 import in.winvestco.common.enums.OrderValidity;
@@ -35,6 +38,8 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final OrderValidationService validationService;
     private final OrderEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
+    private final ObservationRegistry observationRegistry;
 
     @Value("${trading.market-close-hour:15}")
     private int marketCloseHour;
@@ -54,50 +59,63 @@ public class OrderService {
      */
     @Transactional
     public OrderDTO createOrder(Long userId, CreateOrderRequest request) {
-        log.info("Creating order for user: {}, symbol: {}", userId, request.getSymbol());
+        return Observation.createNotStarted("order.create", observationRegistry)
+                .contextualName("create-order-" + request.getSymbol())
+                .lowCardinalityKeyValue("symbol", request.getSymbol())
+                .lowCardinalityKeyValue("side", request.getSide().name())
+                .observe(() -> {
+                    log.info("Creating order for user: {}, symbol: {}", userId, request.getSymbol());
 
-        // Validate order
-        validationService.validate(request);
+                    // Validate order
+                    validationService.validate(request);
 
-        // Calculate expiry time for DAY orders
-        Instant expiresAt = calculateExpiresAt(request.getValidity());
+                    // Calculate expiry time for DAY orders
+                    Instant expiresAt = calculateExpiresAt(request.getValidity());
 
-        // Create order entity
-        Order order = Order.builder()
-                .orderId(UUID.randomUUID().toString())
-                .userId(userId)
-                .symbol(request.getSymbol().toUpperCase())
-                .side(request.getSide())
-                .orderType(request.getOrderType())
-                .quantity(request.getQuantity())
-                .price(request.getPrice())
-                .stopPrice(request.getStopPrice())
-                .validity(request.getValidity() != null ? request.getValidity() : OrderValidity.DAY)
-                .expiresAt(expiresAt)
-                .status(OrderStatus.NEW)
-                .filledQuantity(BigDecimal.ZERO)
-                .build();
+                    // Create order entity
+                    Order order = Order.builder()
+                            .orderId(UUID.randomUUID().toString())
+                            .userId(userId)
+                            .symbol(request.getSymbol().toUpperCase())
+                            .side(request.getSide())
+                            .orderType(request.getOrderType())
+                            .quantity(request.getQuantity())
+                            .price(request.getPrice())
+                            .stopPrice(request.getStopPrice())
+                            .validity(request.getValidity() != null ? request.getValidity() : OrderValidity.DAY)
+                            .expiresAt(expiresAt)
+                            .status(OrderStatus.NEW)
+                            .filledQuantity(BigDecimal.ZERO)
+                            .build();
 
-        order = orderRepository.save(order);
-        log.info("Order created: {} with status NEW", order.getOrderId());
+                    order = orderRepository.save(order);
+                    log.info("Order created: {} with status NEW", order.getOrderId());
 
-        // Publish order created event
-        eventPublisher.publishOrderCreated(order);
+                    // Increment business metric
+                    meterRegistry.counter("orders.count",
+                            "symbol", order.getSymbol(),
+                            "side", order.getSide().name(),
+                            "type", order.getOrderType().name())
+                            .increment();
 
-        // Immediately validate and transition to VALIDATED
-        order.setStatus(OrderStatus.VALIDATED);
-        order = orderRepository.save(order);
+                    // Publish order created event
+                    eventPublisher.publishOrderCreated(order);
 
-        // Publish validated event (triggers funds-service for BUY orders)
-        if (request.getSide() == OrderSide.BUY) {
-            eventPublisher.publishOrderValidated(order);
-        } else {
-            // For SELL orders, skip funds lock and move to PENDING
-            order.setStatus(OrderStatus.PENDING);
-            order = orderRepository.save(order);
-        }
+                    // Immediately validate and transition to VALIDATED
+                    order.setStatus(OrderStatus.VALIDATED);
+                    order = orderRepository.save(order);
 
-        return orderMapper.toDTO(order);
+                    // Publish validated event (triggers funds-service for BUY orders)
+                    if (request.getSide() == OrderSide.BUY) {
+                        eventPublisher.publishOrderValidated(order);
+                    } else {
+                        // For SELL orders, skip funds lock and move to PENDING
+                        order.setStatus(OrderStatus.PENDING);
+                        order = orderRepository.save(order);
+                    }
+
+                    return orderMapper.toDTO(order);
+                });
     }
 
     /**

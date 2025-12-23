@@ -145,4 +145,28 @@ class AuthControllerTest {
                 mockMvc.perform(get("/api/auth/me"))
                                 .andExpect(status().isUnauthorized());
         }
+
+        @Test
+        @DisplayName("Should register new user successfully")
+        void register_ShouldReturnCreated() throws Exception {
+                in.winvestco.user_service.dto.RegisterRequest registerRequest = new in.winvestco.user_service.dto.RegisterRequest();
+                registerRequest.setEmail("new@example.com");
+                registerRequest.setPassword("password123");
+                registerRequest.setFirstName("New");
+                registerRequest.setLastName("User");
+                registerRequest.setPhoneNumber("1234567890");
+
+                in.winvestco.user_service.model.User savedUser = new in.winvestco.user_service.model.User();
+                savedUser.setId(2L);
+                savedUser.setEmail("new@example.com");
+
+                when(userService.register(any(), any(), any(), any(), any())).thenReturn(savedUser);
+
+                mockMvc.perform(post("/api/auth/register")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(registerRequest)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.email").value("new@example.com"));
+        }
 }

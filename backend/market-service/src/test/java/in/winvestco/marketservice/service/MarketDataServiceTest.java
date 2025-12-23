@@ -227,4 +227,36 @@ class MarketDataServiceTest {
             assertThat(result).contains("\"totalCount\":2");
         }
     }
+
+    @Nested
+    @DisplayName("Get Stock Quote Tests")
+    class GetStockQuoteTests {
+
+        @Test
+        @DisplayName("Should find stock quote in an index")
+        void getStockQuote_ShouldFindInIndex() throws JsonProcessingException {
+            String indexData = "{\"data\":[{\"symbol\":\"RELIANCE\",\"ltP\":2500}]}";
+
+            when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+            when(valueOperations.get(MARKET_DATA_KEY_PREFIX + "NIFTY 50")).thenReturn(indexData);
+            when(valueOperations.get(argThat(key -> key != null && !key.equals(MARKET_DATA_KEY_PREFIX + "NIFTY 50"))))
+                    .thenReturn(null);
+
+            String result = marketDataService.getStockQuote("RELIANCE");
+
+            assertThat(result).isNotNull();
+            assertThat(result).contains("RELIANCE");
+        }
+
+        @Test
+        @DisplayName("Should return null when symbol not found")
+        void getStockQuote_WhenNotFound_ShouldReturnNull() {
+            when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+            when(valueOperations.get(anyString())).thenReturn(null);
+
+            String result = marketDataService.getStockQuote("NONEXISTENT");
+
+            assertThat(result).isNull();
+        }
+    }
 }

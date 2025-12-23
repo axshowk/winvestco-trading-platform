@@ -3,7 +3,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 4rem;
     position: relative;
     overflow: hidden;
     background: var(--bg-dark);
@@ -12,7 +12,7 @@
 .login-content {
     width: 100%;
     max-width: 440px;
-    padding: 2.5rem;
+    padding: 2rem;
     border-radius: 1.5rem;
     position: relative;
     z-index: 10;
@@ -36,7 +36,7 @@
 
 .login-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .logo-icon-lg {

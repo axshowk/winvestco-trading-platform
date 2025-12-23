@@ -65,4 +65,53 @@ class GlobalExceptionHandlerTest {
         assertEquals("Email is required", details.get("email"));
         assertEquals("Password is required", details.get("password"));
     }
+
+    @Test
+    void handleResourceNotFound_ShouldReturnNotFound() {
+        // Arrange
+        ResourceNotFoundException ex = new ResourceNotFoundException("User", "123");
+
+        // Act
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleResourceNotFound(ex, webRequest);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals(404, body.getStatus());
+        assertEquals("RESOURCE_NOT_FOUND", body.getErrorCode());
+        assertEquals("User not found with identifier: 123", body.getMessage());
+    }
+
+    @Test
+    void handleUnauthorizedAccess_ShouldReturnForbidden() {
+        // Arrange
+        UnauthorizedAccessException ex = new UnauthorizedAccessException("Access denied", "ACCESS_DENIED");
+
+        // Act
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleUnauthorizedAccess(ex, webRequest);
+
+        // Assert
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals(403, body.getStatus());
+        assertEquals("ACCESS_DENIED", body.getErrorCode());
+    }
+
+    @Test
+    void handleAllExceptions_ShouldReturnInternalServerError() {
+        // Arrange
+        Exception ex = new RuntimeException("Unexpected error");
+
+        // Act
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleAllExceptions(ex, webRequest);
+
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        ErrorResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals(500, body.getStatus());
+        assertEquals("INTERNAL_SERVER_ERROR", body.getErrorCode());
+    }
 }

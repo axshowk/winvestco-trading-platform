@@ -130,7 +130,7 @@ public class WalletService {
                 description);
 
         // Publish FundsDepositedEvent for notifications
-        fundsEventPublisher.publishFundsDeposited(userId, saved, amount, referenceId, referenceType);
+        fundsEventPublisher.publishFundsDeposited(userId, saved, amount, balanceBefore, referenceId, referenceType);
 
         log.info("Credited {} to wallet {}. New balance: {}", amount, wallet.getId(), wallet.getAvailableBalance());
         return saved;
@@ -167,7 +167,8 @@ public class WalletService {
                 description);
 
         // Publish FundsWithdrawnEvent for notifications
-        fundsEventPublisher.publishFundsWithdrawn(userId, saved, amount, referenceId, referenceType, null);
+        fundsEventPublisher.publishFundsWithdrawn(userId, saved, amount, balanceBefore, referenceId, referenceType,
+                null);
 
         log.info("Debited {} from wallet {}. New balance: {}", amount, wallet.getId(), wallet.getAvailableBalance());
         return saved;

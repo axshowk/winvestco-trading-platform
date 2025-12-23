@@ -2,23 +2,23 @@ package in.winvestco.common.event;
 
 import in.winvestco.common.enums.OrderStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * Event emitted when an order is filled (completely or partially).
+ * Event emitted when an order is partially or fully filled.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class OrderFilledEvent implements Serializable {
-    private static final long serialVersionUID = 1L;
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class OrderFilledEvent extends BaseEvent {
 
     private String orderId;
     private Long userId;
@@ -26,6 +26,6 @@ public class OrderFilledEvent implements Serializable {
     private BigDecimal filledQuantity;
     private BigDecimal totalQuantity;
     private BigDecimal averagePrice;
-    private OrderStatus status; // FILLED or PARTIALLY_FILLED
+    private OrderStatus status;
     private Instant filledAt;
 }

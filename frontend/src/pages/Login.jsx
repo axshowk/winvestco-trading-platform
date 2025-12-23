@@ -127,7 +127,7 @@ const Login = () => {
                             <input
                                 type="email"
                                 name="email"
-                                placeholder="name@example.com"
+                                placeholder="name@winvestco.in"
                                 className={`form-input ${errors.email ? 'error' : ''}`}
                                 value={formData.email}
                                 onChange={handleChange}

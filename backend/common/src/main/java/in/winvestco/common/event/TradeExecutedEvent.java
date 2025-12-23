@@ -2,11 +2,11 @@ package in.winvestco.common.event;
 
 import in.winvestco.common.enums.OrderSide;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -16,9 +16,9 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class TradeExecutedEvent implements Serializable {
-    private static final long serialVersionUID = 1L;
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class TradeExecutedEvent extends BaseEvent {
 
     private String tradeId;
     private String orderId;

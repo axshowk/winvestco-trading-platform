@@ -169,6 +169,28 @@ class UserServiceTest {
             assertThat(result).hasSize(2);
             verify(userRepository).findAll();
         }
+
+        @Test
+        @DisplayName("Should return users by status")
+        void findAllByStatus_ShouldReturnFilteredUsers() {
+            when(userRepository.findAllByStatus(AccountStatus.ACTIVE)).thenReturn(List.of(testUser));
+
+            List<UserResponse> result = userService.findAllByStatus(AccountStatus.ACTIVE);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getEmail()).isEqualTo(TEST_EMAIL);
+        }
+
+        @Test
+        @DisplayName("Should return users by role")
+        void findAllByRole_ShouldReturnFilteredUsers() {
+            when(userRepository.findAllByRolesContaining(Role.USER)).thenReturn(List.of(testUser));
+
+            List<UserResponse> result = userService.findAllByRole(Role.USER);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getEmail()).isEqualTo(TEST_EMAIL);
+        }
     }
 
     @Nested
@@ -221,6 +243,23 @@ class UserServiceTest {
             assertThat(result).isNotNull();
             verify(userRepository).save(testUser);
             verify(userEventPublisher).publishUserUpdated(any());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when update user has no ID")
+        void update_WhenNoId_ShouldThrowException() {
+            testUser.setId(null);
+            assertThatThrownBy(() -> userService.update(testUser))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("User id is required");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when update user not found")
+        void update_WhenUserNotFound_ShouldThrowException() {
+            when(userRepository.existsById(TEST_USER_ID)).thenReturn(false);
+            assertThatThrownBy(() -> userService.update(testUser))
+                    .isInstanceOf(UserNotFoundException.class);
         }
 
         @Test
@@ -304,6 +343,35 @@ class UserServiceTest {
 
             assertThatThrownBy(() -> userService.deleteById(TEST_USER_ID))
                     .isInstanceOf(UserNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Login and Context Operations Tests")
+    class LoginAndContextOperationsTests {
+
+        @Test
+        @DisplayName("Should mark last login and publish event")
+        void markLastLogin_ShouldUpdateTimestampAndPublishEvent() {
+            when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+            when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+            User result = userService.markLastLogin(TEST_USER_ID);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getLastLoginAt()).isNotNull();
+            verify(userEventPublisher).publishUserLogin(any());
+        }
+
+        @Test
+        @DisplayName("Should return current user from security context")
+        void getCurrentUser_ShouldReturnUserFromContext() {
+            when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+
+            User result = userService.getCurrentUser();
+
+            assertThat(result).isNotNull();
+            assertThat(result.getEmail()).isEqualTo("test@example.com");
         }
     }
 }

@@ -74,11 +74,12 @@ public class FundsEventPublisher {
          * Publish FundsDepositedEvent
          */
         public void publishFundsDeposited(Long userId, Wallet wallet, BigDecimal amount,
-                        String referenceId, String depositMethod) {
+                        BigDecimal balanceBefore, String referenceId, String depositMethod) {
                 FundsDepositedEvent event = FundsDepositedEvent.builder()
                                 .userId(userId)
                                 .walletId(wallet.getId())
                                 .amount(amount)
+                                .balanceBefore(balanceBefore)
                                 .newBalance(wallet.getAvailableBalance())
                                 .referenceId(referenceId)
                                 .depositMethod(depositMethod != null ? depositMethod : "BANK_TRANSFER")
@@ -96,11 +97,13 @@ public class FundsEventPublisher {
          * Publish FundsWithdrawnEvent
          */
         public void publishFundsWithdrawn(Long userId, Wallet wallet, BigDecimal amount,
-                        String referenceId, String withdrawalMethod, String bankAccountLast4) {
+                        BigDecimal balanceBefore, String referenceId, String withdrawalMethod,
+                        String bankAccountLast4) {
                 FundsWithdrawnEvent event = FundsWithdrawnEvent.builder()
                                 .userId(userId)
                                 .walletId(wallet.getId())
                                 .amount(amount)
+                                .balanceBefore(balanceBefore)
                                 .newBalance(wallet.getAvailableBalance())
                                 .referenceId(referenceId)
                                 .withdrawalMethod(withdrawalMethod != null ? withdrawalMethod : "BANK_TRANSFER")

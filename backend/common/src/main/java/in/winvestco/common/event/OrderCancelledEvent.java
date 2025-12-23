@@ -3,23 +3,23 @@ package in.winvestco.common.event;
 import in.winvestco.common.enums.OrderSide;
 import in.winvestco.common.enums.OrderType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * Event emitted when an order is cancelled by user or system.
+ * Event emitted when an order is cancelled.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class OrderCancelledEvent implements Serializable {
-    private static final long serialVersionUID = 1L;
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class OrderCancelledEvent extends BaseEvent {
 
     private String orderId;
     private Long userId;
@@ -29,6 +29,6 @@ public class OrderCancelledEvent implements Serializable {
     private BigDecimal quantity;
     private BigDecimal price;
     private String cancelReason;
-    private String cancelledBy; // "USER" or "SYSTEM"
+    private String cancelledBy;
     private Instant cancelledAt;
 }

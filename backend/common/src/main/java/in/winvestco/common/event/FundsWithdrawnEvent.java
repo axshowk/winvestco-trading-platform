@@ -22,6 +22,7 @@ public class FundsWithdrawnEvent implements Serializable {
     private Long userId;
     private Long walletId;
     private BigDecimal amount;
+    private BigDecimal balanceBefore;
     private BigDecimal newBalance;
     private String referenceId; // Transaction reference
     private String withdrawalMethod; // "BANK_TRANSFER", "UPI", etc.

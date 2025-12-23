@@ -2,6 +2,7 @@ package in.winvestco.user_service.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import lombok.Data;
@@ -22,7 +23,9 @@ public class RegisterRequest {
     private String lastName;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    @Size(min = 8, max = 100, message = "Password must be at least 8 characters long")
+    @Pattern(regexp = ".*\\d.*", message = "Password must contain at least one number")
+    @Pattern(regexp = ".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*", message = "Password must contain at least one special character")
     private String password;
 
     private String phoneNumber;

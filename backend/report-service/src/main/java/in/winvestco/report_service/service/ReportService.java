@@ -13,7 +13,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,7 @@ public class ReportService {
      */
     @Transactional
     public ReportDTO requestReport(Long userId, ReportRequest request) {
-        log.info("Requesting report for user {}: type={}, format={}", 
+        log.info("Requesting report for user {}: type={}, format={}",
                 userId, request.getType(), request.getFormat());
 
         // Create report entity
@@ -66,10 +65,10 @@ public class ReportService {
                 .build();
 
         report = reportRepository.save(report);
-        
+
         // Trigger async generation
         reportGenerationService.generateReportAsync(report.getId());
-        
+
         log.info("Report {} queued for generation", report.getReportId());
         return reportMapper.toDTO(report);
     }
@@ -81,7 +80,7 @@ public class ReportService {
     public ReportDTO getReport(String reportId) {
         Report report = reportRepository.findByReportId(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found: " + reportId));
-        
+
         ReportDTO dto = reportMapper.toDTO(report);
         if (report.isDownloadable()) {
             dto.setDownloadUrl("/api/reports/" + reportId + "/download");
@@ -119,7 +118,7 @@ public class ReportService {
         try {
             Path filePath = Paths.get(report.getFilePath());
             Resource resource = new UrlResource(filePath.toUri());
-            
+
             if (resource.exists() && resource.isReadable()) {
                 return resource;
             } else {
@@ -161,10 +160,10 @@ public class ReportService {
     @Transactional
     public void cleanupExpiredReports() {
         log.info("Starting expired reports cleanup");
-        
+
         Instant expiryDate = Instant.now().minus(maxRetentionDays, ChronoUnit.DAYS);
         var expiredReports = reportRepository.findExpiredReports(expiryDate);
-        
+
         int deletedCount = 0;
         for (Report report : expiredReports) {
             try {
@@ -179,7 +178,7 @@ public class ReportService {
                 log.warn("Failed to cleanup report file: {}", report.getFilePath(), e);
             }
         }
-        
+
         log.info("Cleanup completed: {} reports expired", deletedCount);
     }
 
