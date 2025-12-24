@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { NotificationProvider } from './context/NotificationContext';
+import { ThemeProvider } from './context/ThemeContext';
 import NotificationToast from './components/NotificationToast';
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -18,6 +19,7 @@ import Orders from './pages/Orders'
 import Trades from './pages/Trades'
 import Wallet from './pages/Wallet'
 import Reports from './pages/Reports'
+import ChartTerminal from './pages/ChartTerminal'
 import './App.css'
 
 const Home = () => {
@@ -38,26 +40,29 @@ const Home = () => {
 
 function App() {
   return (
-    <NotificationProvider>
-      <Router>
-        <NotificationToast />
-        <Ticker />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/markets" element={<Stocks />} />
-          <Route path="/market-data" element={<MarketData />} />
-          <Route path="/stock/:symbol" element={<StockDetails />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/trades" element={<Trades />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </Router>
-    </NotificationProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <Router>
+          <NotificationToast />
+          <Ticker />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/markets" element={<Stocks />} />
+            <Route path="/market-data" element={<MarketData />} />
+            <Route path="/stock/:symbol" element={<StockDetails />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/trades" element={<Trades />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/terminal/:symbol" element={<ChartTerminal />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </Router>
+      </NotificationProvider>
+    </ThemeProvider>
   )
 }
 

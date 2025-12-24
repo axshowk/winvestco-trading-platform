@@ -8,6 +8,25 @@ spring:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+  # PostgreSQL Database Configuration
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:winvestco_schedule_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      "[hibernate.format_sql]": true
+      "[hibernate.dialect]": org.hibernate.dialect.PostgreSQLDialect
+
 server:
   port: 8095
 
@@ -27,5 +46,5 @@ management:
 
 logging:
   level:
-    in.winvestco: DEBUG
-    org.springframework.amqp: INFO
+    "[in.winvestco]": DEBUG
+    "[org.springframework.amqp]": INFO

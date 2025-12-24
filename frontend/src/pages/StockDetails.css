@@ -52,8 +52,13 @@
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Stock Title Section */
@@ -116,12 +121,85 @@
 }
 
 /* Chart Section */
-.chart-section {
-    padding: 1.5rem;
-    border-radius: 16px;
+.stock-chart-section {
     margin-bottom: 2rem;
+    padding: 1.5rem;
     background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(15, 23, 42, 0.95));
     border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+}
+
+.stock-chart-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.stock-chart-section .section-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.terminal-btn-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.terminal-btn-link:hover {
+    background: #6366f1;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.chart-container {
+    height: 400px;
+    width: 100%;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chart-loading,
+.chart-empty {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    gap: 1.5rem;
+}
+
+.chart-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(99, 102, 241, 0.1);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.chart-empty svg {
+    opacity: 0.5;
+    color: #6366f1;
+}
+
+.chart-empty p {
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 /* Data Sections */
@@ -406,6 +484,7 @@
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -742,4 +821,3 @@
     margin-top: 0.4rem;
     font-style: italic;
 }
-

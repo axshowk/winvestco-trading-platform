@@ -39,7 +39,10 @@ public class GatewaySecurityConfig {
                                                                 "/api/auth/login",
                                                                 "/api/users/register",
                                                                 "/api/users/register/**",
-                                                                "/api/market/**")
+                                                                "/api/market/**",
+                                                                "/api/v1/market/**",
+                                                                "/api/v1/candles/**",
+                                                                "/ws/**")
                                                 .permitAll()
                                                 .anyExchange().authenticated())
                                 .oauth2Login(oauth2 -> {

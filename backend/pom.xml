@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.0</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>in.winvestco</groupId>
     <artifactId>winvestco-backend</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    
+
     <name>WINVESTCO Backend</name>
     <description>REST API for WINVESTCO Platform</description>
-    
+
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,7 +41,7 @@
         <!-- Resilience4j -->
         <resilience4j.version>2.2.0</resilience4j.version>
     </properties>
-    
+
     <modules>
         <module>common</module>
         <module>user-service</module>
@@ -57,8 +56,9 @@
         <module>notification-service</module>
         <module>payment-service</module>
         <module>report-service</module>
+        <module>schedule-service</module>
     </modules>
-    
+
     <dependencyManagement>
         <dependencies>
             <!-- MapStruct -->
@@ -67,7 +67,7 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
-            
+
             <!-- Flyway -->
             <dependency>
                 <groupId>org.flywaydb</groupId>
@@ -79,7 +79,7 @@
                 <artifactId>flyway-database-postgresql</artifactId>
                 <version>${flyway.version}</version>
             </dependency>
-            
+
             <!-- Spring Cloud Dependencies -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -88,7 +88,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
+
             <!-- OpenTelemetry BOM -->
             <dependency>
                 <groupId>io.opentelemetry</groupId>
@@ -104,7 +104,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
+
             <!-- Resilience4j BOM -->
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
@@ -115,16 +115,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
 
-        
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -132,7 +132,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -148,7 +148,7 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -163,7 +163,7 @@
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -174,13 +174,13 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

@@ -1,0 +1,891 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< in.winvestco:user-service >----------------------
+[INFO] Building WINVESTCO User Service 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ user-service ---
+[INFO] Deleting D:\winvestco-trading-platform\backend\user-service\target
+[INFO] 
+[INFO] --- jacoco:0.8.11:prepare-agent (default) @ user-service ---
+[INFO] argLine set to "-javaagent:C:\\Users\\Sharad Gupta\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.11\\org.jacoco.agent-0.8.11-runtime.jar=destfile=D:\\winvestco-trading-platform\\backend\\user-service\\target\\jacoco.exec"
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ user-service ---
+[INFO] Copying 8 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ user-service ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 19 source files with javac [debug release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ user-service ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ user-service ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 15 source files with javac [debug release 21] to target\test-classes
+[WARNING] The following options were not recognized by any processor: '[mapstruct.defaultComponentModel]'
+[INFO] 
+[INFO] --- surefire:3.1.2:test (default-test) @ user-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running in.winvestco.user_service.controller.AuthControllerTest
+[INFO] Running in.winvestco.user_service.controller.AuthControllerTest$GetCurrentUserTests
+mvn : WARNING: A Java agent has been loaded dynamically (C:\Users\Sharad 
+Gupta\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.10\byte-buddy-agent-1.14.10.jar)
+At line:1 char:1
++ mvn clean test jacoco:report -f pom.xml 2>&1 | Out-File -FilePath jac ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A Java...nt-1.14.10.jar):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
+classpath has been appended
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.525 s -- in in.winvestco.user_service.controller.AuthControllerTest$GetCurrentUserTests
+[INFO] Running in.winvestco.user_service.controller.AuthControllerTest$LoginTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.091 s -- in in.winvestco.user_service.controller.AuthControllerTest$LoginTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.663 s -- in in.winvestco.user_service.controller.AuthControllerTest
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$UpdateRolesTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in in.winvestco.user_service.controller.UserControllerTest$UpdateRolesTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$UpdateStatusTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in in.winvestco.user_service.controller.UserControllerTest$UpdateStatusTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$DeleteTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in in.winvestco.user_service.controller.UserControllerTest$DeleteTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$UpdateTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in in.winvestco.user_service.controller.UserControllerTest$UpdateTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$RegisterTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in in.winvestco.user_service.controller.UserControllerTest$RegisterTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$FindByIdTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in in.winvestco.user_service.controller.UserControllerTest$FindByIdTests
+[INFO] Running in.winvestco.user_service.controller.UserControllerTest$FindAllTests
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in in.winvestco.user_service.controller.UserControllerTest$FindAllTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.116 s -- in in.winvestco.user_service.controller.UserControllerTest
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest
+12:43:00.279 [main] INFO org.hibernate.validator.internal.util.Version -- HV000001: Hibernate Validator 8.0.1.Final
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$ToStringTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in in.winvestco.user_service.dto.LoginRequestTest$ToStringTests
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$EqualityTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in in.winvestco.user_service.dto.LoginRequestTest$EqualityTests
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$RecordAccessorTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.dto.LoginRequestTest$RecordAccessorTests
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$PasswordValidationTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.148 s -- in in.winvestco.user_service.dto.LoginRequestTest$PasswordValidationTests
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$EmailValidationTests
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in in.winvestco.user_service.dto.LoginRequestTest$EmailValidationTests
+[INFO] Running in.winvestco.user_service.dto.LoginRequestTest$ValidRequestTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in in.winvestco.user_service.dto.LoginRequestTest$ValidRequestTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.532 s -- in in.winvestco.user_service.dto.LoginRequestTest
+[INFO] Running in.winvestco.user_service.dto.RegisterRequestTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s -- in in.winvestco.user_service.dto.RegisterRequestTest
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$ToStringTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in in.winvestco.user_service.dto.UserResponseTest$ToStringTests
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$SerializationTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in in.winvestco.user_service.dto.UserResponseTest$SerializationTests
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$EqualityTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in in.winvestco.user_service.dto.UserResponseTest$EqualityTests
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$SetterTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in in.winvestco.user_service.dto.UserResponseTest$SetterTests
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$ConstructorTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.dto.UserResponseTest$ConstructorTests
+[INFO] Running in.winvestco.user_service.dto.UserResponseTest$FromUserTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in in.winvestco.user_service.dto.UserResponseTest$FromUserTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s -- in in.winvestco.user_service.dto.UserResponseTest
+[INFO] Running in.winvestco.user_service.exception.UserExceptionHandlerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in in.winvestco.user_service.exception.UserExceptionHandlerTest
+[INFO] Running in.winvestco.user_service.exception.UserNotFoundExceptionTest
+[INFO] Running in.winvestco.user_service.exception.UserNotFoundExceptionTest$ExceptionHierarchyTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in in.winvestco.user_service.exception.UserNotFoundExceptionTest$ExceptionHierarchyTests
+[INFO] Running in.winvestco.user_service.exception.UserNotFoundExceptionTest$ConstructorWithStringLoginTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.exception.UserNotFoundExceptionTest$ConstructorWithStringLoginTests
+[INFO] Running in.winvestco.user_service.exception.UserNotFoundExceptionTest$ConstructorWithLongIdTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.exception.UserNotFoundExceptionTest$ConstructorWithLongIdTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in in.winvestco.user_service.exception.UserNotFoundExceptionTest
+[INFO] Running in.winvestco.user_service.model.UserTest
+[INFO] Running in.winvestco.user_service.model.UserTest$SerializationTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in in.winvestco.user_service.model.UserTest$SerializationTests
+[INFO] Running in.winvestco.user_service.model.UserTest$AllArgsConstructorTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in in.winvestco.user_service.model.UserTest$AllArgsConstructorTests
+[INFO] Running in.winvestco.user_service.model.UserTest$NoArgsConstructorTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in in.winvestco.user_service.model.UserTest$NoArgsConstructorTests
+[INFO] Running in.winvestco.user_service.model.UserTest$ToStringTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in in.winvestco.user_service.model.UserTest$ToStringTests
+[INFO] Running in.winvestco.user_service.model.UserTest$EqualityTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.model.UserTest$EqualityTests
+[INFO] Running in.winvestco.user_service.model.UserTest$PrePersistTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in in.winvestco.user_service.model.UserTest$PrePersistTests
+[INFO] Running in.winvestco.user_service.model.UserTest$GetterSetterTests
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in in.winvestco.user_service.model.UserTest$GetterSetterTests
+[INFO] Running in.winvestco.user_service.model.UserTest$BuilderTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in in.winvestco.user_service.model.UserTest$BuilderTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s -- in in.winvestco.user_service.model.UserTest
+[INFO] Running in.winvestco.user_service.repository.UserRepositoryTest
+12:43:01.010 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [in.winvestco.user_service.repository.UserRepositoryTest]: UserRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:43:01.166 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration in.winvestco.user_service.UserServiceApplication for test class in.winvestco.user_service.repository.UserRepositoryTest
+12:43:01.236 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+12:43:01,582 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@26679788 - URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/in/winvestco/common/1.0.0/common-1.0.0.jar!/logback-spring.xml] is not of type file
+12:43:01,636 |-INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil@5cdda548 - Adding [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/org/springframework/boot/spring-boot/3.2.0/spring-boot-3.2.0.jar!/org/springframework/boot/logging/logback/defaults.xml] to configuration watch list.
+12:43:01,636 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@26679788 - URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/org/springframework/boot/spring-boot/3.2.0/spring-boot-3.2.0.jar!/org/springframework/boot/logging/logback/defaults.xml] is not of type file
+12:43:01,639 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word clr with class [org.springframework.boot.logging.logback.ColorConverter]
+12:43:01,639 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word correlationId with class [org.springframework.boot.logging.logback.CorrelationIdConverter]
+12:43:01,639 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word wex with class [org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter]
+12:43:01,639 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word wEx with class [org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter]
+12:43:01,650 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@4f2544b0 - <springProfile> elements cannot be nested within an <appender>, <logger> or <root> element
+12:43:01,651 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@4f2544b0 - Element <appender> at line 12 contains a nested <springProfile> element at line 14
+12:43:01,651 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@4f2544b0 - Element <appender> at line 12 contains a nested <springProfile> element at line 22
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.catalina.startup.DigesterFactory] to ERROR
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating ERROR level on Logger[org.apache.catalina.startup.DigesterFactory] onto the JUL framework
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.catalina.util.LifecycleBase] to ERROR
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating ERROR level on Logger[org.apache.catalina.util.LifecycleBase] onto the JUL framework
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.coyote.http11.Http11NioProtocol] to WARN
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating WARN level on Logger[org.apache.coyote.http11.Http11NioProtocol] onto the JUL framework
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.sshd.common.util.SecurityUtils] to WARN
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating WARN level on Logger[org.apache.sshd.common.util.SecurityUtils] onto the JUL framework
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.tomcat.util.net.NioSelectorPool] to WARN
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating WARN level on Logger[org.apache.tomcat.util.net.NioSelectorPool] onto the JUL framework
+12:43:01,679 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.eclipse.jetty.util.component.AbstractLifeCycle] to ERROR
+12:43:01,679 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating ERROR level on Logger[org.eclipse.jetty.util.component.AbstractLifeCycle] onto the JUL framework
+12:43:01,680 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.validator.internal.util.Version] to WARN
+12:43:01,680 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating WARN level on Logger[org.hibernate.validator.internal.util.Version] onto the JUL framework
+12:43:01,680 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.springframework.boot.actuate.endpoint.jmx] to WARN
+12:43:01,680 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating WARN level on Logger[org.springframework.boot.actuate.endpoint.jmx] onto the JUL framework
+12:43:01,680 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [CONSOLE]
+12:43:01,680 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+12:43:01,703 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:01,874 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [FILE]
+12:43:01,874 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:01,876 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:01,883 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@1106002545 - setting totalSizeCap to 1 GB
+12:43:01,886 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@1106002545 - Archive files will be limited to [10 MB] each.
+12:43:01,893 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@1106002545 - Will use gz compression
+12:43:01,894 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@1106002545 - Will use the pattern logs/application.log.%d{yyyy-MM-dd}.%i for the active file
+12:43:01,896 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@70aa58e1 - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log.%d{yyyy-MM-dd}.%i.gz'.
+12:43:01,896 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@70aa58e1 - Roll-over at midnight.
+12:43:01,896 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@70aa58e1 - Setting initial period to 2025-12-24T07:12:22.499Z
+12:43:01,899 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Active log file name: logs/application.log
+12:43:01,899 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - File property is set to [logs/application.log]
+12:43:01,900 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [ERROR_FILE]
+12:43:01,900 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:01,902 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:01,904 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@357532288 - setting totalSizeCap to 500 MB
+12:43:01,905 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@357532288 - Archive files will be limited to [10 MB] each.
+12:43:01,905 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@357532288 - Will use gz compression
+12:43:01,905 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@357532288 - Will use the pattern logs/application.log-error.%d{yyyy-MM-dd}.%i for the active file
+12:43:01,905 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@24f90aff - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log-error.%d{yyyy-MM-dd}.%i.gz'.
+12:43:01,905 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@24f90aff - Roll-over at midnight.
+12:43:01,905 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@24f90aff - Setting initial period to 2025-12-24T07:12:22.467Z
+12:43:01,906 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[ERROR_FILE] - Active log file name: logs/application.log-error.log
+12:43:01,906 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[ERROR_FILE] - File property is set to [logs/application.log-error.log]
+12:43:01,906 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [AUDIT_FILE]
+12:43:01,906 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:01,907 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:01,908 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@119876571 - setting totalSizeCap to 1 GB
+12:43:01,908 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@119876571 - Archive files will be limited to [10 MB] each.
+12:43:01,908 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@119876571 - Will use gz compression
+12:43:01,908 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@119876571 - Will use the pattern logs/application.log-audit.%d{yyyy-MM-dd}.%i for the active file
+12:43:01,908 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@25ea068e - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log-audit.%d{yyyy-MM-dd}.%i.gz'.
+12:43:01,908 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@25ea068e - Roll-over at midnight.
+12:43:01,910 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@25ea068e - Setting initial period to 2025-12-24T06:55:53.588Z
+12:43:01,910 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[AUDIT_FILE] - Active log file name: logs/application.log-audit.log
+12:43:01,910 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[AUDIT_FILE] - File property is set to [logs/application.log-audit.log]
+12:43:01,910 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to INFO
+12:43:01,910 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating INFO level on Logger[ROOT] onto the JUL framework
+12:43:01,910 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[ROOT]
+12:43:01,910 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[ROOT]
+12:43:01,910 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[ROOT]
+12:43:01,910 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [in.winvestco] to DEBUG
+12:43:01,910 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating DEBUG level on Logger[in.winvestco] onto the JUL framework
+12:43:01,911 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [in.winvestco] to false
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[in.winvestco]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[in.winvestco]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[in.winvestco]
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.springframework.security] to INFO
+12:43:01,912 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating INFO level on Logger[org.springframework.security] onto the JUL framework
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.springframework.security] to false
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.springframework.security]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.springframework.security]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[org.springframework.security]
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.SQL] to DEBUG
+12:43:01,912 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating DEBUG level on Logger[org.hibernate.SQL] onto the JUL framework
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.hibernate.SQL] to false
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.hibernate.SQL]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.hibernate.SQL]
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.type.descriptor.sql.BasicBinder] to TRACE
+12:43:01,912 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating TRACE level on Logger[org.hibernate.type.descriptor.sql.BasicBinder] onto the JUL framework
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.hibernate.type.descriptor.sql.BasicBinder] to false
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.hibernate.type.descriptor.sql.BasicBinder]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.hibernate.type.descriptor.sql.BasicBinder]
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [AUDIT] to INFO
+12:43:01,912 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@5bad555b - Propagating INFO level on Logger[AUDIT] onto the JUL framework
+12:43:01,912 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [AUDIT] to false
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [AUDIT_FILE] to Logger[AUDIT]
+12:43:01,912 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@4cd8db31 - End of configuration.
+12:43:01,912 |-INFO in org.springframework.boot.logging.logback.SpringBootJoranConfigurator@201a8ea7 - Registering current configuration as safe fallback point
+
+
+??      ?? ?? ???    ?? ??    ?? ??????? ??????? ????????  ??????   ?????? 
+??      ?? ?? ????   ?? ??    ?? ??      ??         ??    ??    ?? ??    ??
+??  ??  ?? ?? ?? ??  ?? ??    ?? ?????   ???????    ??    ??       ??    ??
+??  ??  ?? ?? ??  ?? ??  ??  ??  ??           ??    ??    ??    ?? ??    ??
+ ????????  ?? ??   ????   ????   ??????? ???????    ??     ??????   ??????
+
+   :: TradingApp :  : Copyright (c) 2025 WinvestCo Pvt Ltd. ::
+
+
+{"@timestamp":"2025-12-24T12:43:02.052+05:30","message":"Starting UserRepositoryTest using Java 21.0.6 with PID 19640 (started by Sharad Gupta in D:\\winvestco-trading-platform\\backend\\user-service)","logger_name":"in.winvestco.user_service.repository.UserRepositoryTest","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:02.075+05:30","message":"Running with Spring Boot v3.2.0, Spring v6.1.1","logger_name":"in.winvestco.user_service.repository.UserRepositoryTest","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:02.077+05:30","message":"The following 1 profile is active: \"test\"","logger_name":"in.winvestco.user_service.repository.UserRepositoryTest","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:03.326+05:30","message":"Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.","logger_name":"org.flywaydb.core.internal.database.base.Database","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:03.764+05:30","message":"HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.","logger_name":"org.hibernate.dialect.Dialect","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:03.769+05:30","message":"HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)","logger_name":"org.hibernate.orm.deprecation","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:04.412+05:30","message":"\r\n    alter table if exists users_roles \r\n       drop constraint if exists FK2o0jvgh89lemvvo17cbqvdxaa","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    alter table if exists users_roles 
+       drop constraint if exists FK2o0jvgh89lemvvo17cbqvdxaa
+{"@timestamp":"2025-12-24T12:43:04.413+05:30","message":"\r\n    drop table if exists users cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    drop table if exists users cascade
+{"@timestamp":"2025-12-24T12:43:04.415+05:30","message":"\r\n    drop table if exists users_roles cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    drop table if exists users_roles cascade
+{"@timestamp":"2025-12-24T12:43:04.420+05:30","message":"\r\n    create table users (\r\n        created_at timestamp(6) with time zone not null,\r\n        id bigserial not null,\r\n        last_login_at timestamp(6) with time zone,\r\n        updated_at timestamp(6) with time zone,\r\n        client_id varchar(20),\r\n        phone_number varchar(20),\r\n        status varchar(20) not null check (status in ('ACTIVE','SUSPENDED','CLOSED','LOCKED','BLOCKED','DELETED')),\r\n        first_name varchar(100),\r\n        last_name varchar(100),\r\n        password_hash varchar(100) not null,\r\n        email varchar(255) not null unique,\r\n        primary key (id)\r\n    )","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    create table users (
+        created_at timestamp(6) with time zone not null,
+        id bigserial not null,
+        last_login_at timestamp(6) with time zone,
+        updated_at timestamp(6) with time zone,
+        client_id varchar(20),
+        phone_number varchar(20),
+        status varchar(20) not null check (status in ('ACTIVE','SUSPENDED','CLOSED','LOCKED','BLOCKED','DELETED')),
+        first_name varchar(100),
+        last_name varchar(100),
+        password_hash varchar(100) not null,
+        email varchar(255) not null unique,
+        primary key (id)
+    )
+{"@timestamp":"2025-12-24T12:43:04.424+05:30","message":"\r\n    create table users_roles (\r\n        user_id bigint not null,\r\n        role varchar(50) check (role in ('ADMIN','USER','VIEWER'))\r\n    )","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    create table users_roles (
+        user_id bigint not null,
+        role varchar(50) check (role in ('ADMIN','USER','VIEWER'))
+    )
+{"@timestamp":"2025-12-24T12:43:04.426+05:30","message":"\r\n    alter table if exists users_roles \r\n       add constraint FK2o0jvgh89lemvvo17cbqvdxaa \r\n       foreign key (user_id) \r\n       references users","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    alter table if exists users_roles 
+       add constraint FK2o0jvgh89lemvvo17cbqvdxaa 
+       foreign key (user_id) 
+       references users
+{"@timestamp":"2025-12-24T12:43:04.437+05:30","message":"UserServiceApplication initialized with centralized logging and service discovery","logger_name":"in.winvestco.user_service.UserServiceApplication","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:04.899+05:30","message":"Started UserRepositoryTest in 3.672 seconds (process running for 7.283)","logger_name":"in.winvestco.user_service.repository.UserRepositoryTest","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:04.964+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:04.981+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:04.985+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:04.986+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:04.986+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.082+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        ? in (select\r\n            r1_0.role \r\n        from\r\n            users_roles r1_0 \r\n        where\r\n            u1_0.id=r1_0.user_id)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        ? in (select
+            r1_0.role 
+        from
+            users_roles r1_0 
+        where
+            u1_0.id=r1_0.user_id)
+{"@timestamp":"2025-12-24T12:43:05.099+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.101+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.107+05:30","message":"\r\n    select\r\n        u1_0.id \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.email=? \r\n    fetch\r\n        first ? rows only","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+{"@timestamp":"2025-12-24T12:43:05.115+05:30","message":"\r\n    select\r\n        u1_0.id \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.email=? \r\n    fetch\r\n        first ? rows only","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    fetch
+        first ? rows only
+{"@timestamp":"2025-12-24T12:43:05.122+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.125+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.127+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        ? in (select\r\n            r1_0.role \r\n        from\r\n            users_roles r1_0 \r\n        where\r\n            u1_0.id=r1_0.user_id)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        ? in (select
+            r1_0.role 
+        from
+            users_roles r1_0 
+        where
+            u1_0.id=r1_0.user_id)
+{"@timestamp":"2025-12-24T12:43:05.134+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.136+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.140+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.email=?","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+{"@timestamp":"2025-12-24T12:43:05.152+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.email=?","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+{"@timestamp":"2025-12-24T12:43:05.164+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.167+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.169+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.171+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.174+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.status=?","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.status=?
+{"@timestamp":"2025-12-24T12:43:05.182+05:30","message":"\r\n    insert \r\n    into\r\n        users\r\n        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) \r\n    values\r\n        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users
+        (client_id, created_at, email, first_name, last_login_at, last_name, password_hash, phone_number, status, updated_at) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+{"@timestamp":"2025-12-24T12:43:05.184+05:30","message":"\r\n    insert \r\n    into\r\n        users_roles\r\n        (user_id, role) \r\n    values\r\n        (?, ?)","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    insert 
+    into
+        users_roles
+        (user_id, role) 
+    values
+        (?, ?)
+{"@timestamp":"2025-12-24T12:43:05.186+05:30","message":"\r\n    select\r\n        u1_0.id,\r\n        u1_0.client_id,\r\n        u1_0.created_at,\r\n        u1_0.email,\r\n        u1_0.first_name,\r\n        u1_0.last_login_at,\r\n        u1_0.last_name,\r\n        u1_0.password_hash,\r\n        u1_0.phone_number,\r\n        u1_0.status,\r\n        u1_0.updated_at \r\n    from\r\n        users u1_0 \r\n    where\r\n        u1_0.first_name=?","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.client_id,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.first_name,
+        u1_0.last_login_at,
+        u1_0.last_name,
+        u1_0.password_hash,
+        u1_0.phone_number,
+        u1_0.status,
+        u1_0.updated_at 
+    from
+        users u1_0 
+    where
+        u1_0.first_name=?
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.282 s -- in in.winvestco.user_service.repository.UserRepositoryTest
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$GetterTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in in.winvestco.user_service.security.UserDetailsImplTest$GetterTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$EqualityTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in in.winvestco.user_service.security.UserDetailsImplTest$EqualityTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$AccountStatusTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in in.winvestco.user_service.security.UserDetailsImplTest$AccountStatusTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$AuthorityTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.security.UserDetailsImplTest$AuthorityTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$BuildMethodTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in in.winvestco.user_service.security.UserDetailsImplTest$BuildMethodTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsImplTest$ConstructorTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in in.winvestco.user_service.security.UserDetailsImplTest$ConstructorTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in in.winvestco.user_service.security.UserDetailsImplTest
+[INFO] Running in.winvestco.user_service.security.UserDetailsServiceImplTest
+[INFO] Running in.winvestco.user_service.security.UserDetailsServiceImplTest$EdgeCaseTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.106 s -- in in.winvestco.user_service.security.UserDetailsServiceImplTest$EdgeCaseTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsServiceImplTest$LoggingTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in in.winvestco.user_service.security.UserDetailsServiceImplTest$LoggingTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsServiceImplTest$LoadUserByUsernameFailureTests
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in in.winvestco.user_service.security.UserDetailsServiceImplTest$LoadUserByUsernameFailureTests
+[INFO] Running in.winvestco.user_service.security.UserDetailsServiceImplTest$LoadUserByUsernameSuccessTests
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in in.winvestco.user_service.security.UserDetailsServiceImplTest$LoadUserByUsernameSuccessTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s -- in in.winvestco.user_service.security.UserDetailsServiceImplTest
+[INFO] Running in.winvestco.user_service.service.JwtServiceTest
+[INFO] Running in.winvestco.user_service.service.JwtServiceTest$TokenValidationTests
+{"@timestamp":"2025-12-24T12:43:05.441+05:30","message":"Token validation failed","logger_name":"in.winvestco.user_service.service.JwtService","thread_name":"main","level":"ERROR","level_value":40000,"stack_trace":"io.jsonwebtoken.MalformedJwtException: Malformed protected header JSON: Unable to deserialize: Unexpected character ('?' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]\r\n\tat io.jsonwebtoken.impl.io.JsonObjectDeserializer.malformed(JsonObjectDeserializer.java:76)\r\n\tat io.jsonwebtoken.impl.io.JsonObjectDeserializer.apply(JsonObjectDeserializer.java:70)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.deserialize(DefaultJwtParser.java:890)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:380)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:362)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:94)\r\n\tat io.jsonwebtoken.impl.io.AbstractParser.parse(AbstractParser.java:36)\r\n\tat io.jsonwebtoken.impl.io.AbstractParser.parse(AbstractParser.java:29)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parseSignedClaims(DefaultJwtParser.java:821)\r\n\tat in.winvestco.user_service.service.JwtService.extractAllClaims(JwtService.java:123)\r\n\tat in.winvestco.user_service.service.JwtService.extractClaim(JwtService.java:112)\r\n\tat in.winvestco.user_service.service.JwtService.extractExpiration(JwtService.java:105)\r\n\tat in.winvestco.user_service.service.JwtService.isTokenExpired(JwtService.java:131)\r\n\tat in.winvestco.user_service.service.JwtService.validateToken(JwtService.java:147)\r\n\tat in.winvestco.user_service.service.JwtServiceTest$TokenValidationTests.validateToken_WithMalformedToken_ShouldReturnFalse(JwtServiceTest.java:179)\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\r\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\r\n\tat org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)\r\n\tat org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)\r\n\tat org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)\r\n\tat org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)\r\nCaused by: io.jsonwebtoken.io.DeserializationException: Unable to deserialize: Unexpected character ('?' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]\r\n\tat io.jsonwebtoken.io.AbstractDeserializer.deserialize(AbstractDeserializer.java:72)\r\n\tat io.jsonwebtoken.impl.io.JsonObjectDeserializer.apply(JsonObjectDeserializer.java:52)\r\n\t... 92 common frames omitted\r\nCaused by: com.fasterxml.jackson.core.JsonParseException: Unexpected character ('?' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]\r\n\tat com.fasterxml.jackson.core.JsonParser._constructError(JsonParser.java:2477)\r\n\tat com.fasterxml.jackson.core.base.ParserMinimalBase._reportError(ParserMinimalBase.java:750)\r\n\tat com.fasterxml.jackson.core.base.ParserMinimalBase._reportUnexpectedChar(ParserMinimalBase.java:674)\r\n\tat com.fasterxml.jackson.core.json.ReaderBasedJsonParser._handleOddValue(ReaderBasedJsonParser.java:2085)\r\n\tat com.fasterxml.jackson.core.json.ReaderBasedJsonParser.nextToken(ReaderBasedJsonParser.java:808)\r\n\tat com.fasterxml.jackson.databind.ObjectMapper._initForReading(ObjectMapper.java:4912)\r\n\tat com.fasterxml.jackson.databind.ObjectMapper._readMapAndClose(ObjectMapper.java:4818)\r\n\tat com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3785)\r\n\tat io.jsonwebtoken.jackson.io.JacksonDeserializer.doDeserialize(JacksonDeserializer.java:104)\r\n\tat io.jsonwebtoken.io.AbstractDeserializer.deserialize(AbstractDeserializer.java:66)\r\n\t... 93 common frames omitted\r\n","service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:05.500+05:30","message":"Token validation failed","logger_name":"in.winvestco.user_service.service.JwtService","thread_name":"main","level":"ERROR","level_value":40000,"stack_trace":"io.jsonwebtoken.ExpiredJwtException: JWT expired 499 milliseconds ago at 2025-12-24T07:13:05.000Z. Current time: 2025-12-24T07:13:05.499Z. Allowed clock skew: 0 milliseconds.\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:682)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:362)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:94)\r\n\tat io.jsonwebtoken.impl.io.AbstractParser.parse(AbstractParser.java:36)\r\n\tat io.jsonwebtoken.impl.io.AbstractParser.parse(AbstractParser.java:29)\r\n\tat io.jsonwebtoken.impl.DefaultJwtParser.parseSignedClaims(DefaultJwtParser.java:821)\r\n\tat in.winvestco.user_service.service.JwtService.extractAllClaims(JwtService.java:123)\r\n\tat in.winvestco.user_service.service.JwtService.extractClaim(JwtService.java:112)\r\n\tat in.winvestco.user_service.service.JwtService.extractExpiration(JwtService.java:105)\r\n\tat in.winvestco.user_service.service.JwtService.isTokenExpired(JwtService.java:131)\r\n\tat in.winvestco.user_service.service.JwtService.validateToken(JwtService.java:147)\r\n\tat in.winvestco.user_service.service.JwtServiceTest$TokenValidationTests.validateToken_WithExpiredToken_ShouldReturnFalse(JwtServiceTest.java:200)\r\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\r\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\r\n\tat org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)\r\n\tat org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)\r\n\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)\r\n\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)\r\n\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)\r\n\tat org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)\r\n\tat org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)\r\n","service":"unknown","environment":"default"}
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.158 s -- in in.winvestco.user_service.service.JwtServiceTest$TokenValidationTests
+[INFO] Running in.winvestco.user_service.service.JwtServiceTest$TokenExtractionTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in in.winvestco.user_service.service.JwtServiceTest$TokenExtractionTests
+[INFO] Running in.winvestco.user_service.service.JwtServiceTest$TokenGenerationTests
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in in.winvestco.user_service.service.JwtServiceTest$TokenGenerationTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.213 s -- in in.winvestco.user_service.service.JwtServiceTest
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserLoginTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.189 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserLoginTests
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserPasswordChangedTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserPasswordChangedTests
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserRoleChangedTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserRoleChangedTests
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserStatusChangedTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserStatusChangedTests
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserUpdatedTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserUpdatedTests
+[INFO] Running in.winvestco.user_service.service.UserEventPublisherTest$PublishUserCreatedTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in in.winvestco.user_service.service.UserEventPublisherTest$PublishUserCreatedTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.221 s -- in in.winvestco.user_service.service.UserEventPublisherTest
+[INFO] Running in.winvestco.user_service.service.UserServiceTest
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$LoginAndContextOperationsTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in in.winvestco.user_service.service.UserServiceTest$LoginAndContextOperationsTests
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$DeleteOperationsTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in in.winvestco.user_service.service.UserServiceTest$DeleteOperationsTests
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$PasswordOperationsTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.service.UserServiceTest$PasswordOperationsTests
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$UpdateOperationsTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in in.winvestco.user_service.service.UserServiceTest$UpdateOperationsTests
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$RegisterOperationsTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in in.winvestco.user_service.service.UserServiceTest$RegisterOperationsTests
+[INFO] Running in.winvestco.user_service.service.UserServiceTest$FindOperationsTests
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in in.winvestco.user_service.service.UserServiceTest$FindOperationsTests
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.141 s -- in in.winvestco.user_service.service.UserServiceTest
+[INFO] Running in.winvestco.user_service.UserServiceApplicationTests
+12:43:06,009 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@62b2885d - URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/in/winvestco/common/1.0.0/common-1.0.0.jar!/logback-spring.xml] is not of type file
+12:43:06,012 |-INFO in ch.qos.logback.core.joran.util.ConfigurationWatchListUtil@5cdda548 - Adding [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/org/springframework/boot/spring-boot/3.2.0/spring-boot-3.2.0.jar!/org/springframework/boot/logging/logback/defaults.xml] to configuration watch list.
+12:43:06,012 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@62b2885d - URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/org/springframework/boot/spring-boot/3.2.0/spring-boot-3.2.0.jar!/org/springframework/boot/logging/logback/defaults.xml] is not of type file
+12:43:06,015 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word clr with class [org.springframework.boot.logging.logback.ColorConverter]
+12:43:06,015 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word correlationId with class [org.springframework.boot.logging.logback.CorrelationIdConverter]
+12:43:06,015 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word wex with class [org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter]
+12:43:06,015 |-INFO in ch.qos.logback.core.joran.action.ConversionRuleAction - registering conversion word wEx with class [org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter]
+12:43:06,018 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@524023c8 - <springProfile> elements cannot be nested within an <appender>, <logger> or <root> element
+12:43:06,018 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@524023c8 - Element <appender> at line 12 contains a nested <springProfile> element at line 14
+12:43:06,018 |-WARN in org.springframework.boot.logging.logback.SpringProfileIfNestedWithinSecondPhaseElementSanityChecker@524023c8 - Element <appender> at line 12 contains a nested <springProfile> element at line 22
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.catalina.startup.DigesterFactory] to ERROR
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating ERROR level on Logger[org.apache.catalina.startup.DigesterFactory] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.catalina.util.LifecycleBase] to ERROR
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating ERROR level on Logger[org.apache.catalina.util.LifecycleBase] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.coyote.http11.Http11NioProtocol] to WARN
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating WARN level on Logger[org.apache.coyote.http11.Http11NioProtocol] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.sshd.common.util.SecurityUtils] to WARN
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating WARN level on Logger[org.apache.sshd.common.util.SecurityUtils] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.apache.tomcat.util.net.NioSelectorPool] to WARN
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating WARN level on Logger[org.apache.tomcat.util.net.NioSelectorPool] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.eclipse.jetty.util.component.AbstractLifeCycle] to ERROR
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating ERROR level on Logger[org.eclipse.jetty.util.component.AbstractLifeCycle] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.validator.internal.util.Version] to WARN
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating WARN level on Logger[org.hibernate.validator.internal.util.Version] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.springframework.boot.actuate.endpoint.jmx] to WARN
+12:43:06,019 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating WARN level on Logger[org.springframework.boot.actuate.endpoint.jmx] onto the JUL framework
+12:43:06,019 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [CONSOLE]
+12:43:06,019 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+12:43:06,019 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:06,021 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [FILE]
+12:43:06,021 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:06,021 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:06,024 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@258438882 - setting totalSizeCap to 1 GB
+12:43:06,024 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@258438882 - Archive files will be limited to [10 MB] each.
+12:43:06,024 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@258438882 - Will use gz compression
+12:43:06,024 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@258438882 - Will use the pattern logs/application.log.%d{yyyy-MM-dd}.%i for the active file
+12:43:06,025 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@79e1f733 - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log.%d{yyyy-MM-dd}.%i.gz'.
+12:43:06,025 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@79e1f733 - Roll-over at midnight.
+12:43:06,025 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@79e1f733 - Setting initial period to 2025-12-24T07:13:05.502Z
+12:43:06,026 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Active log file name: logs/application.log
+12:43:06,026 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - File property is set to [logs/application.log]
+12:43:06,026 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [ERROR_FILE]
+12:43:06,026 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:06,027 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:06,029 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@720164260 - setting totalSizeCap to 500 MB
+12:43:06,029 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@720164260 - Archive files will be limited to [10 MB] each.
+12:43:06,029 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@720164260 - Will use gz compression
+12:43:06,029 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@720164260 - Will use the pattern logs/application.log-error.%d{yyyy-MM-dd}.%i for the active file
+12:43:06,029 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@2e1437aa - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log-error.%d{yyyy-MM-dd}.%i.gz'.
+12:43:06,029 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@2e1437aa - Roll-over at midnight.
+12:43:06,030 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@2e1437aa - Setting initial period to 2025-12-24T07:13:05.502Z
+12:43:06,030 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[ERROR_FILE] - Active log file name: logs/application.log-error.log
+12:43:06,030 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[ERROR_FILE] - File property is set to [logs/application.log-error.log]
+12:43:06,030 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [AUDIT_FILE]
+12:43:06,030 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+12:43:06,031 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [net.logstash.logback.fieldnames.LogstashFieldNames] for [fieldNames] property
+12:43:06,032 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@443581676 - setting totalSizeCap to 1 GB
+12:43:06,032 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@443581676 - Archive files will be limited to [10 MB] each.
+12:43:06,032 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@443581676 - Will use gz compression
+12:43:06,032 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@443581676 - Will use the pattern logs/application.log-audit.%d{yyyy-MM-dd}.%i for the active file
+12:43:06,032 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@6cdea0fe - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/application.log-audit.%d{yyyy-MM-dd}.%i.gz'.
+12:43:06,032 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@6cdea0fe - Roll-over at midnight.
+12:43:06,033 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP@6cdea0fe - Setting initial period to 2025-12-24T06:55:53.588Z
+12:43:06,033 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[AUDIT_FILE] - Active log file name: logs/application.log-audit.log
+12:43:06,033 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[AUDIT_FILE] - File property is set to [logs/application.log-audit.log]
+12:43:06,033 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to INFO
+12:43:06,034 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating INFO level on Logger[ROOT] onto the JUL framework
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[ROOT]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[ROOT]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[ROOT]
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [in.winvestco] to DEBUG
+12:43:06,034 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating DEBUG level on Logger[in.winvestco] onto the JUL framework
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [in.winvestco] to false
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[in.winvestco]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[in.winvestco]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[in.winvestco]
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.springframework.security] to INFO
+12:43:06,034 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating INFO level on Logger[org.springframework.security] onto the JUL framework
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.springframework.security] to false
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.springframework.security]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.springframework.security]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [ERROR_FILE] to Logger[org.springframework.security]
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.SQL] to DEBUG
+12:43:06,034 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating DEBUG level on Logger[org.hibernate.SQL] onto the JUL framework
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.hibernate.SQL] to false
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.hibernate.SQL]
+12:43:06,034 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.hibernate.SQL]
+12:43:06,034 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [org.hibernate.type.descriptor.sql.BasicBinder] to TRACE
+12:43:06,035 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating TRACE level on Logger[org.hibernate.type.descriptor.sql.BasicBinder] onto the JUL framework
+12:43:06,035 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [org.hibernate.type.descriptor.sql.BasicBinder] to false
+12:43:06,035 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [CONSOLE] to Logger[org.hibernate.type.descriptor.sql.BasicBinder]
+12:43:06,035 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[org.hibernate.type.descriptor.sql.BasicBinder]
+12:43:06,035 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting level of logger [AUDIT] to INFO
+12:43:06,035 |-INFO in ch.qos.logback.classic.jul.LevelChangePropagator@16224bd8 - Propagating INFO level on Logger[AUDIT] onto the JUL framework
+12:43:06,035 |-INFO in ch.qos.logback.classic.model.processor.LoggerModelHandler - Setting additivity of logger [AUDIT] to false
+12:43:06,035 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [AUDIT_FILE] to Logger[AUDIT]
+12:43:06,035 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@20531934 - End of configuration.
+12:43:06,035 |-INFO in org.springframework.boot.logging.logback.SpringBootJoranConfigurator@2f75c3f3 - Registering current configuration as safe fallback point
+
+
+??      ?? ?? ???    ?? ??    ?? ??????? ??????? ????????  ??????   ?????? 
+??      ?? ?? ????   ?? ??    ?? ??      ??         ??    ??    ?? ??    ??
+??  ??  ?? ?? ?? ??  ?? ??    ?? ?????   ???????    ??    ??       ??    ??
+??  ??  ?? ?? ??  ?? ??  ??  ??  ??           ??    ??    ??    ?? ??    ??
+ ????????  ?? ??   ????   ????   ??????? ???????    ??     ??????   ??????
+
+   :: TradingApp :  : Copyright (c) 2025 WinvestCo Pvt Ltd. ::
+
+
+{"@timestamp":"2025-12-24T12:43:06.047+05:30","message":"Starting UserServiceApplicationTests using Java 21.0.6 with PID 19640 (started by Sharad Gupta in D:\\winvestco-trading-platform\\backend\\user-service)","logger_name":"in.winvestco.user_service.UserServiceApplicationTests","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:06.048+05:30","message":"Running with Spring Boot v3.2.0, Spring v6.1.1","logger_name":"in.winvestco.user_service.UserServiceApplicationTests","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:06.048+05:30","message":"The following 1 profile is active: \"test\"","logger_name":"in.winvestco.user_service.UserServiceApplicationTests","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.392+05:30","message":"Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$RetryInterceptorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$RetryInterceptorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.403+05:30","message":"Bean 'org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration' of type [org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.409+05:30","message":"Bean 'org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration' of type [org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.424+05:30","message":"Bean 'org.springframework.cloud.commons.config.CommonsConfigAutoConfiguration' of type [org.springframework.cloud.commons.config.CommonsConfigAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.430+05:30","message":"Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.434+05:30","message":"Bean 'loadBalancerClientsDefaultsMappingsProvider' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerDefaultMappingsProviderAutoConfiguration$$Lambda/0x0000022d2bce5b68] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.447+05:30","message":"Bean 'defaultsBindHandlerAdvisor' of type [org.springframework.cloud.commons.config.DefaultsBindHandlerAdvisor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.453+05:30","message":"Bean 'org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration' of type [org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.457+05:30","message":"Bean 'stringOrNumberMigrationVersionConverter' of type [org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration$StringOrNumberToMigrationVersionConverter] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.468+05:30","message":"Bean 'spring.cloud.loadbalancer-org.springframework.cloud.client.loadbalancer.LoadBalancerClientsProperties' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerClientsProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.480+05:30","message":"Bean 'default.org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration.LoadBalancerClientSpecification' of type [org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientSpecification] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.486+05:30","message":"Bean 'default.org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration.LoadBalancerClientSpecification' of type [org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientSpecification] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.487+05:30","message":"Bean 'loadBalancerClientFactory' of type [org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.514+05:30","message":"Bean 'blockingLoadBalancerClient' of type [org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.530+05:30","message":"Bean 'loadBalancerServiceInstanceCookieTransformer' of type [org.springframework.cloud.loadbalancer.core.LoadBalancerServiceInstanceCookieTransformer] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.535+05:30","message":"Bean 'xForwarderHeadersTransformer' of type [org.springframework.cloud.loadbalancer.blocking.XForwardedHeadersTransformer] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.539+05:30","message":"Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.548+05:30","message":"Bean 'loadBalancerRequestFactory' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerRequestFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.554+05:30","message":"Bean 'org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration$BlockingLoadBalancerRetryConfig' of type [org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration$BlockingLoadBalancerRetryConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.567+05:30","message":"Bean 'loadBalancedRetryFactory' of type [org.springframework.cloud.loadbalancer.blocking.retry.BlockingLoadBalancedRetryFactory] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.575+05:30","message":"Bean 'loadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.RetryLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.","logger_name":"org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.624+05:30","message":"FlywayConfig initialized with locations: null","logger_name":"in.winvestco.common.config.FlywayConfig","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.744+05:30","message":"Configuring Flyway with locations: classpath:db/migration, baseline-on-migrate: true, validate-on-migrate: false","logger_name":"in.winvestco.common.config.FlywayConfig","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.983+05:30","message":"HHH000511: The 2.2.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 11.0.0. Check the community dialects project for available legacy versions.","logger_name":"org.hibernate.dialect.Dialect","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:08.984+05:30","message":"HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)","logger_name":"org.hibernate.orm.deprecation","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.049+05:30","message":"\r\n    alter table if exists users_roles \r\n       drop constraint if exists FK2o0jvgh89lemvvo17cbqvdxaa","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.054+05:30","message":"\r\n    drop table if exists users cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.054+05:30","message":"\r\n    drop table if exists users_roles cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.056+05:30","message":"\r\n    create table users (\r\n        created_at timestamp(6) with time zone not null,\r\n        id bigserial not null,\r\n        last_login_at timestamp(6) with time zone,\r\n        updated_at timestamp(6) with time zone,\r\n        client_id varchar(20),\r\n        phone_number varchar(20),\r\n        status varchar(20) not null check (status in ('ACTIVE','SUSPENDED','CLOSED','LOCKED','BLOCKED','DELETED')),\r\n        first_name varchar(100),\r\n        last_name varchar(100),\r\n        password_hash varchar(100) not null,\r\n        email varchar(255) not null unique,\r\n        primary key (id)\r\n    )","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.061+05:30","message":"\r\n    create table users_roles (\r\n        user_id bigint not null,\r\n        role varchar(50) check (role in ('ADMIN','USER','VIEWER'))\r\n    )","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.062+05:30","message":"\r\n    alter table if exists users_roles \r\n       add constraint FK2o0jvgh89lemvvo17cbqvdxaa \r\n       foreign key (user_id) \r\n       references users","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.097+05:30","message":"UserServiceApplication initialized with centralized logging and service discovery","logger_name":"in.winvestco.user_service.UserServiceApplication","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.983+05:30","message":"Enhanced LoggingConfig initialized - centralized logging configuration loaded","logger_name":"in.winvestco.common.config.LoggingConfig","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:09.993+05:30","message":"MetricsConfig initialized for service: user-service","logger_name":"in.winvestco.common.config.MetricsConfig","thread_name":"main","level":"INFO","level_value":20000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:10.080+05:30","message":"Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'outboxProcessor' defined in URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/in/winvestco/common/1.0.0/common-1.0.0.jar!/in/winvestco/common/messaging/outbox/OutboxProcessor.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}","logger_name":"org.springframework.web.context.support.GenericWebApplicationContext","thread_name":"main","level":"WARN","level_value":30000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:10.082+05:30","message":"\r\n    alter table if exists users_roles \r\n       drop constraint if exists FK2o0jvgh89lemvvo17cbqvdxaa","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:10.083+05:30","message":"\r\n    drop table if exists users cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:10.085+05:30","message":"\r\n    drop table if exists users_roles cascade","logger_name":"org.hibernate.SQL","thread_name":"main","level":"DEBUG","level_value":10000,"service":"unknown","environment":"default"}
+{"@timestamp":"2025-12-24T12:43:10.170+05:30","message":"\r\n\r\n***************************\r\nAPPLICATION FAILED TO START\r\n***************************\r\n\r\nDescription:\r\n\r\nParameter 0 of constructor in in.winvestco.common.messaging.outbox.OutboxProcessor required a bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' that could not be found.\r\n\r\n\r\nAction:\r\n\r\nConsider defining a bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' in your configuration.\r\n","logger_name":"org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter","thread_name":"main","level":"ERROR","level_value":40000,"service":"unknown","environment":"default"}
+
+
+
+============================
+CONDITIONS EVALUATION REPORT
+============================
+
+
+Positive matches:
+-----------------
+
+    None
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+{"@timestamp":"2025-12-24T12:43:10.184+05:30","message":"Caught exception while allowing TestExecutionListener [org.springframework.test.context.web.ServletTestExecutionListener] to prepare test instance [in.winvestco.user_service.UserServiceApplicationTests@6b89dfac]","logger_name":"org.springframework.test.context.TestContextManager","thread_name":"main","level":"ERROR","level_value":40000,"stack_trace":"java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@3425709a testClass = in.winvestco.user_service.UserServiceApplicationTests, locations = [], classes = [in.winvestco.user_service.UserServiceApplication], contextInitializerClasses = [], activeProfiles = [\"test\"], propertySourceDescriptors = [], propertySourceProperties = [\"org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true\"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@3fde2209, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3b088163, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@fef95706, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5962c1b8, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@538a2f0e, org.springframework.boot.test.context.SpringBootTestAnnotation@d26073d4], resourceBasePath = \"src/main/webapp\", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]\r\n\tat org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)\r\n\tat org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)\r\n\tat org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191)\r\n\tat org.springframework.test.context.web.ServletTestExecutionListener.prepareTestInstance(ServletTestExecutionListener.java:130)\r\n\tat org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:247)\r\n\tat org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:163)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$10(ClassBasedTestDescriptor.java:378)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.executeAndMaskThrowable(ClassBasedTestDescriptor.java:383)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$11(ClassBasedTestDescriptor.java:378)\r\n\tat java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)\r\n\tat java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)\r\n\tat java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)\r\n\tat java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)\r\n\tat java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)\r\n\tat java.base/java.util.stream.StreamSpliterators$WrappingSpliterator.forEachRemaining(StreamSpliterators.java:310)\r\n\tat java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:735)\r\n\tat java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:734)\r\n\tat java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:762)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.invokeTestInstancePostProcessors(ClassBasedTestDescriptor.java:377)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$instantiateAndPostProcessTestInstance$6(ClassBasedTestDescriptor.java:290)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.instantiateAndPostProcessTestInstance(ClassBasedTestDescriptor.java:289)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$4(ClassBasedTestDescriptor.java:279)\r\n\tat java.base/java.util.Optional.orElseGet(Optional.java:364)\r\n\tat org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$5(ClassBasedTestDescriptor.java:278)\r\n\tat org.junit.jupiter.engine.execution.TestInstancesProvider.getTestInstances(TestInstancesProvider.java:31)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$prepare$0(TestMethodTestDescriptor.java:106)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:105)\r\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:69)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$prepare$2(NodeTestTask.java:123)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.prepare(NodeTestTask.java:123)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:90)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)\r\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)\r\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)\r\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)\r\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)\r\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)\r\n\tat org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)\r\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)\r\n\tat org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)\r\n\tat org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)\r\n\tat org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)\r\nCaused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'outboxProcessor' defined in URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/in/winvestco/common/1.0.0/common-1.0.0.jar!/in/winvestco/common/messaging/outbox/OutboxProcessor.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}\r\n\tat org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:802)\r\n\tat org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:241)\r\n\tat org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1356)\r\n\tat org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1193)\r\n\tat org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)\r\n\tat org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)\r\n\tat org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:325)\r\n\tat org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)\r\n\tat org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:323)\r\n\tat org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)\r\n\tat org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:973)\r\n\tat org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:946)\r\n\tat org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:616)\r\n\tat org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)\r\n\tat org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:455)\r\n\tat org.springframework.boot.SpringApplication.run(SpringApplication.java:323)\r\n\tat org.springframework.boot.test.context.SpringBootContextLoader.lambda$loadContext$3(SpringBootContextLoader.java:137)\r\n\tat org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:58)\r\n\tat org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:46)\r\n\tat org.springframework.boot.SpringApplication.withHook(SpringApplication.java:1442)\r\n\tat org.springframework.boot.test.context.SpringBootContextLoader$ContextLoaderHook.run(SpringBootContextLoader.java:552)\r\n\tat org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:137)\r\n\tat org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:108)\r\n\tat org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)\r\n\tat org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)\r\n\t... 73 common frames omitted\r\nCaused by: org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}\r\n\tat org.springframework.beans.factory.support.DefaultListableBeanFactory.raiseNoMatchingBeanFound(DefaultListableBeanFactory.java:1878)\r\n\tat org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1404)\r\n\tat org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1348)\r\n\tat org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:911)\r\n\tat org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:789)\r\n\t... 97 common frames omitted\r\n","service":"unknown","environment":"default"}
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 4.245 s <<< FAILURE! -- in in.winvestco.user_service.UserServiceApplicationTests
+[ERROR] in.winvestco.user_service.UserServiceApplicationTests.contextLoads -- Time elapsed: 0.001 s <<< ERROR!
+java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@3425709a testClass = in.winvestco.user_service.UserServiceApplicationTests, locations = [], classes = [in.winvestco.user_service.UserServiceApplication], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@3fde2209, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3b088163, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@fef95706, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5962c1b8, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@538a2f0e, org.springframework.boot.test.context.SpringBootTestAnnotation@d26073d4], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:180)
+	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191)
+	at org.springframework.test.context.web.ServletTestExecutionListener.prepareTestInstance(ServletTestExecutionListener.java:130)
+	at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:247)
+	at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:163)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.StreamSpliterators$WrappingSpliterator.forEachRemaining(StreamSpliterators.java:310)
+	at java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:735)
+	at java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:734)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:762)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'outboxProcessor' defined in URL [jar:file:/C:/Users/Sharad%20Gupta/.m2/repository/in/winvestco/common/1.0.0/common-1.0.0.jar!/in/winvestco/common/messaging/outbox/OutboxProcessor.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:802)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:241)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1356)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1193)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:325)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:323)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:973)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:946)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:616)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:455)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:323)
+	at org.springframework.boot.test.context.SpringBootContextLoader.lambda$loadContext$3(SpringBootContextLoader.java:137)
+	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:58)
+	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:46)
+	at org.springframework.boot.SpringApplication.withHook(SpringApplication.java:1442)
+	at org.springframework.boot.test.context.SpringBootContextLoader$ContextLoaderHook.run(SpringBootContextLoader.java:552)
+	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:137)
+	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:108)
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)
+	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)
+	... 17 more
+Caused by: org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'in.winvestco.common.messaging.outbox.OutboxRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.raiseNoMatchingBeanFound(DefaultListableBeanFactory.java:1878)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1404)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1348)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:911)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:789)
+	... 41 more
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Errors: 
+[ERROR]   UserServiceApplicationTests.contextLoads ╗ IllegalState Failed to load ApplicationContext for [WebMergedContextConfiguration@3425709a testClass = in.winvestco.user_service.UserServiceApplicationTests, locations = [], classes = [in.winvestco.user_service.UserServiceApplication], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@3fde2209, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@3b088163, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@fef95706, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@5962c1b8, org.springframework.boot.test.autoconfigure.actuate.observability.ObservabilityContextCustomizerFactory$DisableObservabilityContextCustomizer@1f, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizer@538a2f0e, org.springframework.boot.test.context.SpringBootTestAnnotation@d26073d4], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
+[INFO] 
+[ERROR] Tests run: 177, Failures: 0, Errors: 1, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  20.824 s
+[INFO] Finished at: 2025-12-24T12:43:10+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.1.2:test (default-test) on project user-service: 
+[ERROR] 
+[ERROR] Please refer to D:\winvestco-trading-platform\backend\user-service\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

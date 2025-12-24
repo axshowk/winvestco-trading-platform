@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, TrendingUp, User, Wallet } from 'lucide-react';
+import { Menu, X, TrendingUp, User, Wallet, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import NotificationBell from './NotificationBell';
 import './Navbar.css';
 
 const Navbar = ({ onLogin }) => {
+    const { theme, toggleTheme, isDarkMode } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -57,6 +59,13 @@ const Navbar = ({ onLogin }) => {
 
                     {/* Auth Buttons */}
                     <div className="auth-buttons">
+                        <button
+                            className="theme-toggle-btn"
+                            onClick={toggleTheme}
+                            title={`Switch to ${isDarkMode ? 'Light' : 'Dark'} Mode`}
+                        >
+                            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
                         {isLoggedIn ? (
                             <>
                                 <NotificationBell />
@@ -93,6 +102,9 @@ const Navbar = ({ onLogin }) => {
                         <a href="/trades" className="nav-link mobile">Trades</a>
                         <a href="/wallet" className="nav-link mobile">Wallet</a>
                         <a href="https://zerodha.com/varsity/modules" target="_blank" rel="noopener noreferrer" className="nav-link mobile">Learn</a>
+                        <button className="nav-link mobile theme-toggle-btn-mobile" onClick={toggleTheme}>
+                            {isDarkMode ? <><Sun size={18} /> Light Mode</> : <><Moon size={18} /> Dark Mode</>}
+                        </button>
                         <hr className="divider" />
                         {isLoggedIn ? (
                             <a href="/profile" className="btn-primary mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}>

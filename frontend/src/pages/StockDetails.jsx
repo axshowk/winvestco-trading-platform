@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowLeft, RefreshCw, Activity, DollarSign, BarChart3, ShoppingCart, X, AlertCircle, CheckCircle, Clock, Target, Maximize2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import TradingViewChart from '../components/TradingViewChart';
 
 import { createOrder, OrderType, OrderSide, OrderValidity, formatCurrency } from '../services/orderApi';
 import './StockDetails.css';
@@ -322,7 +323,25 @@ const StockDetails = () => {
                     </div>
                 </div>
 
-
+                {/* Chart Section */}
+                <div className="stock-chart-section">
+                    <div className="section-header">
+                        <div className="header-left">
+                            <Activity size={20} />
+                            <h2>Price Chart</h2>
+                        </div>
+                        <button
+                            className="terminal-btn-link"
+                            onClick={() => window.open(`/terminal/${symbol}`, '_blank')}
+                        >
+                            <Maximize2 size={16} />
+                            <span>Terminal View</span>
+                        </button>
+                    </div>
+                    <div className="chart-container glass">
+                        <TradingViewChart symbol={symbol} />
+                    </div>
+                </div>
 
                 {/* Intraday Section */}
                 <div className="data-section">

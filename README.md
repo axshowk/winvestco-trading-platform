@@ -55,6 +55,8 @@
 - **🔔 Real-time Notifications** - WebSocket-based push notifications
 - **📄 Stock Details** - Comprehensive stock information with interactive charts
 - **📄 Async Report Generation** - Generate P&L, Tax, and Transaction reports asynchronously via Event Sourcing
+- **🌓 Dark/Light Mode** - Personalized UI experience with smooth theme transitions
+- **🖥️ Trading Terminal** - Advanced stock-specific terminal view with professional charting
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
@@ -74,7 +76,9 @@
 - **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
 - **🌐 Environment-Specific Profiles** - 48 profile files (dev, docker, staging, prod) for secure and flexible deployment
 - **📝 Structured Logging** - JSON-formatted logging with consistent fields across all services for better log aggregation
-- **🧪 Comprehensive Unit Tests** - 26 test classes across all microservices with JUnit 5 & Mockito
+- **🧪 Comprehensive Unit Tests** - 32+ test classes across all microservices with JUnit 5, Mockito & JaCoCo Coverage
+- **📊 Code Coverage Reporting** - JaCoCo integration for backend test coverage visualization
+- **📨 Reliable Event Publishing** - Outbox pattern implementation for guaranteed delivery in User Service
 
 ---
 
@@ -796,7 +800,10 @@ Tests use H2 in-memory database and mock external services. Test configurations 
 
 ### Test Coverage
 
-The project includes **26 test classes** across all microservices:
+The project includes **32+ test classes** across all microservices, with a major focus on the User Service using:
+- **JUnit 5 / Mockito**: For robust unit testing
+- **JaCoCo**: For coverage analysis and reporting
+- **Outbox Pattern Testing**: Comprehensive tests for reliable event publishing
 
 | Module | Test Classes |
 |--------|--------------|

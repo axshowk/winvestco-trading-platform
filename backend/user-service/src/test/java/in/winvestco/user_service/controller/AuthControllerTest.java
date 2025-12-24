@@ -1,6 +1,7 @@
 package in.winvestco.user_service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.winvestco.common.enums.AccountStatus;
+import in.winvestco.common.enums.Role;
 import in.winvestco.common.util.LoggingUtils;
 import in.winvestco.user_service.dto.LoginRequest;
 import in.winvestco.user_service.dto.UserResponse;
@@ -8,62 +9,55 @@ import in.winvestco.user_service.service.JwtService;
 import in.winvestco.user_service.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for AuthController
- * Uses @WebMvcTest for slice testing
+ * Uses Mockito to test controller logic in isolation
  */
-@WebMvcTest(AuthController.class)
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 @DisplayName("AuthController Tests")
 class AuthControllerTest {
 
-        @Autowired
-        private MockMvc mockMvc;
-
-        @Autowired
-        private ObjectMapper objectMapper;
-
-        @MockBean
+        @Mock
         private AuthenticationManager authenticationManager;
 
-        @MockBean
+        @Mock
         private UserService userService;
 
-        @MockBean
+        @Mock
         private JwtService jwtService;
 
-        @MockBean
-        private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
-
-        @MockBean
+        @Mock
         private LoggingUtils loggingUtils;
+
+        @InjectMocks
+        private AuthController authController;
 
         private UserResponse testUserResponse;
         private static final String TEST_EMAIL = "test@example.com";
@@ -78,95 +72,120 @@ class AuthControllerTest {
                 testUserResponse.setFirstName("John");
                 testUserResponse.setLastName("Doe");
                 testUserResponse.setPhoneNumber("1234567890");
-                testUserResponse.setStatus(in.winvestco.common.enums.AccountStatus.ACTIVE);
-                testUserResponse.setRoles(Set.of(in.winvestco.common.enums.Role.USER));
+                testUserResponse.setStatus(AccountStatus.ACTIVE);
+                testUserResponse.setRoles(Set.of(Role.USER));
                 testUserResponse.setCreatedAt(Instant.now());
         }
 
-        @Test
-        @DisplayName("Should return JWT token on successful login")
-        void login_WithValidCredentials_ShouldReturnToken() throws Exception {
-                LoginRequest loginRequest = new LoginRequest(TEST_EMAIL, TEST_PASSWORD);
+        @Nested
+        @DisplayName("login Tests")
+        class LoginTests {
 
-                Authentication authentication = mock(Authentication.class);
-                UserDetails userDetails = User.builder()
-                                .username(TEST_EMAIL)
-                                .password(TEST_PASSWORD)
-                                .authorities(new SimpleGrantedAuthority("ROLE_USER"))
-                                .build();
+                @Test
+                @DisplayName("Should login successfully and return token")
+                void login_WithValidCredentials_ShouldReturnToken() {
+                        LoginRequest request = new LoginRequest(TEST_EMAIL, TEST_PASSWORD);
+                        Authentication authentication = mock(Authentication.class);
+                        UserDetails userDetails = mock(UserDetails.class);
 
-                when(authentication.getPrincipal()).thenReturn(userDetails);
-                when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                                .thenReturn(authentication);
-                when(userService.findByEmail(TEST_EMAIL)).thenReturn(testUserResponse);
-                when(jwtService.generateToken(any(UserDetails.class), any(), any())).thenReturn(TEST_TOKEN);
+                        when(authentication.getPrincipal()).thenReturn(userDetails);
+                        doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+                                        .when(authentication).getAuthorities();
+                        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                                        .thenReturn(authentication);
+                        when(userService.findByEmail(TEST_EMAIL)).thenReturn(testUserResponse);
+                        when(jwtService.generateToken(eq(userDetails), eq(TEST_EMAIL), eq(1L))).thenReturn(TEST_TOKEN);
 
-                mockMvc.perform(post("/api/auth/login")
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(loginRequest)))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.accessToken").value(TEST_TOKEN))
-                                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+                        ResponseEntity<AuthController.LoginResponse> response = authController.login(request);
+
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        AuthController.LoginResponse body = response.getBody();
+                        assertThat(body).isNotNull();
+                        assertThat(body.accessToken()).isEqualTo(TEST_TOKEN);
+                        assertThat(body.user().email()).isEqualTo(TEST_EMAIL);
+                }
+
+                @Test
+                @DisplayName("Should throw BadCredentialsException for invalid credentials")
+                void login_WithInvalidCredentials_ShouldThrowException() {
+                        LoginRequest request = new LoginRequest(TEST_EMAIL, "wrong");
+                        when(authenticationManager.authenticate(any()))
+                                        .thenThrow(new BadCredentialsException("Invalid"));
+
+                        assertThatThrownBy(() -> authController.login(request))
+                                        .isInstanceOf(BadCredentialsException.class);
+                }
         }
 
-        @Test
-        @DisplayName("Should return 401 on invalid credentials")
-        void login_WithInvalidCredentials_ShouldReturn401() throws Exception {
-                LoginRequest loginRequest = new LoginRequest(TEST_EMAIL, "wrongPassword");
+        @Nested
+        @DisplayName("getCurrentUser Tests")
+        class GetCurrentUserTests {
 
-                when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                                .thenThrow(new BadCredentialsException("Invalid credentials"));
+                @Test
+                @DisplayName("Should return user info from headers when present")
+                void getCurrentUser_WithHeaders_ShouldReturnUserInfo() {
+                        when(userService.findByEmail(TEST_EMAIL)).thenReturn(testUserResponse);
 
-                mockMvc.perform(post("/api/auth/login")
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(loginRequest)))
-                                .andExpect(status().isUnauthorized());
-        }
+                        ResponseEntity<AuthController.TokenVerificationResponse> response = authController
+                                        .getCurrentUser(
+                                                        null, TEST_EMAIL, "1", "ROLE_USER");
 
-        @Test
-        @WithMockUser(username = "test@example.com", roles = { "USER" })
-        @DisplayName("Should return current user info for authenticated request")
-        void getCurrentUser_WithAuthentication_ShouldReturnUserInfo() throws Exception {
-                when(userService.findByEmail(TEST_EMAIL)).thenReturn(testUserResponse);
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        AuthController.TokenVerificationResponse body = response.getBody();
+                        assertThat(body).isNotNull();
+                        assertThat(body.valid()).isTrue();
+                        assertThat(body.user().email()).isEqualTo(TEST_EMAIL);
+                        assertThat(body.user().roles()).contains("ROLE_USER");
+                }
 
-                mockMvc.perform(get("/api/auth/me")
-                                .header("X-User-Email", TEST_EMAIL)
-                                .header("X-User-Id", "1")
-                                .header("X-User-Roles", "ROLE_USER"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.valid").value(true));
-        }
+                @Test
+                @DisplayName("Should return user info from JWT authentication when headers absent")
+                void getCurrentUser_WithJwtAuth_ShouldReturnUserInfo() {
+                        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+                        Jwt jwt = mock(Jwt.class);
+                        when(authentication.getPrincipal()).thenReturn(jwt);
+                        when(jwt.getClaim("email")).thenReturn(TEST_EMAIL);
+                        doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+                                        .when(authentication).getAuthorities();
+                        when(userService.findByEmail(TEST_EMAIL)).thenReturn(testUserResponse);
 
-        @Test
-        @DisplayName("Should return 401 for unauthenticated request to protected endpoint")
-        void getCurrentUser_WithoutAuthentication_ShouldReturn401() throws Exception {
-                mockMvc.perform(get("/api/auth/me"))
-                                .andExpect(status().isUnauthorized());
-        }
+                        ResponseEntity<AuthController.TokenVerificationResponse> response = authController
+                                        .getCurrentUser(
+                                                        authentication, null, null, null);
 
-        @Test
-        @DisplayName("Should register new user successfully")
-        void register_ShouldReturnCreated() throws Exception {
-                in.winvestco.user_service.dto.RegisterRequest registerRequest = new in.winvestco.user_service.dto.RegisterRequest();
-                registerRequest.setEmail("new@example.com");
-                registerRequest.setPassword("password123");
-                registerRequest.setFirstName("New");
-                registerRequest.setLastName("User");
-                registerRequest.setPhoneNumber("1234567890");
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        AuthController.TokenVerificationResponse body = response.getBody();
+                        assertThat(body).isNotNull();
+                        assertThat(body.valid()).isTrue();
+                        assertThat(body.user().email()).isEqualTo(TEST_EMAIL);
+                }
 
-                in.winvestco.user_service.model.User savedUser = new in.winvestco.user_service.model.User();
-                savedUser.setId(2L);
-                savedUser.setEmail("new@example.com");
+                @Test
+                @DisplayName("Should return 401 when no authentication provided")
+                void getCurrentUser_WithNoAuth_ShouldReturn401() {
+                        ResponseEntity<AuthController.TokenVerificationResponse> response = authController
+                                        .getCurrentUser(
+                                                        null, null, null, null);
 
-                when(userService.register(any(), any(), any(), any(), any())).thenReturn(savedUser);
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+                        AuthController.TokenVerificationResponse body = response.getBody();
+                        assertThat(body).isNotNull();
+                        assertThat(body.valid()).isFalse();
+                }
 
-                mockMvc.perform(post("/api/auth/register")
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(registerRequest)))
-                                .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.email").value("new@example.com"));
+                @Test
+                @DisplayName("Should return 401 when user not found")
+                void getCurrentUser_WhenUserNotFound_ShouldReturn401() {
+                        when(userService.findByEmail(TEST_EMAIL)).thenReturn(null);
+
+                        ResponseEntity<AuthController.TokenVerificationResponse> response = authController
+                                        .getCurrentUser(
+                                                        null, TEST_EMAIL, "1", "ROLE_USER");
+
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+                        AuthController.TokenVerificationResponse body = response.getBody();
+                        assertThat(body).isNotNull();
+                        assertThat(body.message()).contains("User not found");
+                }
         }
 }

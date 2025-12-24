@@ -33,8 +33,11 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private in.winvestco.common.util.LoggingUtils loggingUtils;
+
     private User testUser;
-    private static final String TEST_ENCODED_PASSWORD = "$2a$10$encodedPasswordHashThatIsLongEnoughToPass123456";
+    private static final String TEST_ENCODED_PASSWORD = "$2a$10$encodedPasswordHashThatIsLongEnoughToPass123456789012";
 
     @BeforeEach
     void setUp() {
@@ -154,5 +157,27 @@ class UserRepositoryTest {
 
         assertThat(users).hasSize(1);
         assertThat(users.get(0).getEmail()).isEqualTo("test@example.com");
+    }
+
+    @Test
+    @DisplayName("Should find users by role VIEWER")
+    void findAllByRolesContaining_Viewer_ShouldReturnMatchingUsers() {
+        User viewerUser = User.builder()
+                .email("viewer@example.com")
+                .firstName("Viewer")
+                .lastName("User")
+                .passwordHash(TEST_ENCODED_PASSWORD)
+                .roles(Set.of(Role.VIEWER))
+                .status(AccountStatus.ACTIVE)
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+
+        entityManager.persistAndFlush(viewerUser);
+
+        List<User> viewerUsers = userRepository.findAllByRolesContaining(Role.VIEWER);
+
+        assertThat(viewerUsers).hasSize(1);
+        assertThat(viewerUsers.get(0).getEmail()).isEqualTo("viewer@example.com");
     }
 }

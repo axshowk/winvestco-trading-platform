@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { TrendingUp, TrendingDown, Search, ArrowUpDown, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Search, ArrowUpDown, BarChart3, Maximize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -187,8 +187,21 @@ const MarketData = () => {
                                         {Math.abs(stock.change || 0).toFixed(2)}%
                                     </span>
                                 </div>
-                                <div className="stock-price">
-                                    {formatCurrency(stock.price)}
+                                <div className="stock-price-row">
+                                    <div className="stock-price">
+                                        {formatCurrency(stock.price)}
+                                    </div>
+                                    <button
+                                        className="terminal-mini-btn"
+                                        title="Open Terminal"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            window.open(`/terminal/${stock.symbol}`, '_blank');
+                                        }}
+                                    >
+                                        <Maximize2 size={16} />
+                                        <span>Terminal</span>
+                                    </button>
                                 </div>
                                 <div className="stock-volume">
                                     Vol: {formatNumber(stock.totalTradedVolume)}
