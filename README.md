@@ -60,8 +60,8 @@
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
-- **☁️ Cloud-Native Architecture** - 12 microservices with service discovery and API gateway
-- **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events
+- **☁️ Cloud-Native Architecture** - 13 microservices with service discovery and API gateway
+- **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events (30+ events)
 - **🔀 SAGA Orchestration** - Choreography-based distributed transactions with compensation logic for order-to-trade lifecycle
 - **📨 Message Queue Reliability** - Idempotency service, Outbox pattern, DLQ with retry interceptor for guaranteed delivery
 - **💾 Redis Caching** - High-performance caching for market data and sessions
@@ -70,9 +70,10 @@
 - **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints
 - **🐳 Docker Support** - Complete containerization with Docker Compose
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
-- **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) for metrics & logging
+- **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) + Jaeger for metrics, logging & distributed tracing
 - **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs
 - **🛡️ Resilience4j Integration** - Circuit breakers, rate limiters, retries with exponential backoff and jitter
+- **🔧 Audit & Service Logging** - Aspect-Oriented Programming (AOP) for consistent logging across all services
 - **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
 - **🌐 Environment-Specific Profiles** - 48 profile files (dev, docker, staging, prod) for secure and flexible deployment
 - **📝 Structured Logging** - JSON-formatted logging with consistent fields across all services for better log aggregation
@@ -110,23 +111,22 @@
 │           │                      │                      │                      │           │
 │  ┌────────┴──────────────────────┴──────────────────────┴──────────────────────┴──────── ┐ │
 │  │                                                                                       │ |
-│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                   │ │
-│  │  │ Ledger Service   │   │ Order Service    │   │ Trade Service    │                   │ │
-│  │  │     (8087)       │   │     (8089)       │   │     (8092)       │                   │ │
-│  │  │                  │   │                  │   │                  │                   │ │
-│  │  │ • Immutable SOT  │   │ • Order Lifecycle│   │ • Trade Lifecycle│                   │ │
-│  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • State Machine  │                   │ │
-│  │  │ • Reconciliation │   │ • Order Expiry   │   │ • Execution Sim  │                   │ │
-│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                   │ │
+│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐ │
+│  │  │ Ledger Service   │   │ Order Service    │   │ Trade Service    │   │ Report Service   │ │
+│  │  │     (8087)       │   │     (8089)       │   │     (8092)       │   │     (8094)       │ │
+│  │  │                  │   │                  │   │                  │   │ • Async Reporting│ │
+│  │  │ • Immutable SOT  │   │ • Order Lifecycle│   │ • Trade Lifecycle│   │ • P&L/Tax Reports│ │
+│  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • State Machine  │   │ • Read Models    │ │
+│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘   └──────────────────┘ │
 │  │                                                                                       │ │
-│  │  ┌──────────────────┐   ┌──────────────────┐                                          │ │
-│  │  │ Notification Svc │   │ Payment Service  │                                          │ │
-│  │  │     (8091)       │   │     (8093)       │                                          │ │
-│  │  │                  │   │                  │                                          │ │
-│  │  │ • Push Notifs    │   │ • Razorpay       │                                          │ │
-│  │  │ • WebSocket      │   │ • Webhooks       │                                          │ │
-│  │  │ • Preferences    │   │ • Payment Events │                                          │ │
-│  │  └──────────────────┘   └──────────────────┘                                          │ │
+│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                   │ │
+│  │  │ Notification Svc │   │ Payment Service  │   │ Schedule Service │                   │ │
+│  │  │     (8091)       │   │     (8093)       │   │     (8095)       │                   │ │
+│  │  │                  │   │                  │   │                  │                   │ │
+│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Platform Cron  │                   │ │
+│  │  │ • WebSocket      │   │ • Webhooks       │   │ • Task Mgmt      │                   │ │
+│  │  │ • Preferences    │   │ • Payment Events │   │ • Market Sync    │                   │ │
+│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                   │ │
 │  │                                                                                       │ │
 │  └───────────────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                            │
@@ -196,14 +196,16 @@
 | **MapStruct** | Object mapping |
 | **SpringDoc OpenAPI** | API documentation |
 
-### Observability (PLG Stack)
+### Observability (PLG + J Stack)
 | Technology | Purpose |
 |------------|---------|
 | **Prometheus** | Metrics collection & alerting |
 | **Loki** | Log aggregation & querying |
 | **Grafana** | Visualization & dashboards |
-| **Micrometer** | Application metrics |
-| **Logback** | Structured logging |
+| **Jaeger** | Distributed tracing for microservices |
+| **Micrometer** | Application metrics & tracing |
+| **Logback** | Structured logging (JSON format) |
+| **AOP** | Audit logging & service tracing aspects |
 
 ---
 
@@ -228,8 +230,6 @@
 
 ### Domain Events (RabbitMQ)
 
-The platform uses an event-driven architecture with the following domain events (26 total):
-
 | Category | Events |
 |----------|--------|
 | **User Events** | `UserCreatedEvent`, `UserUpdatedEvent`, `UserLoginEvent`, `UserStatusChangedEvent`, `UserRoleChangedEvent`, `UserPasswordChangedEvent` |
@@ -237,7 +237,10 @@ The platform uses an event-driven architecture with the following domain events 
 | **Funds Events** | `FundsDepositedEvent`, `FundsWithdrawnEvent`, `FundsLockedEvent`, `FundsReleasedEvent` |
 | **Trade Events** | `TradeCreatedEvent`, `TradePlacedEvent`, `TradeExecutedEvent`, `TradeClosedEvent`, `TradeCancelledEvent`, `TradeFailedEvent` |
 | **Payment Events** | `PaymentCreatedEvent`, `PaymentSuccessEvent`, `PaymentFailedEvent`, `PaymentExpiredEvent` |
+| **Report Events** | `ReportCompletedEvent`, `ReportFailedEvent` |
 | **Ledger Events** | `LedgerEntryEvent` |
+
+The platform uses an event-driven architecture with 30 domain events for robust inter-service communication.
 
 ### SAGA Pattern Architecture
 

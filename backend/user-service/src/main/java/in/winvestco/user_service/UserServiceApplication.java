@@ -7,6 +7,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import in.winvestco.common.util.LoggingUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,16 @@ import jakarta.annotation.PostConstruct;
 @EnableCaching
 @EnableScheduling
 @EnableRabbit
+@EnableJpaRepositories(basePackages = {
+        "in.winvestco.user_service.repository",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
+@EntityScan(basePackages = {
+        "in.winvestco.user_service.model",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
 @RequiredArgsConstructor
 public class UserServiceApplication {
 

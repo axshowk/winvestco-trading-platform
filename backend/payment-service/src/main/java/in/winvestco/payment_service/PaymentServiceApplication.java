@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * Payment Service Application
@@ -24,6 +26,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableScheduling
+@EnableJpaRepositories(basePackages = {
+        "in.winvestco.payment_service.repository",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
+@EntityScan(basePackages = {
+        "in.winvestco.payment_service.model",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
 public class PaymentServiceApplication {
 
     public static void main(String[] args) {

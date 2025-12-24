@@ -3,6 +3,8 @@ package in.winvestco.ledger_service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * Ledger Service Application
@@ -20,6 +22,16 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
         "in.winvestco.common"
 })
 @EnableDiscoveryClient
+@EnableJpaRepositories(basePackages = {
+        "in.winvestco.ledger_service.repository",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
+@EntityScan(basePackages = {
+        "in.winvestco.ledger_service.model",
+        "in.winvestco.common.messaging.idempotency",
+        "in.winvestco.common.messaging.outbox"
+})
 public class LedgerServiceApplication {
 
     public static void main(String[] args) {
