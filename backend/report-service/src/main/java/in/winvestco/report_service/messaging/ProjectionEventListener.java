@@ -1,7 +1,8 @@
 package in.winvestco.report_service.messaging;
 
 import in.winvestco.common.event.*;
-import in.winvestco.report_service.model.ProcessedEvent;
+import in.winvestco.common.messaging.idempotency.ProcessedEvent;
+import in.winvestco.common.messaging.idempotency.ProcessedEventRepository;
 import in.winvestco.report_service.model.projection.*;
 import in.winvestco.report_service.repository.*;
 import lombok.RequiredArgsConstructor;

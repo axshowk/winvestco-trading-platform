@@ -6,30 +6,28 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = {
-        "in.winvestco.order_service",
-        "in.winvestco.common"
+                "in.winvestco.order_service",
+                "in.winvestco.common"
 })
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableScheduling
-@EnableJpaAuditing
 @EnableJpaRepositories(basePackages = {
-        "in.winvestco.order_service.repository",
-        "in.winvestco.common.messaging.idempotency",
-        "in.winvestco.common.messaging.outbox"
+                "in.winvestco.order_service.repository",
+                "in.winvestco.common.messaging.idempotency",
+                "in.winvestco.common.messaging.outbox"
 })
 @EntityScan(basePackages = {
-        "in.winvestco.order_service.model",
-        "in.winvestco.common.messaging.idempotency",
-        "in.winvestco.common.messaging.outbox"
+                "in.winvestco.order_service.model",
+                "in.winvestco.common.messaging.idempotency",
+                "in.winvestco.common.messaging.outbox"
 })
 public class OrderServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(OrderServiceApplication.class, args);
-    }
+        public static void main(String[] args) {
+                SpringApplication.run(OrderServiceApplication.class, args);
+        }
 }
