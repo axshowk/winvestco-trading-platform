@@ -60,7 +60,7 @@
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
-- **☁️ Cloud-Native Architecture** - 13 microservices with service discovery and API gateway
+- **☁️ Cloud-Native Architecture** - 14 microservices with service discovery and API gateway
 - **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events (30+ events)
 - **🔀 SAGA Orchestration** - Choreography-based distributed transactions with compensation logic for order-to-trade lifecycle
 - **📨 Message Queue Reliability** - Idempotency service, Outbox pattern, DLQ with retry interceptor for guaranteed delivery
@@ -68,7 +68,7 @@
 - **📝 Database Migrations** - Flyway for version-controlled schema management
 - **🛡️ API Security** - OAuth2/JWT authentication with Spring Security, Redis-backed rate limiting, and secure headers (CSP, HSTS)
 - **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints with centralized aggregation capability
-- **🐳 Optimized Docker Support** - Multi-stage builds, non-root users, health checks, and JVM tuning for all 13 services
+- **🐳 Optimized Docker Support** - Multi-stage builds, non-root users, health checks, and JVM tuning for all 14 services
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal high-concurrency performance
 - **📊 Observability** - Full PLG Stack (Prometheus, Loki, Grafana) + Jaeger for metrics, logging & distributed tracing
 - **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs and state rebuild capability
@@ -121,14 +121,14 @@
 │  │  │ • Audit Trail    │   │ • Market/Limit   │   │ • State Machine  │   │ • Read Models    │ │
 │  │  └──────────────────┘   └──────────────────┘   └──────────────────┘   └──────────────────┘ │
 │  │                                                                                       │ │
-│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                   │ │
-│  │  │ Notification Svc │   │ Payment Service  │   │ Schedule Service │                   │ │
-│  │  │     (8091)       │   │     (8093)       │   │     (8095)       │                   │ │
-│  │  │                  │   │                  │   │                  │                   │ │
-│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Platform Cron  │                   │ │
-│  │  │ • WebSocket      │   │ • Webhooks       │   │ • Task Mgmt      │                   │ │
-│  │  │ • Preferences    │   │ • Payment Events │   │ • Market Sync    │                   │ │
-│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                   │ │
+│  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐ │
+│  │  │ Notification Svc │   │ Payment Service  │   │ Schedule Service │   │ News Service     │ │
+│  │  │     (8091)       │   │     (8093)       │   │     (8095)       │   │     (8093)       │ │
+│  │  │                  │   │                  │   │                  │   │ • Google News RSS│ │
+│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Platform Cron  │   │ • Sentiment (TBD)│ │
+│  │  │ • WebSocket      │   │ • Webhooks       │   │ • Task Mgmt      │   │ • Scraper        │ │
+│  │  │ • Preferences    │   │ • Payment Events │   │ • Market Sync    │   │                  │ │
+│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘   └──────────────────┘ │
 │  │                                                                                       │ │
 │  └───────────────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                            │
@@ -230,6 +230,7 @@
 | **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
 | **Report Service** | 8094 | Async report generation (P&L, Tax, Transaction) | `winvestco_report_db` |
 | **Schedule Service** | 8095 | Centralized platform-wide task scheduling | - |
+| **News Sentiment Service** | 8093 | Scraps financial news from Google News RSS | `winvestco_news_db` |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
 ### Domain Events (RabbitMQ)
@@ -555,6 +556,9 @@ Ensure you have the following installed:
 
    # Terminal 12: Schedule Service
    cd schedule-service && mvn spring-boot:run
+
+   # Terminal 13: News Sentiment Service
+   cd news-sentiment-service && mvn spring-boot:run
    ```
 
 5. **Start the frontend**
@@ -586,6 +590,7 @@ Ensure you have the following installed:
 | Notification Service | 8091 | Notifications & WebSocket |
 | Report Service | 8094 | Async report generation |
 | Schedule Service | 8095 | Centralized platform scheduling |
+| News Sentiment Service | 8093 | Google News RSS scraper |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |

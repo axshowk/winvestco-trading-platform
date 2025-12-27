@@ -13,7 +13,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: winvestco_user_db
-      POSTGRES_MULTIPLE_DATABASES: winvestco_user_db,winvestco_portfolio_db
+      POSTGRES_MULTIPLE_DATABASES: winvestco_user_db,winvestco_portfolio_db,winvestco_news_db
     ports:
       - "5432:5432"
     volumes:

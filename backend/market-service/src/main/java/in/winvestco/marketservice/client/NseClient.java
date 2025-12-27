@@ -79,6 +79,7 @@ public class NseClient {
     /**
      * Fallback method when NSE API is unavailable or circuit is open
      */
+    @SuppressWarnings("unused")
     private MarketDataDTO getIndexQuoteFallback(String indexName, Throwable t) {
         log.warn("[FALLBACK] NSE API unavailable for {}: {}", indexName, t.getMessage());
         return null;
@@ -137,6 +138,7 @@ public class NseClient {
     /**
      * Fallback method when NSE API is unavailable for full index data
      */
+    @SuppressWarnings("unused")
     private String getFullIndexDataFallback(String indexName, Throwable t) {
         log.warn("[FALLBACK] NSE API unavailable for full index data {}: {}", indexName, t.getMessage());
         return null;
