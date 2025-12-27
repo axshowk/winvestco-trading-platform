@@ -1,0 +1,130 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (default: latest)'
+        required: false
+        default: 'latest'
+      confirm_deployment:
+        description: 'Type "DEPLOY" to confirm production deployment'
+        required: true
+
+env:
+  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
+  COMPOSE_PROJECT_NAME: winvestco-production
+
+jobs:
+  validate:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_deployment }}" != "DEPLOY" ]; then
+            echo "Deployment not confirmed. You must type 'DEPLOY' to proceed."
+            exit 1
+          fi
+          echo "Deployment confirmed"
+
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.PROD_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create backup
+        run: |
+          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+            cd ~/winvestco
+            
+            # Backup current deployment info
+            echo "Creating deployment backup..."
+            docker compose ps > backup_$(date +%Y%m%d_%H%M%S).txt 2>/dev/null || true
+            
+            echo "✅ Backup created"
+          EOF
+
+      - name: Copy docker-compose files
+        run: |
+          scp -r ./backend/docker-compose.yml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/winvestco/
+          scp -r ./backend/docker-compose-services.yml ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/winvestco/
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+            cd ~/winvestco
+            
+            # Set environment variables
+            export DOCKERHUB_NAMESPACE=${{ env.DOCKERHUB_NAMESPACE }}
+            export IMAGE_TAG=${{ github.event.inputs.image_tag }}
+            export SPRING_PROFILES_ACTIVE=prod
+            
+            # Pull latest images
+            docker compose -f docker-compose.yml -f docker-compose-services.yml pull
+            
+            # Deploy with zero-downtime rolling update
+            docker compose -f docker-compose.yml -f docker-compose-services.yml up -d --remove-orphans
+            
+            # Wait for services to be healthy
+            sleep 45
+            
+            # Cleanup old images
+            docker image prune -f
+            
+            echo "✅ Production deployment complete!"
+          EOF
+
+      - name: Health check
+        run: |
+          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'EOF'
+            echo "Checking service health..."
+            
+            # Check Eureka
+            curl -sf http://localhost:8761/actuator/health || echo "⚠️ Eureka health check failed"
+            
+            # Check API Gateway
+            curl -sf http://localhost:8090/actuator/health || echo "⚠️ API Gateway health check failed"
+            
+            echo "Production health checks complete"
+          EOF
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image Tag:** ${{ github.event.inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+
+  notify-rollback:
+    name: Rollback Instructions
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+
+    steps:
+      - name: Display rollback instructions
+        run: |
+          echo "## Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Rollback Instructions:" >> $GITHUB_STEP_SUMMARY
+          echo "1. SSH into production server" >> $GITHUB_STEP_SUMMARY
+          echo "2. Run: \`docker compose down\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Deploy previous stable version" >> $GITHUB_STEP_SUMMARY

@@ -35,6 +35,8 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true  # Enables /actuator/health/liveness and /actuator/health/readiness
     prometheus:
       enabled: true
   endpoints:
@@ -44,6 +46,15 @@ management:
   health:
     eureka:
       enabled: true
+    # Kubernetes probes
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+    # Disk space monitoring
+    diskSpace:
+      enabled: true
+      threshold: 10MB
   metrics:
     export:
       prometheus:

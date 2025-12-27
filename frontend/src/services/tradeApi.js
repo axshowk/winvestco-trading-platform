@@ -3,18 +3,9 @@
  * Provides functions to interact with the trade-service backend
  */
 
-const API_BASE_URL = '/api/v1/trades';
+import { api } from '../utils/apiClient';
 
-/**
- * Get auth headers with JWT token
- */
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-};
+const API_BASE_URL = '/api/v1/trades';
 
 /**
  * Trade status enum
@@ -89,17 +80,7 @@ export const isCancellable = (status) => {
  */
 export const getTrades = async (page = 0, size = 20) => {
     const params = new URLSearchParams({ page, size });
-    const response = await fetch(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get trades');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}?${params}`);
 };
 
 /**
@@ -107,17 +88,7 @@ export const getTrades = async (page = 0, size = 20) => {
  * @returns {Promise<Array>} List of active trades
  */
 export const getActiveTrades = async () => {
-    const response = await fetch(`${API_BASE_URL}/active`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get active trades');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}/active`);
 };
 
 /**
@@ -126,17 +97,7 @@ export const getActiveTrades = async () => {
  * @returns {Promise<Object>} Trade details
  */
 export const getTrade = async (tradeId) => {
-    const response = await fetch(`${API_BASE_URL}/${tradeId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get trade');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}/${tradeId}`);
 };
 
 /**
@@ -147,17 +108,7 @@ export const getTrade = async (tradeId) => {
  */
 export const cancelTrade = async (tradeId, reason) => {
     const params = new URLSearchParams({ reason });
-    const response = await fetch(`${API_BASE_URL}/${tradeId}/cancel?${params}`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to cancel trade');
-    }
-
-    return response.json();
+    return api.post(`${API_BASE_URL}/${tradeId}/cancel?${params}`, {});
 };
 
 /**

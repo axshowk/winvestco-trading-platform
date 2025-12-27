@@ -34,7 +34,7 @@ services:
       eureka-server:
         condition: service_healthy
       user-service:
-        condition: service_started
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -42,8 +42,15 @@ services:
       - OTEL_SERVICE_NAME=api-gateway
       - OTEL_TRACES_SAMPLER=parentbased_traceidratio
       - OTEL_TRACES_SAMPLER_ARG=1.0
+      - REDIS_HOST=redis
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8090/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   user-service:
     build:
@@ -75,6 +82,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8088/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   market-service:
     build:
@@ -108,6 +121,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8084/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   portfolio-service:
     build:
@@ -136,6 +155,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8085/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   funds-service:
     build:
@@ -152,7 +177,7 @@ services:
       rabbitmq:
         condition: service_healthy
       ledger-service:
-        condition: service_started
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -166,6 +191,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8086/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   ledger-service:
     build:
@@ -191,6 +222,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8087/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   order-service:
     build:
@@ -207,7 +244,7 @@ services:
       rabbitmq:
         condition: service_healthy
       market-service:
-        condition: service_started
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -221,6 +258,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8089/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   trade-service:
     build:
@@ -237,7 +280,7 @@ services:
       rabbitmq:
         condition: service_healthy
       order-service:
-        condition: service_started
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -251,6 +294,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8092/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   notification-service:
     build:
@@ -279,6 +328,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8091/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   payment-service:
     build:
@@ -295,7 +350,7 @@ services:
       rabbitmq:
         condition: service_healthy
       funds-service:
-        condition: service_started
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_PROFILES_ACTIVE=docker
@@ -311,6 +366,12 @@ services:
       - OTEL_TRACES_SAMPLER_ARG=1.0
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8093/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   report-service:
     build:
@@ -342,6 +403,12 @@ services:
       - report-storage:/app/reports
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8094/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   postgres:
     image: postgres:16-alpine

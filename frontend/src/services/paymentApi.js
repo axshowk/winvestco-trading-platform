@@ -3,29 +3,9 @@
  * Handles Razorpay payment integration for deposits
  */
 
+import { api } from '../utils/apiClient';
+
 const API_BASE_URL = '/api/v1/payments';
-
-/**
- * Get auth headers with JWT token
- */
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-};
-
-/**
- * Handle API response
- */
-const handleResponse = async (response) => {
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
-    }
-    return response.json();
-};
 
 // ==================== Payment APIs ====================
 
@@ -36,15 +16,10 @@ const handleResponse = async (response) => {
  * @returns {Promise<Object>} Razorpay order details for checkout
  */
 export const initiatePayment = async (amount, description = '') => {
-    const response = await fetch(`${API_BASE_URL}/initiate`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            amount,
-            description: description || `Wallet deposit of ₹${amount.toLocaleString('en-IN')}`
-        })
+    return api.post(`${API_BASE_URL}/initiate`, {
+        amount,
+        description: description || `Wallet deposit of ₹${amount.toLocaleString('en-IN')}`
     });
-    return handleResponse(response);
 };
 
 /**
@@ -55,16 +30,11 @@ export const initiatePayment = async (amount, description = '') => {
  * @returns {Promise<Object>} Verified payment details
  */
 export const verifyPayment = async (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
-    const response = await fetch(`${API_BASE_URL}/verify`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            razorpayOrderId,
-            razorpayPaymentId,
-            razorpaySignature
-        })
+    return api.post(`${API_BASE_URL}/verify`, {
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature
     });
-    return handleResponse(response);
 };
 
 /**
@@ -73,11 +43,7 @@ export const verifyPayment = async (razorpayOrderId, razorpayPaymentId, razorpay
  * @returns {Promise<Object>} Payment details
  */
 export const getPayment = async (paymentId) => {
-    const response = await fetch(`${API_BASE_URL}/${paymentId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/${paymentId}`);
 };
 
 /**
@@ -85,11 +51,7 @@ export const getPayment = async (paymentId) => {
  * @returns {Promise<Array>} List of payments
  */
 export const getPaymentHistory = async () => {
-    const response = await fetch(`${API_BASE_URL}/history`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/history`);
 };
 
 // ==================== Razorpay Checkout Helper ====================

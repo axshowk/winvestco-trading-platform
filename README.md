@@ -66,20 +66,22 @@
 - **📨 Message Queue Reliability** - Idempotency service, Outbox pattern, DLQ with retry interceptor for guaranteed delivery
 - **💾 Redis Caching** - High-performance caching for market data and sessions
 - **📝 Database Migrations** - Flyway for version-controlled schema management
-- **🛡️ API Security** - OAuth2/JWT authentication with Spring Security
-- **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints
-- **🐳 Docker Support** - Complete containerization with Docker Compose
-- **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal performance
-- **📊 Observability** - PLG Stack (Prometheus, Loki, Grafana) + Jaeger for metrics, logging & distributed tracing
-- **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs
-- **🛡️ Resilience4j Integration** - Circuit breakers, rate limiters, retries with exponential backoff and jitter
+- **🛡️ API Security** - OAuth2/JWT authentication with Spring Security, Redis-backed rate limiting, and secure headers (CSP, HSTS)
+- **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints with centralized aggregation capability
+- **🐳 Optimized Docker Support** - Multi-stage builds, non-root users, health checks, and JVM tuning for all 13 services
+- **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal high-concurrency performance
+- **📊 Observability** - Full PLG Stack (Prometheus, Loki, Grafana) + Jaeger for metrics, logging & distributed tracing
+- **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs and state rebuild capability
+- **🛡️ Resilience4j Integration** - Circuit breakers, distributed rate limiters, retries with exponential backoff and jitter
 - **🔧 Audit & Service Logging** - Aspect-Oriented Programming (AOP) for consistent logging across all services
 - **🔧 Mock Execution Engine** - Simulated trade execution for development and testing
 - **🌐 Environment-Specific Profiles** - 48 profile files (dev, docker, staging, prod) for secure and flexible deployment
 - **📝 Structured Logging** - JSON-formatted logging with consistent fields across all services for better log aggregation
-- **🧪 Comprehensive Unit Tests** - 32+ test classes across all microservices with JUnit 5, Mockito & JaCoCo Coverage
-- **📊 Code Coverage Reporting** - JaCoCo integration for backend test coverage visualization
-- **📨 Reliable Event Publishing** - Outbox pattern implementation for guaranteed delivery in User Service
+- **⚡ Redis-backed Rate Limiting** - Per-IP, per-User, and Combined rate limiting at the API Gateway (10 req/s, 20 burst)
+- **🧪 Full-Stack Testing** - JUnit 5/Mockito for backend + Vitest/React Testing Library for frontend (70+ tests)
+- **📊 Code Coverage Reporting** - JaCoCo (Backend) and Vitest (Frontend) for detailed coverage visualization
+- **📨 Reliable Event Publishing** - Outbox pattern and Idempotency Service for guaranteed "at-least-once" delivery
+- **🚀 Automated CI/CD** - GitHub Actions for automated building, testing, Docker image pushing, and SSH deployment
 
 ---
 
@@ -163,8 +165,9 @@
 | **Spring Cloud Gateway** | - | API Gateway with reactive support |
 | **Netflix Eureka** | - | Service Discovery |
 | **OpenFeign** | - | Declarative REST client for inter-service communication |
-| **Resilience4j** | - | Circuit Breaker, Rate Limiter, Retry, Bulkhead, TimeLimiter patterns |
-| **Micrometer** | - | Distributed Tracing |
+| **Resilience4j** | - | Circuit Breaker, Rate Limiter, Retry, Bulkhead patterns |
+| **Micrometer / OTel** | - | Distributed Tracing & OpenTelemetry integration |
+| **MapStruct** | 1.6.3 | Type-safe bean mapping (Stable release) |
 
 ### Data & Messaging
 | Technology | Purpose |
@@ -184,6 +187,7 @@
 | **Framer Motion** | 12.x | Animations |
 | **Lucide React** | 0.555 | Icons |
 | **Lightweight Charts** | 4.2 | Financial charts with drawing tools |
+| **Vitest / RTL** | - | Frontend unit and component testing |
 | **TradingView** | - | Advanced stock charts |
 
 ### DevOps & Tools
@@ -214,7 +218,7 @@
 | Service | Port | Description | Database |
 |---------|------|-------------|----------|
 | **Eureka Server** | 8761 | Service discovery & registry | - |
-| **API Gateway** | 8090 | Central entry point, routing, JWT validation | - |
+| **API Gateway** | 8090 | Central entry point, routing, JWT validation, Redis-backed rate limiting | - |
 | **User Service** | 8088 | Authentication, registration, user management | `winvestco_user_db` |
 | **Market Service** | 8084 | Real-time market data, NSE API integration, candles | `winvestco_market_db` |
 | **Portfolio Service** | 8085 | Holdings management, P&L tracking | `winvestco_portfolio_db` |
@@ -781,22 +785,76 @@ RAZORPAY_KEY_SECRET=your-razorpay-key-secret
 
 ---
 
-## 🧪 Testing
+### Backend Testing
 
-### Running Unit Tests
+The backend follows a rigorous testing strategy with JUnit 5 and Mockito.
 
-```bash
-# Run all tests
-cd backend
-mvn test
+1. **Clean & Build**
+   ```bash
+   mvn clean install -DskipTests
+   ```
 
-# Run tests for a specific module
-mvn test -pl user-service
-mvn test -pl market-service
-mvn test -pl order-service
-```
+2. **Run All Tests**
+   ```bash
+   mvn test
+   ```
 
-### Test Configuration
+3. **Check Coverage**
+   JaCoCo is integrated into the build process. Reports are generated in:
+   `backend/[service-name]/target/site/jacoco/index.html`
+
+### Frontend Testing
+
+The frontend uses Vitest and React Testing Library for component and hook testing.
+
+1. **Install Dependencies**
+   ```bash
+   cd frontend && npm install
+   ```
+
+2. **Run Tests**
+   ```bash
+   npm run test
+   ```
+
+3. **Run with Coverage**
+   ```bash
+   npm run test:coverage
+   ```
+
+**Current Coverage Status:** 70+ tests, ~57% statement coverage across core components.
+
+---
+
+## 🔐 Security Features
+
+- **JWT Authentication**: Secure tokens with RSA signing and 24h expiration.
+- **OAuth2 / Google SSO**: Integrated social login for user convenience.
+- **API Gateway Rate Limiting**: Redis-backed protection with 3 strategies:
+    - `DEFAULT`: Per-IP limiting.
+    - `USER`: Per-authenticated user limiting.
+    - `COMBINED`: Hybrid limiting for maximum protection.
+- **Secure Headers**: Spring Security configured with CSP, HSTS, X-Content-Type-Options, and Frame Options.
+- **Input Validation**: Strict `@Valid` enforcement on all DTOs and API endpoints.
+- **SQL Injection Protection**: Complete isolation through JPA/Hibernate parameterized queries.
+- **HTTPS Enforcement**: Configurable via `security.enforce-https` in the Gateway.
+
+---
+
+## 🚀 Deployment & CI/CD
+
+The platform is deployment-ready for cloud environments with a full CI/CD pipeline using GitHub Actions.
+
+### Environments
+- **dev**: Local development profile.
+- **docker**: Optimized for Docker Compose local testing.
+- **staging**: SSH-linked automated deployment to staging servers.
+- **prod**: Manual approval-gated production deployment.
+
+### CI/CD Workflow
+1. **GitHub Action (CI)**: Runs on every PR. Executes `mvn build` and `npm run test`.
+2. **GitHub Action (Release)**: Builds Docker images for all 13 services and pushes to Docker Hub.
+3. **GitHub Action (Deploy)**: Connects via SSH to the target server and runs `docker-compose pull && docker-compose up -d`.
 
 Tests use H2 in-memory database and mock external services. Test configurations are in:
 - `src/test/resources/application-test.yml`
@@ -811,7 +869,7 @@ The project includes **32+ test classes** across all microservices, with a major
 | Module | Test Classes |
 |--------|--------------|
 | **Common** | `GlobalExceptionHandlerTest`, `ResourceNotFoundExceptionTest`, `NonRetryableExceptionTest`, `ResilienceEventLoggerTest`, `LoggingUtilsTest` |
-| **API Gateway** | `JwtAuthenticationFilterTest` |
+| **API Gateway** | `JwtAuthenticationFilterTest`, `RateLimiterConfigTest` |
 | **User Service** | `AuthControllerTest`, `UserServiceTest`, `JwtServiceTest`, `UserRepositoryTest`, `RegisterRequestTest` |
 | **Market Service** | `MarketDataServiceTest`, `NseClientResilienceTest` |
 | **Funds Service** | `WalletServiceTest`, `LedgerClientFallbackTest` |

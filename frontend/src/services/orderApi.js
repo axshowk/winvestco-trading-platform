@@ -3,18 +3,9 @@
  * Provides functions to interact with the order-service backend
  */
 
-const API_BASE_URL = '/api/v1/orders';
+import { api } from '../utils/apiClient';
 
-/**
- * Get auth headers with JWT token
- */
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-};
+const API_BASE_URL = '/api/v1/orders';
 
 /**
  * Order types enum
@@ -114,18 +105,7 @@ export const isCancellable = (status) => {
  * @returns {Promise<Object>} Created order
  */
 export const createOrder = async (orderRequest) => {
-    const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(orderRequest)
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to create order');
-    }
-
-    return response.json();
+    return api.post(API_BASE_URL, orderRequest);
 };
 
 /**
@@ -134,17 +114,7 @@ export const createOrder = async (orderRequest) => {
  * @returns {Promise<Object>} Order details
  */
 export const getOrder = async (orderId) => {
-    const response = await fetch(`${API_BASE_URL}/${orderId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get order');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}/${orderId}`);
 };
 
 /**
@@ -155,17 +125,7 @@ export const getOrder = async (orderId) => {
  */
 export const getOrders = async (page = 0, size = 20) => {
     const params = new URLSearchParams({ page, size });
-    const response = await fetch(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get orders');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}?${params}`);
 };
 
 /**
@@ -173,17 +133,7 @@ export const getOrders = async (page = 0, size = 20) => {
  * @returns {Promise<Array>} List of active orders
  */
 export const getActiveOrders = async () => {
-    const response = await fetch(`${API_BASE_URL}/active`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to get active orders');
-    }
-
-    return response.json();
+    return api.get(`${API_BASE_URL}/active`);
 };
 
 /**
@@ -193,18 +143,7 @@ export const getActiveOrders = async () => {
  * @returns {Promise<Object>} Cancelled order
  */
 export const cancelOrder = async (orderId, reason) => {
-    const response = await fetch(`${API_BASE_URL}/${orderId}/cancel`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ reason })
-    });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to cancel order');
-    }
-
-    return response.json();
+    return api.post(`${API_BASE_URL}/${orderId}/cancel`, { reason });
 };
 
 /**

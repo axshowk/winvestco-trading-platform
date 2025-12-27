@@ -1,17 +1,62 @@
-FROM eclipse-temurin:21-jdk-alpine as builder
-WORKDIR /app
-COPY target/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
+# =============================================================================
+# WINVESTCO Trading Platform - Notification Service
+# Optimized Multi-Stage Docker Build
+# =============================================================================
 
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
+WORKDIR /app
+
+# Copy pom files first for dependency caching
+COPY pom.xml ./
+COPY common/pom.xml common/
+COPY notification-service/pom.xml notification-service/
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -pl notification-service -am -B
+
+# Copy source code
+COPY common/src common/src
+COPY notification-service/src notification-service/src
+
+# Build the application
+RUN mvn clean package -pl notification-service -am -DskipTests -B
+
+# Stage 2: Runtime (minimal JRE image)
 FROM eclipse-temurin:21-jre-alpine
+
+# OCI Labels
+LABEL org.opencontainers.image.title="WINVESTCO Notification Service" \
+    org.opencontainers.image.description="WebSocket Push Notifications" \
+    org.opencontainers.image.vendor="WINVESTCO" \
+    org.opencontainers.image.source="https://github.com/axshowk/winvestco-trading-platform"
+
 WORKDIR /app
-COPY --from=builder /app/dependencies/ ./
-COPY --from=builder /app/spring-boot-loader/ ./
-COPY --from=builder /app/snapshot-dependencies/ ./
-COPY --from=builder /app/application/ ./
 
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
+# Create non-root user for security
+RUN addgroup -S winvestco && adduser -S appuser -G winvestco
 
-EXPOSE 8086
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
+# Copy the JAR from build stage
+COPY --from=build /app/notification-service/target/*.jar app.jar
+
+# Set ownership
+RUN chown -R appuser:winvestco /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose service port
+EXPOSE 8091
+
+# Health check using Spring Actuator
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8091/actuator/health || exit 1
+
+# JVM tuning for containers
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+# Run the application with optimized JVM settings
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

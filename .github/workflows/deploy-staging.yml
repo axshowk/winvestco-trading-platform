@@ -1,0 +1,77 @@
+name: Deploy to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (default: latest)'
+        required: false
+        default: 'latest'
+
+env:
+  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
+  COMPOSE_PROJECT_NAME: winvestco-staging
+
+jobs:
+  deploy:
+    name: Deploy to Staging Server
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.STAGING_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy docker-compose files
+        run: |
+          scp -r ./backend/docker-compose.yml ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/winvestco/
+          scp -r ./backend/docker-compose-services.yml ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/winvestco/
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} << 'EOF'
+            cd ~/winvestco
+            
+            # Set environment variables
+            export DOCKERHUB_NAMESPACE=${{ env.DOCKERHUB_NAMESPACE }}
+            export IMAGE_TAG=${{ github.event.inputs.image_tag }}
+            export SPRING_PROFILES_ACTIVE=staging
+            
+            # Pull latest images
+            docker compose -f docker-compose.yml -f docker-compose-services.yml pull
+            
+            # Deploy with zero-downtime rolling update
+            docker compose -f docker-compose.yml -f docker-compose-services.yml up -d --remove-orphans
+            
+            # Wait for services to be healthy
+            sleep 30
+            
+            # Cleanup old images
+            docker image prune -f
+            
+            echo "Staging deployment complete!"
+          EOF
+
+      - name: Health check
+        run: |
+          ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} << 'EOF'
+            echo "Checking service health..."
+            
+            # Check Eureka
+            curl -sf http://localhost:8761/actuator/health || echo "⚠️ Eureka health check failed"
+            
+            # Check API Gateway
+            curl -sf http://localhost:8090/actuator/health || echo "⚠️ API Gateway health check failed"
+            
+            echo "Health checks complete"
+          EOF

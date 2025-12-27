@@ -2,54 +2,23 @@
  * Report API service for generating and downloading reports
  */
 
+import { api, getAuthHeaders } from '../utils/apiClient';
+
 const API_BASE_URL = '/api/v1/reports';
-
-/**
- * Get auth headers with JWT token
- */
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-};
-
-/**
- * Handle API response
- */
-const handleResponse = async (response) => {
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
-    }
-    // For void responses (like delete), .json() might fail or be empty
-    if (response.status === 204) return null;
-    return response.json().catch(() => ({}));
-};
 
 // Request a new report
 export const requestReport = async (type, format, fromDate, toDate) => {
-    const response = await fetch(`${API_BASE_URL}`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            type,
-            format,
-            fromDate: fromDate?.toISOString(),
-            toDate: toDate?.toISOString()
-        })
+    return api.post(API_BASE_URL, {
+        type,
+        format,
+        fromDate: fromDate?.toISOString(),
+        toDate: toDate?.toISOString()
     });
-    return handleResponse(response);
 };
 
 // Get report by ID
 export const getReport = async (reportId) => {
-    const response = await fetch(`${API_BASE_URL}/${reportId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/${reportId}`);
 };
 
 // Get all reports for the user
@@ -59,20 +28,14 @@ export const getUserReports = async (page = 0, size = 10) => {
         size,
         sort: 'requestedAt,desc'
     });
-    const response = await fetch(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}?${params}`);
 };
 
-// Download a report
+// Download a report (uses raw fetch due to blob handling)
 export const downloadReport = async (reportId, fileName) => {
     const response = await fetch(`${API_BASE_URL}/${reportId}/download`, {
         method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        }
+        headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -94,11 +57,7 @@ export const downloadReport = async (reportId, fileName) => {
 
 // Delete a report
 export const deleteReport = async (reportId) => {
-    const response = await fetch(`${API_BASE_URL}/${reportId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.delete(`${API_BASE_URL}/${reportId}`);
 };
 
 // Report types for UI

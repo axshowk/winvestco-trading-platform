@@ -3,29 +3,9 @@
  * Handles wallet balance, deposits, withdrawals, and transaction history
  */
 
+import { api } from '../utils/apiClient';
+
 const API_BASE_URL = '/api/v1/funds';
-
-/**
- * Get auth headers with JWT token
- */
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-};
-
-/**
- * Handle API response
- */
-const handleResponse = async (response) => {
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
-    }
-    return response.json();
-};
 
 // ==================== Wallet APIs ====================
 
@@ -33,22 +13,14 @@ const handleResponse = async (response) => {
  * Get wallet balance for authenticated user
  */
 export const getWallet = async () => {
-    const response = await fetch(`${API_BASE_URL}/wallet`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/wallet`);
 };
 
 /**
  * Get balance summary (available, locked, total)
  */
 export const getBalanceSummary = async () => {
-    const response = await fetch(`${API_BASE_URL}/wallet/balance`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/wallet/balance`);
 };
 
 // ==================== Transaction APIs ====================
@@ -59,15 +31,10 @@ export const getBalanceSummary = async () => {
  * @param {string} description - Optional description
  */
 export const initiateDeposit = async (amount, description = '') => {
-    const response = await fetch(`${API_BASE_URL}/deposit`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            amount,
-            description: description || `Deposit of ₹${amount.toLocaleString('en-IN')}`
-        })
+    return api.post(`${API_BASE_URL}/deposit`, {
+        amount,
+        description: description || `Deposit of ₹${amount.toLocaleString('en-IN')}`
     });
-    return handleResponse(response);
 };
 
 /**
@@ -75,11 +42,7 @@ export const initiateDeposit = async (amount, description = '') => {
  * @param {string} reference - Transaction reference
  */
 export const confirmDeposit = async (reference) => {
-    const response = await fetch(`${API_BASE_URL}/deposit/confirm?reference=${encodeURIComponent(reference)}`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.post(`${API_BASE_URL}/deposit/confirm?reference=${encodeURIComponent(reference)}`, {});
 };
 
 /**
@@ -88,15 +51,10 @@ export const confirmDeposit = async (reference) => {
  * @param {string} description - Optional description
  */
 export const initiateWithdrawal = async (amount, description = '') => {
-    const response = await fetch(`${API_BASE_URL}/withdraw`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            amount,
-            description: description || `Withdrawal of ₹${amount.toLocaleString('en-IN')}`
-        })
+    return api.post(`${API_BASE_URL}/withdraw`, {
+        amount,
+        description: description || `Withdrawal of ₹${amount.toLocaleString('en-IN')}`
     });
-    return handleResponse(response);
 };
 
 /**
@@ -105,11 +63,7 @@ export const initiateWithdrawal = async (amount, description = '') => {
  * @param {number} size - Page size
  */
 export const getTransactions = async (page = 0, size = 10) => {
-    const response = await fetch(`${API_BASE_URL}/transactions?page=${page}&size=${size}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/transactions?page=${page}&size=${size}`);
 };
 
 /**
@@ -117,11 +71,7 @@ export const getTransactions = async (page = 0, size = 10) => {
  * @param {string} reference - Transaction reference
  */
 export const getTransactionByReference = async (reference) => {
-    const response = await fetch(`${API_BASE_URL}/transactions/${encodeURIComponent(reference)}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    return api.get(`${API_BASE_URL}/transactions/${encodeURIComponent(reference)}`);
 };
 
 // ==================== Enums & Helpers ====================

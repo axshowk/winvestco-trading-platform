@@ -1,29 +1,62 @@
-# Build stage
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# =============================================================================
+# WINVESTCO Trading Platform - Funds Service
+# Optimized Multi-Stage Docker Build
+# =============================================================================
+
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Copy parent pom and module pom
+# Copy pom files first for dependency caching
 COPY pom.xml ./
-COPY common/pom.xml ./common/
-COPY funds-service/pom.xml ./funds-service/
+COPY common/pom.xml common/
+COPY funds-service/pom.xml funds-service/
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -pl funds-service -am -B
 
 # Copy source code
-COPY common/src ./common/src
-COPY funds-service/src ./funds-service/src
+COPY common/src common/src
+COPY funds-service/src funds-service/src
 
 # Build the application
-RUN apk add --no-cache maven && \
-    mvn clean package -pl funds-service -am -DskipTests
+RUN mvn clean package -pl funds-service -am -DskipTests -B
 
-# Runtime stage
+# Stage 2: Runtime (minimal JRE image)
 FROM eclipse-temurin:21-jre-alpine
+
+# OCI Labels
+LABEL org.opencontainers.image.title="WINVESTCO Funds Service" \
+    org.opencontainers.image.description="Wallet & Funds Locking" \
+    org.opencontainers.image.vendor="WINVESTCO" \
+    org.opencontainers.image.source="https://github.com/axshowk/winvestco-trading-platform"
+
 WORKDIR /app
 
-# Copy the built jar
-COPY --from=builder /app/funds-service/target/*.jar app.jar
+# Create non-root user for security
+RUN addgroup -S winvestco && adduser -S appuser -G winvestco
 
-# Expose port
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Copy the JAR from build stage
+COPY --from=build /app/funds-service/target/*.jar app.jar
+
+# Set ownership
+RUN chown -R appuser:winvestco /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose service port
 EXPOSE 8086
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Health check using Spring Actuator
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8086/actuator/health || exit 1
+
+# JVM tuning for containers
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+# Run the application with optimized JVM settings
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

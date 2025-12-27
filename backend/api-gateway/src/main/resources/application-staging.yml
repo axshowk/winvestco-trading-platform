@@ -4,6 +4,12 @@ spring:
     activate:
       on-profile: staging
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+
   security:
     oauth2:
       client:

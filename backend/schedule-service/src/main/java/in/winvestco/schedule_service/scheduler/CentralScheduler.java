@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 
 /**
  * Centralized scheduler for the entire platform.
- * Publishes trigger events to RabbitMQ to initiate tasks in respective services.
+ * Publishes trigger events to RabbitMQ to initiate tasks in respective
+ * services.
  */
 @Component
 @RequiredArgsConstructor
@@ -22,7 +23,8 @@ public class CentralScheduler {
 
     /**
      * Trigger Market Data Fetch every 3 minutes
-     * Original: @Scheduled(initialDelay = 0, fixedRate = 180000) in MarketDataScheduler
+     * Original: @Scheduled(initialDelay = 0, fixedRate = 180000) in
+     * MarketDataScheduler
      */
     @Scheduled(initialDelay = 0, fixedRate = 180000)
     public void triggerMarketDataFetch() {
@@ -30,27 +32,26 @@ public class CentralScheduler {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.MARKET_FETCH_TRIGGER_ROUTING_KEY,
-                "TRIGGER"
-        );
+                "TRIGGER");
     }
 
     /**
-     * Trigger Order Expiry Check every minute
+     * Trigger Order Expiry Check every 5 minutes
      * Original: @Scheduled(cron = "0 * * * * *") in OrderExpiryScheduler
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void triggerOrderExpiryCheck() {
         log.info("Triggering order expiry check at {}", LocalDateTime.now());
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.ORDER_EXPIRE_TRIGGER_ROUTING_KEY,
-                "TRIGGER"
-        );
+                "TRIGGER");
     }
 
     /**
      * Trigger Order Expiry at Market Close (15:30 IST)
-     * Original: @Scheduled(cron = "0 30 15 * * MON-FRI", zone = "Asia/Kolkata") in OrderExpiryScheduler
+     * Original: @Scheduled(cron = "0 30 15 * * MON-FRI", zone = "Asia/Kolkata") in
+     * OrderExpiryScheduler
      */
     @Scheduled(cron = "0 30 15 * * MON-FRI", zone = "Asia/Kolkata")
     public void triggerMarketCloseOrderExpiry() {
@@ -58,22 +59,20 @@ public class CentralScheduler {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.ORDER_EXPIRE_TRIGGER_ROUTING_KEY,
-                "MARKET_CLOSE_TRIGGER"
-        );
+                "MARKET_CLOSE_TRIGGER");
     }
 
     /**
-     * Trigger Payment Expiry Check every minute
+     * Trigger Payment Expiry Check every 5 minutes
      * Original: @Scheduled(fixedRate = 60000) in PaymentExpiryScheduler
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 300000)
     public void triggerPaymentExpiryCheck() {
         log.info("Triggering payment expiry check at {}", LocalDateTime.now());
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.PAYMENT_EXPIRE_TRIGGER_ROUTING_KEY,
-                "TRIGGER"
-        );
+                "TRIGGER");
     }
 
     /**
@@ -86,7 +85,6 @@ public class CentralScheduler {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.REPORT_CLEANUP_TRIGGER_ROUTING_KEY,
-                "TRIGGER"
-        );
+                "TRIGGER");
     }
 }

@@ -18,7 +18,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -103,8 +103,26 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true  # Enables /actuator/health/liveness and /actuator/health/readiness
     prometheus:
       enabled: true
+  health:
+    # Kubernetes probes
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+    # Dependency health indicators
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    rabbit:
+      enabled: true
+    diskSpace:
+      enabled: true
+      threshold: 10MB
   metrics:
     export:
       prometheus:
