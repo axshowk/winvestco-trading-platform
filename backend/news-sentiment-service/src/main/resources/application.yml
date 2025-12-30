@@ -35,3 +35,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+# Sentiment Analysis Service Configuration
+sentiment:
+  service:
+    url: ${SENTIMENT_SERVICE_URL:http://localhost:8096}
+    timeout: 30000
+    batch-size: 50

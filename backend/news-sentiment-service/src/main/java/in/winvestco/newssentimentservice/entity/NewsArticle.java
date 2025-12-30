@@ -37,6 +37,14 @@ public class NewsArticle {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    private String sentiment;
+
+    @Column(name = "sentiment_confidence")
+    private Double sentimentConfidence;
+
+    @Column(name = "sentiment_analyzed_at")
+    private LocalDateTime sentimentAnalyzedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
