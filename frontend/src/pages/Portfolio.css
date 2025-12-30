@@ -294,7 +294,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 4rem 4rem;
     text-align: center;
     border-radius: 16px;
     background: linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(15, 23, 42, 0.9));

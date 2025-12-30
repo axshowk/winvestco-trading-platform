@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications } from '../context/NotificationContext';
 import {
@@ -73,6 +74,7 @@ const formatTimeAgo = (dateString) => {
 };
 
 const NotificationBell = () => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const {
@@ -197,7 +199,10 @@ const NotificationBell = () => {
                         {/* Footer */}
                         {notifications.length > 0 && (
                             <div className="notification-footer">
-                                <button className="view-all-btn">
+                                <button className="view-all-btn" onClick={() => {
+                                    setIsOpen(false);
+                                    navigate('/notifications');
+                                }}>
                                     View all notifications
                                     <ChevronRight size={16} />
                                 </button>

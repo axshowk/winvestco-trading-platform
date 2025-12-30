@@ -19,6 +19,7 @@ import Orders from './pages/Orders'
 import Trades from './pages/Trades'
 import Wallet from './pages/Wallet'
 import Reports from './pages/Reports'
+import Notifications from './pages/Notifications'
 import ChartTerminal from './pages/ChartTerminal'
 import ErrorBoundary from './components/ErrorBoundary'
 import './App.css'
@@ -57,6 +58,7 @@ function App() {
               <Route path="/trades" element={<Trades />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/terminal/:symbol" element={<ChartTerminal />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />

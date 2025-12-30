@@ -276,7 +276,7 @@ const Portfolio = () => {
                         <Briefcase size={48} />
                         <h3>No Holdings Yet</h3>
                         <p>Place orders from the Markets page to build your portfolio</p>
-                        <button className="action-btn large" onClick={() => navigate('/markets')}>
+                        <button className="btn-primary" onClick={() => navigate('/markets')}>
                             Explore Markets
                         </button>
                     </div>

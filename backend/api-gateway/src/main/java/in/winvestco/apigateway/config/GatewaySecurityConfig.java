@@ -48,14 +48,14 @@ public class GatewaySecurityConfig {
                                                                 "/oauth2/**",
                                                                 "/webjars/**",
                                                                 "/error",
-                                                                "/api/auth/login",
-                                                                "/api/users/register",
-                                                                "/api/users/register/**",
-                                                                "/api/market/**",
+                                                                "/api/v1/auth/login",
+                                                                "/api/v1/users/register",
+                                                                "/api/v1/users/register/**",
                                                                 "/api/v1/market/**",
                                                                 "/api/v1/candles/**",
                                                                 "/ws/**")
                                                 .permitAll()
+                                                .pathMatchers(org.springframework.http.HttpMethod.OPTIONS).permitAll()
                                                 .anyExchange().authenticated())
                                 .oauth2Login(oauth2 -> {
                                 })

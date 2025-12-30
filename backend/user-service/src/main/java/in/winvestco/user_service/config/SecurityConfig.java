@@ -40,8 +40,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api-docs/**",
                                 "/api/auth/login",
-                                "/api/users/register",
+                                "/api/v1/auth/login",
+
                                 "/api/users/register/**",
+                                "/api/v1/users/register",
+                                "/api/v1/users/register/**",
                                 "/api/stress-test/**",
                                 "/actuator/**")
                         .permitAll()
@@ -59,8 +62,11 @@ public class SecurityConfig {
     public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
                 "/api/auth/login",
+                "/api/v1/auth/login",
                 "/api/users/register",
                 "/api/users/register/**",
+                "/api/v1/users/register",
+                "/api/v1/users/register/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**");
     }
