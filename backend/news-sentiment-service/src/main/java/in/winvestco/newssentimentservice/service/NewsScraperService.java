@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URL;
+import java.net.URI;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +27,9 @@ public class NewsScraperService {
     @Transactional
     public void scrapeNews() {
         log.info("Starting Google News scraping...");
-        try {
-            URL feedSource = new URL(GOOGLE_NEWS_URL);
+        try (XmlReader xmlReader = new XmlReader(URI.create(GOOGLE_NEWS_URL).toURL().openStream())) {
             SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(new XmlReader(feedSource));
+            SyndFeed feed = input.build(xmlReader);
 
             List<NewsArticle> newArticles = new ArrayList<>();
             for (SyndEntry entry : feed.getEntries()) {
@@ -40,7 +39,8 @@ public class NewsScraperService {
                             .title(entry.getTitle())
                             .link(link)
                             .description(entry.getDescription() != null ? entry.getDescription().getValue() : "")
-                            .pubDate(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                            .pubDate(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault())
+                                    .toLocalDateTime())
                             .source(entry.getSource() != null ? entry.getSource().getTitle() : "Google News")
                             .build();
                     newArticles.add(article);

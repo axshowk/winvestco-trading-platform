@@ -192,13 +192,13 @@ public class ProjectionEventListener {
     }
 
     private boolean isEventProcessed(String eventId) {
-        return processedEventRepository.existsByEventId(eventId);
+        return processedEventRepository.existsByCorrelationId(eventId);
     }
 
     private void markEventProcessed(String eventId, String eventType) {
         processedEventRepository.save(ProcessedEvent.builder()
-                .eventId(eventId)
-                .eventType(eventType)
+                .correlationId(eventId)
+                .consumerName(eventType)
                 .processedAt(Instant.now())
                 .build());
     }

@@ -4,11 +4,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://reactjs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-**A modern, cloud-native stock trading platform built with microservices architecture**
+**A modern, cloud-native stock trading platform with AI-powered sentiment analysis built on microservices architecture**
 
 [Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [API Documentation](#-api-documentation) • [Contributing](#-contributing)
 
@@ -60,7 +62,8 @@
 - **📱 Responsive Design** - Mobile-first, modern UI built with React
 
 ### Technical Highlights
-- **☁️ Cloud-Native Architecture** - 14 microservices with service discovery and API gateway
+- **☁️ Cloud-Native Architecture** - 15 microservices with service discovery and API gateway
+- **🤖 AI/ML Sentiment Analysis** - FinBERT-based sentiment analysis for financial news to guide trading decisions
 - **🔄 Event-Driven Communication** - Kafka for market data streaming + RabbitMQ for domain events (30+ events)
 - **🔀 SAGA Orchestration** - Choreography-based distributed transactions with compensation logic for order-to-trade lifecycle
 - **📨 Message Queue Reliability** - Idempotency service, Outbox pattern, DLQ with retry interceptor for guaranteed delivery
@@ -68,7 +71,7 @@
 - **📝 Database Migrations** - Flyway for version-controlled schema management
 - **🛡️ API Security** - OAuth2/JWT authentication with Spring Security, Redis-backed rate limiting, and secure headers (CSP, HSTS)
 - **📖 API Documentation** - OpenAPI/Swagger UI for all REST endpoints with centralized aggregation capability
-- **🐳 Optimized Docker Support** - Multi-stage builds, non-root users, health checks, and JVM tuning for all 14 services
+- **🐳 Optimized Docker Support** - Multi-stage builds, non-root users, health checks, and JVM tuning for all 15 services
 - **⚡ Virtual Threads** - Java 21 Virtual Threads for optimal high-concurrency performance
 - **📊 Observability** - Full PLG Stack (Prometheus, Loki, Grafana) + Jaeger for metrics, logging & distributed tracing
 - **🔁 Event Sourcing Ready** - Domain events for all key business actions with correlation IDs and state rebuild capability
@@ -123,12 +126,18 @@
 │  │                                                                                       │ │
 │  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐ │
 │  │  │ Notification Svc │   │ Payment Service  │   │ Schedule Service │   │ News Service     │ │
-│  │  │     (8091)       │   │     (8093)       │   │     (8095)       │   │     (8093)       │ │
-│  │  │                  │   │                  │   │                  │   │ • Google News RSS│ │
-│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Platform Cron  │   │ • Sentiment (TBD)│ │
+│  │  │     (8091)       │   │     (8093)       │   │     (8095)       │   │     (8095*)      │ │
+│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Platform Cron  │   │ • Google News RSS│ │
 │  │  │ • WebSocket      │   │ • Webhooks       │   │ • Task Mgmt      │   │ • Scraper        │ │
-│  │  │ • Preferences    │   │ • Payment Events │   │ • Market Sync    │   │                  │ │
-│  │  └──────────────────┘   └──────────────────┘   └──────────────────┘   └──────────────────┘ │
+│  │  │ • Preferences    │   │ • Payment Events │   │ • Market Sync    │   │ • Sentiment Links│ │
+│  │  └──────────────────┘   └────────┬─────────┘   └──────────────────┘   └────────┬─────────┘ │
+│  │                                  │                                             │           │
+│  │                                  │           AI/ML SENTIMENT LAYER             │           │
+│  │                                  │           ┌──────────────────────┐          │           │
+│  │                                  │           │ Sentiment Predictor  │ ◄────────┘           │
+│  │                                  └──────────►│       (8096)         │                      │
+│  │                                              │ • FinBERT / Python   │                      │
+│  │                                              └──────────────────────┘                      │
 │  │                                                                                       │ │
 │  └───────────────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                            │
@@ -159,15 +168,18 @@
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **Java** | 21 | Core language with Virtual Threads |
+| **Python** | 3.11 | AI/ML Sentiment Prediction |
 | **Spring Boot** | 3.2.0 | Application framework |
+| **FastAPI** | 0.109+ | Python web framework |
 | **Spring Cloud** | 2023.0.0 | Microservices ecosystem |
 | **Spring Security** | 6.x | Authentication & Authorization |
 | **Spring Cloud Gateway** | - | API Gateway with reactive support |
 | **Netflix Eureka** | - | Service Discovery |
-| **OpenFeign** | - | Declarative REST client for inter-service communication |
-| **Resilience4j** | - | Circuit Breaker, Rate Limiter, Retry, Bulkhead patterns |
-| **Micrometer / OTel** | - | Distributed Tracing & OpenTelemetry integration |
-| **MapStruct** | 1.6.3 | Type-safe bean mapping (Stable release) |
+| **OpenFeign** | - | Declarative REST client |
+| **Resilience4j** | - | Resilience patterns |
+| **Micrometer / OTel** | - | Observability |
+| **Transformers** | 4.37+ | AI/ML Model integration (FinBERT) |
+| **MapStruct** | 1.6.3 | Type-safe bean mapping |
 
 ### Data & Messaging
 | Technology | Purpose |
@@ -230,7 +242,8 @@
 | **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
 | **Report Service** | 8094 | Async report generation (P&L, Tax, Transaction) | `winvestco_report_db` |
 | **Schedule Service** | 8095 | Centralized platform-wide task scheduling | - |
-| **News Sentiment Service** | 8093 | Scraps financial news from Google News RSS | `winvestco_news_db` |
+| **News Sentiment Service**| 8095* | External news scraper & analysis orchestrator | `winvestco_news` |
+| **Sentiment Predictor** | 8096 | AI/ML Service - FinBERT based sentiment analysis | - |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
 ### Domain Events (RabbitMQ)
@@ -406,8 +419,16 @@ winvestco-trading-platform/
 │   │   ├── 📁 model/             # Report & Projection entities
 │   │   └── 📄 Dockerfile
 │   │
-│   └── 📁 schedule-service/      # Centralized Scheduling (Port: 8095)
-│       ├── 📁 scheduler/         # Centralized platform schedulers
+│   ├── 📁 schedule-service/      # Centralized Scheduling (Port: 8095)
+│   │   ├── 📁 scheduler/         # Centralized platform schedulers
+│   │   └── 📄 Dockerfile
+│   │
+│   ├── 📁 news-sentiment-service/ # News Analysis (Port: 8095 in Docker)
+│   │   ├── 📁 service/           # News scraping & sentiment orchestration
+│   │   └── 📄 Dockerfile
+│   │
+│   └── 📁 sentiment-predictor-service/ # AI/ML Predictor (Port: 8096)
+│       ├── 📁 app/               # FastAPI application
 │       └── 📄 Dockerfile
 │
 ├── 📁 frontend/                  # React Frontend (Vite)
@@ -559,6 +580,11 @@ Ensure you have the following installed:
 
    # Terminal 13: News Sentiment Service
    cd news-sentiment-service && mvn spring-boot:run
+
+   # Terminal 14: Sentiment Predictor (Python)
+   cd sentiment-predictor-service
+   pip install -r requirements.txt
+   uvicorn app.main:app --host 0.0.0.0 --port 8096
    ```
 
 5. **Start the frontend**
@@ -590,7 +616,8 @@ Ensure you have the following installed:
 | Notification Service | 8091 | Notifications & WebSocket |
 | Report Service | 8094 | Async report generation |
 | Schedule Service | 8095 | Centralized platform scheduling |
-| News Sentiment Service | 8093 | Google News RSS scraper |
+| News Sentiment Service | 8095* | Google News RSS scraper (Mapped from 8093) |
+| Sentiment Predictor | 8096 | FinBERT based AI/ML analysis |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |
@@ -636,6 +663,7 @@ When services are running, access OpenAPI documentation at:
 - **Payment Service**: http://localhost:8093/api/payments/swagger-ui.html
 - **Notification Service**: http://localhost:8091/swagger-ui.html
 - **Report Service**: http://localhost:8094/swagger-ui.html
+- **Sentiment Predictor**: http://localhost:8096/docs (FastAPI Docs)
 
 ### Key API Endpoints
 
@@ -858,7 +886,7 @@ The platform is deployment-ready for cloud environments with a full CI/CD pipeli
 
 ### CI/CD Workflow
 1. **GitHub Action (CI)**: Runs on every PR. Executes `mvn build` and `npm run test`.
-2. **GitHub Action (Release)**: Builds Docker images for all 13 services and pushes to Docker Hub.
+2. **GitHub Action (Release)**: Builds Docker images for all 15 services and pushes to Docker Hub.
 3. **GitHub Action (Deploy)**: Connects via SSH to the target server and runs `docker-compose pull && docker-compose up -d`.
 
 Tests use H2 in-memory database and mock external services. Test configurations are in:

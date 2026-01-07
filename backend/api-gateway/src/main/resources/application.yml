@@ -32,9 +32,9 @@ spring:
         # Rate Limiting - 10 requests/second with burst capacity of 20
         - name: RequestRateLimiter
           args:
-            redis-rate-limiter.replenishRate: 10
-            redis-rate-limiter.burstCapacity: 20
-            redis-rate-limiter.requestedTokens: 1
+            "[redis-rate-limiter.replenishRate]": 10
+            "[redis-rate-limiter.burstCapacity]": 20
+            "[redis-rate-limiter.requestedTokens]": 1
             key-resolver: "#{@ipKeyResolver}"
       routes:
 
@@ -192,12 +192,6 @@ management:
     diskSpace:
       enabled: true
       threshold: 10MB
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-    tags:
-      application: ${spring.application.name}
   # OpenTelemetry Tracing Configuration
   tracing:
     enabled: true
@@ -206,7 +200,13 @@ management:
   otlp:
     tracing:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
-      transport: http
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  observations:
+    key-values:
+      application: ${spring.application.name}
 
 # Security Custom Configuration
 security:
