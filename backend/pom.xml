@@ -57,7 +57,6 @@
         <module>payment-service</module>
         <module>report-service</module>
         <module>schedule-service</module>
-        <module>news-sentiment-service</module>
     </modules>
 
     <dependencyManagement>

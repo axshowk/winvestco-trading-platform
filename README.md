@@ -242,8 +242,6 @@
 | **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
 | **Report Service** | 8094 | Async report generation (P&L, Tax, Transaction) | `winvestco_report_db` |
 | **Schedule Service** | 8095 | Centralized platform-wide task scheduling | - |
-| **News Sentiment Service**| 8095* | External news scraper & analysis orchestrator | `winvestco_news` |
-| **Sentiment Predictor** | 8096 | AI/ML Service - FinBERT based sentiment analysis | - |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
 ### Domain Events (RabbitMQ)
@@ -419,17 +417,10 @@ winvestco-trading-platform/
 │   │   ├── 📁 model/             # Report & Projection entities
 │   │   └── 📄 Dockerfile
 │   │
-│   ├── 📁 schedule-service/      # Centralized Scheduling (Port: 8095)
-│   │   ├── 📁 scheduler/         # Centralized platform schedulers
-│   │   └── 📄 Dockerfile
-│   │
-│   ├── 📁 news-sentiment-service/ # News Analysis (Port: 8095 in Docker)
-│   │   ├── 📁 service/           # News scraping & sentiment orchestration
-│   │   └── 📄 Dockerfile
-│   │
-│   └── 📁 sentiment-predictor-service/ # AI/ML Predictor (Port: 8096)
-│       ├── 📁 app/               # FastAPI application
+│   └── 📁 schedule-service/      # Centralized Scheduling (Port: 8095)
+│       ├── 📁 scheduler/         # Centralized platform schedulers
 │       └── 📄 Dockerfile
+│
 │
 ├── 📁 frontend/                  # React Frontend (Vite)
 │   ├── 📁 src/
@@ -577,14 +568,6 @@ Ensure you have the following installed:
 
    # Terminal 12: Schedule Service
    cd schedule-service && mvn spring-boot:run
-
-   # Terminal 13: News Sentiment Service
-   cd news-sentiment-service && mvn spring-boot:run
-
-   # Terminal 14: Sentiment Predictor (Python)
-   cd sentiment-predictor-service
-   pip install -r requirements.txt
-   uvicorn app.main:app --host 0.0.0.0 --port 8096
    ```
 
 5. **Start the frontend**
@@ -616,8 +599,6 @@ Ensure you have the following installed:
 | Notification Service | 8091 | Notifications & WebSocket |
 | Report Service | 8094 | Async report generation |
 | Schedule Service | 8095 | Centralized platform scheduling |
-| News Sentiment Service | 8095* | Google News RSS scraper (Mapped from 8093) |
-| Sentiment Predictor | 8096 | FinBERT based AI/ML analysis |
 | PostgreSQL | 5432 | Primary database |
 | Redis | 6379 | Cache & session store |
 | RabbitMQ | 5672 / 15672 | Message broker / Management UI |

@@ -410,65 +410,6 @@ services:
       retries: 3
       start_period: 60s
 
-  news-sentiment-service:
-    build:
-      context: .
-      dockerfile: news-sentiment-service/Dockerfile
-    container_name: news-sentiment-service
-    ports:
-      - "8095:8093"
-    depends_on:
-      eureka-server:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      sentiment-predictor-service:
-        condition: service_healthy
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/winvestco_news_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - SENTIMENT_SERVICE_URL=http://sentiment-predictor-service:8096
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
-      - OTEL_SERVICE_NAME=news-sentiment-service
-      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
-      - OTEL_TRACES_SAMPLER_ARG=1.0
-    networks:
-      - app-network
-    healthcheck:
-      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8093/actuator/health/readiness" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  sentiment-predictor-service:
-    build:
-      context: .
-      dockerfile: sentiment-predictor-service/Dockerfile
-    container_name: sentiment-predictor-service
-    ports:
-      - "8096:8096"
-    environment:
-      - MODEL_NAME=ProsusAI/finbert
-      - DEVICE=cpu
-      - LOG_LEVEL=INFO
-      - MAX_BATCH_SIZE=100
-    networks:
-      - app-network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8096/health/ready" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-
   postgres:
     image: postgres:16-alpine
     container_name: postgres
