@@ -1,0 +1,15 @@
+# Spring Boot Auto-Configuration (Legacy Support)
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+in.winvestco.common.config.PostgresDatabaseInitializer,\
+in.winvestco.common.config.FlywayConfig,\
+in.winvestco.common.config.CacheConfig,\
+in.winvestco.common.config.JpaAuditingConfig,\
+in.winvestco.common.config.LoggingConfig,\
+in.winvestco.common.config.MetricsConfig,\
+in.winvestco.common.config.OpenApiConfig,\
+in.winvestco.common.config.OpenTelemetryConfig,\
+in.winvestco.common.config.RabbitMQConfig,\
+in.winvestco.common.config.RedisConfig,\
+in.winvestco.common.config.ResilienceEventLogger,\
+in.winvestco.common.config.VirtualThreadConfig,\
+in.winvestco.common.config.WebConfig
