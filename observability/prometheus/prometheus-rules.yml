@@ -1,38 +1,182 @@
 groups:
   - name: winvestco-alerts
     rules:
+      # ============================================
+      # SERVICE HEALTH ALERTS
+      # ============================================
       - alert: ServiceDown
         expr: up == 0
         for: 30s
         labels:
           severity: critical
         annotations:
-          summary: "Service {{ $labels.service }} is down"
-          description: "Service {{ $labels.service }} instance has been down for more than 30 seconds."
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 30 seconds."
 
       - alert: HighErrorRate
-        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[1m])) by (service) / sum(rate(http_server_requests_seconds_count[1m])) by (service) > 0.01
+        expr: (sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (application) / sum(rate(http_server_requests_seconds_count[5m])) by (application)) * 100 > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.application }}"
+          description: "Error rate on {{ $labels.application }} is {{ $value | printf \"%.2f\" }}% (threshold: 1%)."
+
+      - alert: HighLatencyP99
+        expr: histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, application)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High P99 latency on {{ $labels.application }}"
+          description: "P99 latency on {{ $labels.application }} is {{ $value | printf \"%.2f\" }}s (threshold: 0.5s)."
+
+      # ============================================
+      # RESILIENCE4J ALERTS
+      # ============================================
+      - alert: CircuitBreakerOpen
+        expr: resilience4j_circuitbreaker_state{state="open"} == 1
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker {{ $labels.name }} is OPEN"
+          description: "Circuit breaker {{ $labels.name }} has tripped to OPEN state, blocking all requests."
+
+      - alert: CircuitBreakerHalfOpen
+        expr: resilience4j_circuitbreaker_state{state="half_open"} == 1
         for: 1m
         labels:
           severity: warning
         annotations:
-          summary: "High error rate on {{ $labels.service }}"
-          description: "Error rate on {{ $labels.service }} is above 1% for the last minute."
+          summary: "Circuit breaker {{ $labels.name }} is HALF_OPEN"
+          description: "Circuit breaker {{ $labels.name }} is in HALF_OPEN state, testing if service recovered."
 
+      - alert: HighRetryRate
+        expr: sum(rate(resilience4j_retry_calls_total{kind="failed_with_retry"}[5m])) by (name) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High retry rate for {{ $labels.name }}"
+          description: "Retry failures for {{ $labels.name }} is {{ $value | printf \"%.2f\" }}/sec."
+
+      - alert: BulkheadRejections
+        expr: rate(resilience4j_bulkhead_calls_total{kind="rejected"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bulkhead rejecting calls for {{ $labels.name }}"
+          description: "Bulkhead {{ $labels.name }} is rejecting calls due to concurrency limits."
+
+      - alert: RateLimiterDenials
+        expr: rate(resilience4j_ratelimiter_calls_total{kind="failed"}[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limiter denying requests for {{ $labels.name }}"
+          description: "Rate limiter {{ $labels.name }} is denying {{ $value | printf \"%.2f\" }} requests/sec."
+
+      # ============================================
+      # RABBITMQ ALERTS
+      # ============================================
+      - alert: DLQDepthHigh
+        expr: rabbitmq_queue_messages{queue=~"dlq.*|.*\\.dlq"} > 50
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dead Letter Queue {{ $labels.queue }} depth is high"
+          description: "DLQ {{ $labels.queue }} has {{ $value }} messages (threshold: 50)."
+
+      - alert: QueueBacklogHigh
+        expr: rabbitmq_queue_messages > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue {{ $labels.queue }} has high backlog"
+          description: "Queue {{ $labels.queue }} has {{ $value }} messages waiting."
+
+      - alert: NoConsumers
+        expr: rabbitmq_queue_consumers == 0 and rabbitmq_queue_messages > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Queue {{ $labels.queue }} has no consumers"
+          description: "Queue {{ $labels.queue }} has {{ $value }} messages but no consumers."
+
+      # ============================================
+      # DATABASE & CONNECTION POOL ALERTS
+      # ============================================
+      - alert: ConnectionPoolExhausted
+        expr: (hikaricp_connections_active / hikaricp_connections_max) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Connection pool nearly exhausted on {{ $labels.application }}"
+          description: "Connection pool on {{ $labels.application }} is {{ $value | printf \"%.0f\" }}% utilized."
+
+      - alert: ConnectionPoolPending
+        expr: hikaricp_connections_pending > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Connection pool has pending requests on {{ $labels.application }}"
+          description: "{{ $value }} threads waiting for connections on {{ $labels.application }}."
+
+      - alert: ConnectionTimeouts
+        expr: increase(hikaricp_connections_timeout_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Connection timeouts on {{ $labels.application }}"
+          description: "Database connection timeouts detected on {{ $labels.application }}."
+
+      # ============================================
+      # BUSINESS ALERTS
+      # ============================================
       - alert: SlowTradeExecution
-        expr: rate(trade_execution_latency_seconds_sum[5m]) / rate(trade_execution_latency_seconds_count[5m]) > 5
+        expr: histogram_quantile(0.95, sum(rate(trade_execution_latency_seconds_bucket[5m])) by (le)) > 5
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: "Slow trade execution detected"
-          description: "Average trade execution latency is above 5 seconds."
+          description: "P95 trade execution latency is {{ $value | printf \"%.2f\" }}s (threshold: 5s)."
 
-      - alert: DLQDepthHigh
-        expr: rabbitmq_queue_messages{queue="dlq.queue"} > 100
-        for: 1m
+      - alert: PaymentFailureRate
+        expr: (sum(rate(payment_failed_count_total[5m])) / sum(rate(payment_success_count_total[5m]) + rate(payment_failed_count_total[5m]))) * 100 > 5
+        for: 5m
         labels:
-          severity: critical
+          severity: warning
         annotations:
-          summary: "Dead Letter Queue depth is high"
-          description: "The number of messages in the dead letter queue is above 100."
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | printf \"%.1f\" }}% (threshold: 5%)."
+
+      # ============================================
+      # JVM ALERTS
+      # ============================================
+      - alert: HighHeapUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High heap usage on {{ $labels.application }}"
+          description: "Heap usage on {{ $labels.application }} is {{ $value | printf \"%.0f\" }}%."
+
+      - alert: HighCPUUsage
+        expr: system_cpu_usage * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.application }}"
+          description: "CPU usage on {{ $labels.application }} is {{ $value | printf \"%.0f\" }}%."

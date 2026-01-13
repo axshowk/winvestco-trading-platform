@@ -23,6 +23,7 @@
 - [Technology Stack](#-technology-stack)
 - [Microservices Overview](#-microservices-overview)
 - [Fault Tolerance & Resilience](#️-fault-tolerance--resilience)
+- [Observability & Dashboards](#-observability--dashboards)
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
@@ -376,6 +377,47 @@ const DEFAULT_RETRY_CONFIG = {
     retryableStatuses: [408, 429, 500, 502, 503, 504]
 };
 ```
+
+---
+
+### 📊 Observability & Dashboards
+
+The platform includes a comprehensive observability stack with **10 Grafana dashboards** and **17 alerting rules**.
+
+#### Access Points
+
+| Tool | URL | Credentials |
+|------|-----|-------------|
+| **Grafana** | http://localhost:3000 | admin / winvestco |
+| **Prometheus** | http://localhost:9090 | - |
+| **Jaeger** | http://localhost:16686 | - |
+| **Loki** | http://localhost:3100 | (via Grafana) |
+
+#### Grafana Dashboards
+
+| Dashboard | Description | UID |
+|-----------|-------------|-----|
+| **Platform Overview** | Unified dashboard with navigation hub | `platform-overview` |
+| **Golden Signals** | Latency, Traffic, Errors, Saturation | `golden-signals` |
+| **Business Metrics** | Orders, Trades, Payments, Funds | `winvestco-business` |
+| **JVM Dashboard** | Memory, Threads, GC, HTTP | `winvestco-jvm` |
+| **Resilience4j** | Circuit Breakers, Retries, Rate Limiters | `resilience4j-dashboard` |
+| **RabbitMQ** | Queues, Messages, Consumers, DLQ | `rabbitmq-dashboard` |
+| **Service Health** | Up/Down Status, Uptime, Instances | `service-health-dashboard` |
+| **API Gateway** | Routes, Auth Failures, Rate Limiting | `api-gateway-dashboard` |
+| **Database** | HikariCP Connection Pools, Timing | `database-dashboard` |
+| **Logs Overview** | Log Volume, Error Rates (Loki) | `logs-overview-dashboard` |
+
+#### Alerting Rules (17 Rules)
+
+| Category | Alerts |
+|----------|--------|
+| **Service Health** | ServiceDown, HighErrorRate, HighLatencyP99 |
+| **Resilience4j** | CircuitBreakerOpen, CircuitBreakerHalfOpen, HighRetryRate, BulkheadRejections, RateLimiterDenials |
+| **RabbitMQ** | DLQDepthHigh, QueueBacklogHigh, NoConsumers |
+| **Database** | ConnectionPoolExhausted, ConnectionPoolPending, ConnectionTimeouts |
+| **Business** | SlowTradeExecution, PaymentFailureRate |
+| **JVM** | HighHeapUsage, HighCPUUsage |
 
 ---
 
