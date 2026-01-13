@@ -22,6 +22,7 @@
 - [Architecture](#-architecture)
 - [Technology Stack](#-technology-stack)
 - [Microservices Overview](#-microservices-overview)
+- [Fault Tolerance & Resilience](#️-fault-tolerance--resilience)
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
@@ -289,6 +290,92 @@ The platform implements choreography-based SAGA for distributed transactions wit
 | **OutboxProcessor** | Background job publishes pending outbox events to RabbitMQ |
 | **RetryInterceptor** | Automatic retries with exponential backoff (1s initial, 2x multiplier, 10s max) |
 | **Dead Letter Queue** | Failed messages republished to DLQ after max retry attempts |
+
+### 🛡️ Fault Tolerance & Resilience
+
+The platform implements a **multi-layered fault tolerance strategy** using [Resilience4j](https://resilience4j.readme.io/) to handle distributed system failures gracefully. See [ADR-0008](docs/adr/0008-resilience4j-fault-tolerance.md) for architectural decisions.
+
+#### Resilience4j Patterns
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                           FAULT TOLERANCE DECORATORS                                   │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│    Retry → CircuitBreaker → RateLimiter → TimeLimiter → Bulkhead → [Your Method]     │
+│                                                                                        │
+│   ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│   │  CIRCUIT BREAKER│  │   RATE LIMITER  │  │     RETRY       │  │    BULKHEAD     │  │
+│   │                 │  │                 │  │                 │  │                 │  │
+│   │ CLOSED → OPEN   │  │ 10 calls/sec    │  │ 3 attempts      │  │ 5 concurrent    │  │
+│   │ → HALF_OPEN     │  │ 500ms timeout   │  │ Exp. backoff    │  │ 200ms wait      │  │
+│   │                 │  │                 │  │ + jitter        │  │                 │  │
+│   │ 50% failure     │  │ Fair usage      │  │ Transient       │  │ Isolation       │  │
+│   │ threshold       │  │ protection      │  │ failures        │  │ per service     │  │
+│   └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+│                                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Pattern | Purpose | Configuration |
+|---------|---------|---------------|
+| **Circuit Breaker** | Fails fast when downstream service is unhealthy | 50% failure rate, 60s open state, 10-call sliding window |
+| **Rate Limiter** | Protects services from overwhelming traffic | 10 calls/second, 500ms timeout |
+| **Retry** | Handles transient failures with exponential backoff | 3 attempts, 1s base delay, 2x multiplier, 0.5 jitter factor |
+| **Bulkhead** | Limits concurrent calls per downstream service | 5 concurrent calls, 200ms max wait |
+| **Time Limiter** | Prevents indefinite waits | 10s timeout, cancels running futures |
+
+#### Example: NSE API Client with Full Resilience
+
+```java
+@CircuitBreaker(name = "nseApi", fallbackMethod = "getIndexQuoteFallback")
+@RateLimiter(name = "nseApi")
+@Retry(name = "nseApi")
+@Bulkhead(name = "nseApi")
+public MarketDataDTO getIndexQuote(String indexName) {
+    // External API call with full resilience protection
+}
+
+// Graceful degradation when circuit opens
+private MarketDataDTO getIndexQuoteFallback(String indexName, Throwable t) {
+    log.warn("[FALLBACK] NSE API unavailable for {}", indexName);
+    return null; // Returns cached/default data
+}
+```
+
+#### Non-Retryable Exceptions
+
+The `NonRetryableException` class marks operations that should NOT be retried:
+
+| Factory Method | Use Case |
+|----------------|----------|
+| `validationError()` | Input validation failures (4xx errors) |
+| `businessRuleViolation()` | Business logic violations |
+| `idempotencyConflict()` | Duplicate request detection |
+
+#### Resilience Event Logging
+
+The `ResilienceEventLogger` provides observability for all resilience events:
+
+```
+[CIRCUIT_BREAKER] nseApi - State transition: CLOSED → OPEN
+[RETRY] nseApi - Attempt 2 after 2000ms, exception: SocketTimeoutException
+[BULKHEAD] nseApi - Call rejected, available permits: 0
+[RATE_LIMITER] nseApi - Request denied, available permits: 0
+```
+
+#### Frontend Resilience (apiClient.js)
+
+The frontend implements its own retry logic with exponential backoff:
+
+```javascript
+const DEFAULT_RETRY_CONFIG = {
+    maxRetries: 3,
+    baseDelayMs: 1000,
+    maxDelayMs: 10000,
+    retryableStatuses: [408, 429, 500, 502, 503, 504]
+};
+```
 
 ---
 
