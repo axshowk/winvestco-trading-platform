@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Map;
 
 /**
  * DTO for WebSocket portfolio update messages.

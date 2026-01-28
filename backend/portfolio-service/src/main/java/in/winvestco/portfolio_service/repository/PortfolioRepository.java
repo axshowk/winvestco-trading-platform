@@ -17,14 +17,20 @@ import java.util.Optional;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     /**
-     * Find portfolio by user ID
+     * Find default portfolio by user ID
      */
-    Optional<Portfolio> findByUserId(Long userId);
+    @Query("SELECT p FROM Portfolio p WHERE p.userId = :userId AND p.isDefault = true")
+    Optional<Portfolio> findDefaultByUserId(@Param("userId") Long userId);
+
+    /**
+     * Find all portfolios for a user
+     */
+    java.util.List<Portfolio> findAllByUserId(Long userId);
 
     /**
      * Find portfolio by user ID and status
      */
-    Optional<Portfolio> findByUserIdAndStatus(Long userId, PortfolioStatus status);
+    java.util.List<Portfolio> findAllByUserIdAndStatus(Long userId, PortfolioStatus status);
 
     /**
      * Check if a portfolio exists for a user
@@ -37,14 +43,25 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     Optional<Portfolio> findByIdAndUserId(Long id, Long userId);
 
     /**
-     * Find portfolio with holdings eagerly loaded
+     * Find default portfolio with holdings eagerly loaded
+     */
+    @Query("SELECT p FROM Portfolio p LEFT JOIN FETCH p.holdings WHERE p.userId = :userId AND p.isDefault = true")
+    Optional<Portfolio> findDefaultByUserIdWithHoldings(@Param("userId") Long userId);
+
+    /**
+     * Find portfolio by user ID with holdings eagerly loaded
      */
     @Query("SELECT p FROM Portfolio p LEFT JOIN FETCH p.holdings WHERE p.userId = :userId")
-    Optional<Portfolio> findByUserIdWithHoldings(@Param("userId") Long userId);
+    java.util.List<Portfolio> findAllByUserIdWithHoldings(@Param("userId") Long userId);
 
     /**
      * Find portfolio by ID with holdings eagerly loaded
      */
     @Query("SELECT p FROM Portfolio p LEFT JOIN FETCH p.holdings WHERE p.id = :id")
     Optional<Portfolio> findByIdWithHoldings(@Param("id") Long id);
+
+    /**
+     * Check if user has a default portfolio
+     */
+    boolean existsByUserIdAndIsDefaultTrue(Long userId);
 }

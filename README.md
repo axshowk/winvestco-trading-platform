@@ -48,7 +48,7 @@
 - **📊 Interactive Charts** - TradingView & Lightweight Charts with drawing tools (horizontal lines, trendlines)
 - **🔐 User Authentication** - Secure JWT-based authentication with OAuth2/Google support
 - **👤 User Management** - Complete user registration, login, and profile management
-- **💼 Portfolio Management** - Track holdings, P&L calculations, and investment performance
+- **💼 Portfolio Management** - Support for multiple investment strategies (Main, Paper Trading, Watchlist), real-time P&L calculations enriched by Market Service, and default portfolio management
 - **💰 Funds Management** - Wallet system with deposits, withdrawals, and funds locking with CQRS read model
 - **📒 Full Event Sourcing Ledger** - Immutable financial facts, point-in-time queries, and state rebuild capability (Source of Truth)
 - **📋 Order Management** - Complete order lifecycle with advanced order types (LIMIT, MARKET, SL) and product types (CNC, MIS, NRML)

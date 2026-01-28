@@ -25,6 +25,7 @@ import lombok.ToString;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import in.winvestco.common.enums.PortfolioStatus;
+import in.winvestco.common.enums.PortfolioType;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -42,7 +43,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "portfolios", indexes = {
-    @Index(name = "idx_portfolios_user_id", columnList = "user_id", unique = true)
+        @Index(name = "idx_portfolios_user_id", columnList = "user_id"),
+        @Index(name = "idx_portfolios_type", columnList = "portfolio_type")
 })
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -52,7 +54,7 @@ import java.util.List;
 @Builder
 @ToString(exclude = "holdings")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Portfolio implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -63,7 +65,7 @@ public class Portfolio implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @NotBlank
@@ -79,6 +81,15 @@ public class Portfolio implements Serializable {
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private PortfolioStatus status = PortfolioStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "portfolio_type", nullable = false, length = 20)
+    @Builder.Default
+    private PortfolioType portfolioType = PortfolioType.MAIN;
+
+    @Column(name = "is_default", nullable = false)
+    @Builder.Default
+    private Boolean isDefault = false;
 
     @Column(name = "total_invested", precision = 18, scale = 4)
     @Builder.Default

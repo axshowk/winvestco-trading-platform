@@ -5,7 +5,7 @@ import in.winvestco.notification_service.dto.NotificationDTO;
 import in.winvestco.notification_service.mapper.NotificationMapper;
 import in.winvestco.notification_service.model.*;
 import in.winvestco.notification_service.repository.NotificationDeliveryRepository;
-import in.winvestco.notification_service.repository.NotificationChannelRepository;
+
 import in.winvestco.notification_service.service.channel.EmailNotificationService;
 import in.winvestco.notification_service.service.channel.PushNotificationService;
 import in.winvestco.notification_service.service.channel.SmsNotificationService;
@@ -30,7 +30,7 @@ import java.util.List;
 public class NotificationRetryService {
 
     private final NotificationDeliveryRepository deliveryRepository;
-    private final NotificationChannelRepository channelRepository;
+
     private final NotificationDeliveryTracker deliveryTracker;
     private final NotificationChannelConfig config;
     private final NotificationMapper notificationMapper;

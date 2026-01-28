@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    TrendingUp, TrendingDown, RefreshCw, X,
-    Briefcase, AlertCircle, LogIn, Trash2, Wifi, WifiOff
+    TrendingUp, TrendingDown, RefreshCw, X, Plus, ChevronDown,
+    Briefcase, AlertCircle, LogIn, Trash2, Wifi, WifiOff,
+    CheckCircle, Star
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -13,6 +14,8 @@ const Portfolio = () => {
     const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [portfolio, setPortfolio] = useState(null);
+    const [portfolios, setPortfolios] = useState([]);
+    const [selectedPortfolioId, setSelectedPortfolioId] = useState(null);
     const [holdings, setHoldings] = useState([]);
     const [marketPrices, setMarketPrices] = useState({});
     const [loading, setLoading] = useState(true);
@@ -20,6 +23,14 @@ const Portfolio = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [userId, setUserId] = useState(null);
     const [tradeNotification, setTradeNotification] = useState(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showSelector, setShowSelector] = useState(false);
+    const [newPortfolio, setNewPortfolio] = useState({
+        name: '',
+        description: '',
+        portfolioType: 'MAIN',
+        isDefault: false
+    });
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('accessToken');
@@ -90,9 +101,33 @@ const Portfolio = () => {
         isAuthenticated
     );
 
-    const fetchPortfolio = useCallback(async () => {
+    const fetchAllPortfolios = useCallback(async () => {
         try {
-            const response = await fetch('/api/v1/portfolios', {
+            const response = await fetch('/api/v1/portfolios/all', {
+                headers: getAuthHeaders()
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setPortfolios(data);
+                // Set initial selection to default if not already set
+                if (!selectedPortfolioId) {
+                    const defaultPortfolio = data.find(p => p.isDefault);
+                    if (defaultPortfolio) {
+                        setSelectedPortfolioId(defaultPortfolio.id);
+                    } else if (data.length > 0) {
+                        setSelectedPortfolioId(data[0].id);
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching all portfolios:', err);
+        }
+    }, [selectedPortfolioId]);
+
+    const fetchPortfolio = useCallback(async (id = null) => {
+        try {
+            const url = id ? `/api/v1/portfolios/${id}` : '/api/v1/portfolios';
+            const response = await fetch(url, {
                 headers: getAuthHeaders()
             });
 
@@ -106,8 +141,10 @@ const Portfolio = () => {
                 const data = await response.json();
                 setPortfolio(data);
                 setHoldings(data.holdings || []);
+                if (!selectedPortfolioId) {
+                    setSelectedPortfolioId(data.id);
+                }
             } else if (response.status === 404) {
-                // No portfolio yet - that's OK
                 setPortfolio(null);
                 setHoldings([]);
             } else {
@@ -117,11 +154,20 @@ const Portfolio = () => {
             console.error('Error fetching portfolio:', err);
             setError('Failed to load portfolio');
         }
-    }, []);
+    }, [selectedPortfolioId]);
 
     const fetchMarketPrices = useCallback(async (holdingsList) => {
         const prices = {};
         for (const holding of holdingsList) {
+            // Optimization: If price already enriched by backend, prioritize that
+            if (holding.currentPrice) {
+                prices[holding.symbol] = {
+                    ltp: holding.currentPrice,
+                    change: holding.dayChange,
+                    pChange: holding.dayChangePercentage
+                };
+                continue;
+            }
             try {
                 const response = await fetch(`/api/v1/market/stocks/${holding.symbol}`);
                 if (response.ok) {
@@ -155,9 +201,10 @@ const Portfolio = () => {
         const extractedUserId = extractUserIdFromToken();
         setUserId(extractedUserId);
 
+        await fetchAllPortfolios();
         await fetchPortfolio();
         setLoading(false);
-    }, [fetchPortfolio, extractUserIdFromToken]);
+    }, [fetchPortfolio, fetchAllPortfolios, extractUserIdFromToken]);
 
     useEffect(() => {
         loadData();
@@ -171,11 +218,64 @@ const Portfolio = () => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchPortfolio();
+        await fetchAllPortfolios();
+        await fetchPortfolio(selectedPortfolioId);
         if (holdings.length > 0) {
             await fetchMarketPrices(holdings);
         }
         setRefreshing(false);
+    };
+
+    const handlePortfolioSelect = async (id) => {
+        setSelectedPortfolioId(id);
+        setShowSelector(false);
+        setLoading(true);
+        await fetchPortfolio(id);
+        setLoading(false);
+    };
+
+    const handleCreatePortfolio = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/api/v1/portfolios', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(newPortfolio)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setShowCreateModal(false);
+                setNewPortfolio({ name: '', description: '', portfolioType: 'MAIN', isDefault: false });
+                await fetchAllPortfolios();
+                await handlePortfolioSelect(data.id);
+            } else {
+                setError('Failed to create portfolio');
+            }
+        } catch (err) {
+            console.error('Error creating portfolio:', err);
+            setError('Error creating portfolio');
+        }
+    };
+
+    const handleSetDefault = async (id) => {
+        try {
+            const response = await fetch(`/api/v1/portfolios/${id}/set-default`, {
+                method: 'PUT',
+                headers: getAuthHeaders()
+            });
+
+            if (response.ok) {
+                await fetchAllPortfolios();
+                // If it's the current one, the state already reflects isDefault, 
+                // but we fetch all to update the list/badges
+            } else {
+                setError('Failed to set default portfolio');
+            }
+        } catch (err) {
+            console.error('Error setting default:', err);
+            setError('Error setting default portfolio');
+        }
     };
 
     const handleDeleteHolding = async (holdingId) => {
@@ -288,11 +388,69 @@ const Portfolio = () => {
                 {/* Header */}
                 <div className="portfolio-header">
                     <div className="header-left">
-                        <h1>
-                            <Briefcase size={28} />
-                            Holdings
-                            <span className="holdings-count">({holdings.length})</span>
-                        </h1>
+                        <div className="portfolio-selector-wrapper">
+                            <button 
+                                className="portfolio-selector-btn glass"
+                                onClick={() => setShowSelector(!showSelector)}
+                            >
+                                <Briefcase size={24} />
+                                <div className="selected-info">
+                                    <span className="portfolio-name">{portfolio?.name || 'Load Portfolio...'}</span>
+                                    <div className="portfolio-badges">
+                                        <span className={`badge type-${portfolio?.portfolioType?.toLowerCase()}`}>
+                                            {portfolio?.portfolioType}
+                                        </span>
+                                        {portfolio?.isDefault && <span className="badge default"><Star size={10} fill="currentColor" /> Default</span>}
+                                    </div>
+                                </div>
+                                <ChevronDown size={18} className={showSelector ? 'rotated' : ''} />
+                            </button>
+
+                            {showSelector && (
+                                <div className="portfolio-dropdown glass">
+                                    <div className="dropdown-header">
+                                        <span>Select Portfolio</span>
+                                    </div>
+                                    <div className="portfolio-list">
+                                        {portfolios.map(p => (
+                                            <div 
+                                                key={p.id} 
+                                                className={`portfolio-item ${p.id === selectedPortfolioId ? 'active' : ''}`}
+                                                onClick={() => handlePortfolioSelect(p.id)}
+                                            >
+                                                <div className="item-info">
+                                                    <span className="item-name">{p.name} {p.isDefault && '⭐'}</span>
+                                                    <span className="item-type">{p.portfolioType}</span>
+                                                </div>
+                                                {p.id !== selectedPortfolioId && (
+                                                    <button 
+                                                        className="set-default-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSetDefault(p.id);
+                                                        }}
+                                                        title="Set as Default"
+                                                    >
+                                                        <Star size={14} />
+                                                    </button>
+                                                )}
+                                                {p.id === selectedPortfolioId && <CheckCircle size={14} className="active-icon" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button 
+                                        className="create-portfolio-btn"
+                                        onClick={() => {
+                                            setShowSelector(false);
+                                            setShowCreateModal(true);
+                                        }}
+                                    >
+                                        <Plus size={16} /> Create New Portfolio
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        <span className="holdings-count">({holdings.length} stocks)</span>
                         {/* WebSocket Connection Status */}
                         <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}
                             title={`Real-time updates: ${connectionStatus}`}>
@@ -436,6 +594,75 @@ const Portfolio = () => {
                     </div>
                 )}
             </div>
+
+            {/* Create Portfolio Modal */}
+            {showCreateModal && (
+                <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+                    <div className="modal-content glass" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Create New Portfolio</h2>
+                            <button className="close-btn" onClick={() => setShowCreateModal(false)}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreatePortfolio}>
+                            <div className="form-group">
+                                <label>Portfolio Name</label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g. Long Term Stocks"
+                                    value={newPortfolio.name}
+                                    onChange={e => setNewPortfolio({...newPortfolio, name: e.target.value})}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Optional description"
+                                    value={newPortfolio.description}
+                                    onChange={e => setNewPortfolio({...newPortfolio, description: e.target.value})}
+                                />
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Type</label>
+                                    <select 
+                                        value={newPortfolio.portfolioType}
+                                        onChange={e => setNewPortfolio({...newPortfolio, portfolioType: e.target.value})}
+                                    >
+                                        <option value="MAIN">Main</option>
+                                        <option value="PAPER_TRADING">Paper Trading</option>
+                                        <option value="WATCHLIST">Watchlist</option>
+                                        <option value="RETIREMENT">Retirement</option>
+                                        <option value="CUSTOM">Custom</option>
+                                    </select>
+                                </div>
+                                <div className="form-group checkbox">
+                                    <label>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={newPortfolio.isDefault}
+                                            onChange={e => setNewPortfolio({...newPortfolio, isDefault: e.target.checked})}
+                                        />
+                                        Set as Default
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="form-actions">
+                                <button type="button" className="btn-secondary" onClick={() => setShowCreateModal(false)}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="btn-primary">
+                                    Create Portfolio
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </div>
     );

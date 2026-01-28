@@ -2,6 +2,7 @@ package in.winvestco.portfolio_service.controller;
 
 import in.winvestco.portfolio_service.dto.AddHoldingRequest;
 import in.winvestco.portfolio_service.dto.BuyStockRequest;
+import in.winvestco.portfolio_service.dto.CreatePortfolioRequest;
 import in.winvestco.portfolio_service.dto.HoldingDTO;
 import in.winvestco.portfolio_service.dto.PortfolioDTO;
 import in.winvestco.portfolio_service.dto.SellStockRequest;
@@ -45,15 +46,66 @@ public class PortfolioController {
     private final PortfolioWebSocketService webSocketService;
 
     @GetMapping
-    @Operation(summary = "Get user's portfolio", description = "Retrieve the current user's portfolio with all holdings")
+    @Operation(summary = "Get default portfolio", description = "Retrieve the current user's default portfolio with all holdings")
     @ApiResponse(responseCode = "200", description = "Portfolio retrieved successfully")
     @ApiResponse(responseCode = "404", description = "Portfolio not found")
-    public ResponseEntity<PortfolioDTO> getMyPortfolio(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<PortfolioDTO> getMyDefaultPortfolio(@AuthenticationPrincipal Jwt jwt) {
         Long userId = extractUserId(jwt);
-        log.debug("Getting portfolio for user: {}", userId);
+        log.debug("Getting default portfolio for user: {}", userId);
 
         PortfolioDTO portfolio = portfolioService.getPortfolioByUserId(userId);
         return ResponseEntity.ok(portfolio);
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Get all portfolios", description = "Retrieve all portfolios for the current user")
+    @ApiResponse(responseCode = "200", description = "Portfolios retrieved successfully")
+    public ResponseEntity<List<PortfolioDTO>> getAllPortfolios(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = extractUserId(jwt);
+        log.debug("Getting all portfolios for user: {}", userId);
+
+        List<PortfolioDTO> portfolios = portfolioService.getAllPortfoliosByUserId(userId);
+        return ResponseEntity.ok(portfolios);
+    }
+
+    @PostMapping
+    @Operation(summary = "Create portfolio", description = "Create a new portfolio for different investment strategies")
+    @ApiResponse(responseCode = "201", description = "Portfolio created successfully")
+    public ResponseEntity<PortfolioDTO> createPortfolio(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody CreatePortfolioRequest request) {
+        Long userId = extractUserId(jwt);
+        log.info("Creating new portfolio for user: {}", userId);
+
+        PortfolioDTO created = portfolioService.createPortfolio(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @GetMapping("/{portfolioId}")
+    @Operation(summary = "Get portfolio by ID", description = "Retrieve a specific portfolio by ID")
+    @ApiResponse(responseCode = "200", description = "Portfolio retrieved successfully")
+    @ApiResponse(responseCode = "404", description = "Portfolio not found")
+    public ResponseEntity<PortfolioDTO> getPortfolioById(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long portfolioId) {
+        Long userId = extractUserId(jwt);
+        log.debug("Getting portfolio {} for user: {}", portfolioId, userId);
+
+        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId, userId);
+        return ResponseEntity.ok(portfolio);
+    }
+
+    @PutMapping("/{portfolioId}/set-default")
+    @Operation(summary = "Set default portfolio", description = "Set a portfolio as the default one for the user")
+    @ApiResponse(responseCode = "200", description = "Default portfolio updated successfully")
+    public ResponseEntity<PortfolioDTO> setDefaultPortfolio(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long portfolioId) {
+        Long userId = extractUserId(jwt);
+        log.info("Setting portfolio {} as default for user {}", portfolioId, userId);
+
+        PortfolioDTO updated = portfolioService.setDefaultPortfolio(userId, portfolioId);
+        return ResponseEntity.ok(updated);
     }
 
     @PutMapping

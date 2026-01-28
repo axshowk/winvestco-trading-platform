@@ -27,4 +27,7 @@ public class SellStockRequest {
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
     private BigDecimal quantity;
+
+    @Positive(message = "Price must be positive")
+    private BigDecimal price;
 }

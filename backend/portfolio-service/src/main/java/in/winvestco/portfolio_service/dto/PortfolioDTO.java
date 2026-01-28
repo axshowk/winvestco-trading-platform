@@ -1,6 +1,7 @@
 package in.winvestco.portfolio_service.dto;
 
 import in.winvestco.common.enums.PortfolioStatus;
+import in.winvestco.common.enums.PortfolioType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,8 @@ public class PortfolioDTO {
     private String name;
     private String description;
     private PortfolioStatus status;
+    private PortfolioType portfolioType;
+    private Boolean isDefault;
     private BigDecimal totalInvested;
     private BigDecimal currentValue;
     private BigDecimal profitLoss;

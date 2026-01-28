@@ -1,16 +1,9 @@
 package in.winvestco.notification_service.service;
 
 import in.winvestco.notification_service.config.NotificationChannelConfig;
-import in.winvestco.notification_service.dto.NotificationDTO;
 import in.winvestco.notification_service.dto.NotificationDeliveryDTO;
-import in.winvestco.notification_service.mapper.NotificationMapper;
 import in.winvestco.notification_service.model.*;
 import in.winvestco.notification_service.repository.NotificationDeliveryRepository;
-import in.winvestco.notification_service.repository.NotificationRepository;
-import in.winvestco.notification_service.service.channel.ChannelDeliveryService;
-import in.winvestco.notification_service.service.channel.EmailNotificationService;
-import in.winvestco.notification_service.service.channel.PushNotificationService;
-import in.winvestco.notification_service.service.channel.SmsNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,9 +23,7 @@ import java.util.stream.Collectors;
 public class NotificationDeliveryTracker {
 
     private final NotificationDeliveryRepository deliveryRepository;
-    private final NotificationRepository notificationRepository;
     private final NotificationChannelConfig config;
-    private final NotificationMapper notificationMapper;
 
     /**
      * Create delivery records for a notification across specified channels.
