@@ -64,4 +64,16 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
      * Check if user has a default portfolio
      */
     boolean existsByUserIdAndIsDefaultTrue(Long userId);
+
+    /**
+     * Find portfolio by user ID (returns any if multiple exist, but usually each
+     * user has one)
+     */
+    Optional<Portfolio> findByUserId(Long userId);
+
+    /**
+     * Find portfolio by user ID with holdings eagerly loaded
+     */
+    @Query("SELECT p FROM Portfolio p LEFT JOIN FETCH p.holdings WHERE p.userId = :userId")
+    Optional<Portfolio> findByUserIdWithHoldings(@Param("userId") Long userId);
 }
