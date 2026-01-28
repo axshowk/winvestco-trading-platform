@@ -54,7 +54,9 @@
 - **📋 Order Management** - Complete order lifecycle with advanced order types (LIMIT, MARKET, SL) and product types (CNC, MIS, NRML)
 - **📈 Trade Execution** - Trade lifecycle management with state machine (CREATED → VALIDATED → PLACED → EXECUTED → CLOSED)
 - **💳 Payment Gateway** - Razorpay integration for deposits with webhook verification
+- **🔔 Multi-Channel Notifications** - WebSocket, Push (FCM), Email (SendGrid/SES), and SMS (Twilio) with guaranteed delivery and retry mechanism
 - **🔔 Real-time Notifications** - WebSocket-based push notifications
+- **💹 Real-time Portfolio** - WebSocket-based live portfolio updates for trades and price changes
 - **📄 Stock Details** - Comprehensive stock information with interactive charts
 - **📄 Async Report Generation** - Generate P&L, Tax, and Transaction reports asynchronously via Event Sourcing
 - **🌓 Dark/Light Mode** - Personalized UI experience with smooth theme transitions
@@ -126,9 +128,9 @@
 │  │  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐                  │  │
 │  │  │ Notification Svc │   │ Payment Service  │   │ Report Service   │                  │  │
 │  │  │     (8091)       │   │     (8093)       │   │     (8094)       │                  │  │
-│  │  │ • Push Notifs    │   │ • Razorpay       │   │ • Async Reporting│                  │  │
-│  │  │ • WebSocket      │   │ • Webhooks       │   │ • P&L/Tax Reports│                  │  │
-│  │  │ • Preferences    │   │ • Payment Events │   │ • Read Models    │                  │  │
+│  │  │ • Multi-Channel  │   │ • Razorpay       │   │ • Async Reporting│                  │  │
+│  │  │ • Retry Engine   │   │ • Webhooks       │   │ • P&L/Tax Reports│                  │  │
+│  │  │ • Delivery Stats │   │ • Payment Events │   │ • Read Models    │                  │  │
 │  │  └──────────────────┘   └──────────────────┘   └──────────────────┘                  │  │
 │  │                                                                                      │  │
 │  └──────────────────────────────────────────────────────────────────────────────────────┘  │
@@ -222,13 +224,13 @@
 | **API Gateway** | 8090 | Central entry point, routing, JWT validation, Redis-backed rate limiting | - |
 | **User Service** | 8088 | Authentication, registration, user management | `winvestco_user_db` |
 | **Market Service** | 8084 | Real-time market data, NSE API integration, candles | `winvestco_market_db` |
-| **Portfolio Service** | 8085 | Holdings management, P&L tracking | `winvestco_portfolio_db` |
+| **Portfolio Service** | 8085 | Holdings management, P&L tracking, Real-time WebSocket updates | `winvestco_portfolio_db` |
 | **Funds Service** | 8086 | Wallet management, deposits, withdrawals, fund locking | `winvestco_funds_db` |
 | **Ledger Service** | 8087 | Immutable financial ledger (source of truth) | `winvestco_ledger_db` |
 | **Order Service** | 8089 | Order lifecycle management (create, cancel, fill, expire) | `winvestco_order_db` |
 | **Trade Service** | 8092 | Trade lifecycle, execution, state machine | `winvestco_trade_db` |
 | **Payment Service** | 8093 | Razorpay integration, payment lifecycle, webhooks | `winvestco_payment_db` |
-| **Notification Service** | 8091 | Push notifications, WebSocket, preferences | `winvestco_notification_db` |
+| **Notification Service** | 8091 | Multi-channel delivery (WS, Push, Email, SMS), delivery tracking, retry engine, preferences | `winvestco_notification_db` |
 | **Report Service** | 8094 | Async report generation (P&L, Tax, Transaction) | `winvestco_report_db` |
 | **Common Module** | - | Shared library (DTOs, enums, events, security, configs) | - |
 
@@ -742,9 +744,10 @@ Ensure you have the following installed:
 | `/api/trades/**` | trade-service | Trade management |
 | `/api/payments/**` | payment-service | Payment operations |
 | `/api/payments/webhook/**` | payment-service | Razorpay webhooks (public) |
-| `/api/v1/notifications/**` | notification-service | Notifications |
+| `/api/v1/notifications/**` | notification-service | Notifications, Preferences, & Delivery Tracking |
 | `/api/reports/**` | report-service | Report generation |
 | `/ws/notifications/**` | notification-service | WebSocket endpoint |
+| `/ws/portfolio/**` | portfolio-service | Portfolio WebSocket endpoint |
 | `/api/admin/docs/**` | user-service | API documentation |
 
 ---

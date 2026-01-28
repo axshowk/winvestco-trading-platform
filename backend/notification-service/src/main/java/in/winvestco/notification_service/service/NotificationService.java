@@ -27,15 +27,15 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final NotificationPreferenceService preferenceService;
-    private final WebSocketNotificationService webSocketService;
+    private final NotificationDeliveryStrategy deliveryStrategy;
 
     /**
-     * Create and send a notification.
+     * Create and send a notification via all enabled channels.
      */
     @Transactional
-    public NotificationDTO createNotification(Long userId, NotificationType type, 
-                                               String title, String message, 
-                                               Map<String, Object> data) {
+    public NotificationDTO createNotification(Long userId, NotificationType type,
+            String title, String message,
+            Map<String, Object> data) {
         log.info("Creating notification for user {}: type={}, title={}", userId, type, title);
 
         // Check if notification is muted
@@ -55,10 +55,11 @@ public class NotificationService {
         Notification saved = notificationRepository.save(notification);
         NotificationDTO dto = notificationMapper.toDTO(saved);
 
-        // Send via WebSocket
-        webSocketService.sendToUser(userId, dto);
+        // Send via multi-channel delivery strategy
+        deliveryStrategy.deliver(userId, dto);
 
-        log.info("Created notification {} for user {}", saved.getId(), userId);
+        log.info("Created notification {} for user {} - delivering via enabled channels",
+                saved.getId(), userId);
         return dto;
     }
 
@@ -76,8 +77,8 @@ public class NotificationService {
      * Get notifications for a user with specific status.
      */
     @Transactional(readOnly = true)
-    public Page<NotificationDTO> getNotificationsByStatus(Long userId, NotificationStatus status, 
-                                                           Pageable pageable) {
+    public Page<NotificationDTO> getNotificationsByStatus(Long userId, NotificationStatus status,
+            Pageable pageable) {
         log.debug("Fetching {} notifications for user: {}", status, userId);
         return notificationRepository.findByUserIdAndStatusOrderByCreatedAtDesc(userId, status, pageable)
                 .map(notificationMapper::toDTO);
@@ -97,7 +98,7 @@ public class NotificationService {
     @Transactional
     public Optional<NotificationDTO> markAsRead(Long notificationId, Long userId) {
         log.info("Marking notification {} as read for user {}", notificationId, userId);
-        
+
         return notificationRepository.findById(notificationId)
                 .filter(n -> n.getUserId().equals(userId))
                 .map(notification -> {
@@ -122,7 +123,7 @@ public class NotificationService {
     @Transactional
     public boolean deleteNotification(Long notificationId, Long userId) {
         log.info("Deleting notification {} for user {}", notificationId, userId);
-        
+
         return notificationRepository.findById(notificationId)
                 .filter(n -> n.getUserId().equals(userId))
                 .map(notification -> {
@@ -138,7 +139,7 @@ public class NotificationService {
     @Transactional
     public Optional<NotificationDTO> archiveNotification(Long notificationId, Long userId) {
         log.info("Archiving notification {} for user {}", notificationId, userId);
-        
+
         return notificationRepository.findById(notificationId)
                 .filter(n -> n.getUserId().equals(userId))
                 .map(notification -> {

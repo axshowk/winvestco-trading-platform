@@ -1,5 +1,6 @@
 package in.winvestco.notification_service.websocket;
 
+import in.winvestco.notification_service.service.NotificationRetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,17 +20,29 @@ import java.util.Map;
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
     private final WebSocketSessionManager sessionManager;
+    private final NotificationRetryService retryService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         Long userId = extractUserId(session);
-        
+
         if (userId != null) {
             sessionManager.registerSession(userId, session);
             log.info("WebSocket connection established for user: {}", userId);
-            
+
             // Send welcome message
-            session.sendMessage(new TextMessage("{\"type\":\"CONNECTED\",\"message\":\"Connected to notification service\"}"));
+            session.sendMessage(
+                    new TextMessage("{\"type\":\"CONNECTED\",\"message\":\"Connected to notification service\"}"));
+
+            // Deliver any pending notifications for this user
+            try {
+                int delivered = retryService.deliverPendingToUser(userId);
+                if (delivered > 0) {
+                    log.info("Delivered {} pending notifications to reconnected user {}", delivered, userId);
+                }
+            } catch (Exception e) {
+                log.error("Error delivering pending notifications to user {}: {}", userId, e.getMessage());
+            }
         } else {
             log.warn("WebSocket connection without user ID, closing session: {}", session.getId());
             session.close(CloseStatus.POLICY_VIOLATION);
@@ -47,7 +60,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
         // Handle incoming messages (e.g., ping, mark as read)
         String payload = message.getPayload();
         log.debug("Received message: {} from session: {}", payload, session.getId());
-        
+
         // Could handle commands like "MARK_READ:123" here
         if (payload.startsWith("PING")) {
             session.sendMessage(new TextMessage("PONG"));
@@ -67,7 +80,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
     private Long extractUserId(WebSocketSession session) {
         Map<String, Object> attributes = session.getAttributes();
         Object userId = attributes.get("userId");
-        
+
         if (userId instanceof Long) {
             return (Long) userId;
         } else if (userId instanceof String) {

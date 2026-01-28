@@ -99,3 +99,35 @@ logging:
   level:
     in.winvestco: DEBUG
     org.springframework.web.socket: DEBUG
+
+# Multi-channel notification delivery configuration
+notification:
+  channels:
+    push:
+      enabled: ${PUSH_ENABLED:false}
+      firebase-project-id: ${FIREBASE_PROJECT_ID:}
+      credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+      default-icon: ic_notification
+      default-color: "#6366f1"
+    email:
+      enabled: ${EMAIL_ENABLED:false}
+      provider: ${EMAIL_PROVIDER:sendgrid}  # sendgrid, ses, smtp
+      sendgrid-api-key: ${SENDGRID_API_KEY:}
+      aws-region: ${AWS_REGION:ap-south-1}
+      from-address: ${EMAIL_FROM:notifications@winvestco.in}
+      from-name: WinvestCo
+      template-path: classpath:templates/email/
+    sms:
+      enabled: ${SMS_ENABLED:false}
+      provider: ${SMS_PROVIDER:twilio}  # twilio, aws-sns
+      twilio-account-sid: ${TWILIO_ACCOUNT_SID:}
+      twilio-auth-token: ${TWILIO_AUTH_TOKEN:}
+      twilio-from-number: ${TWILIO_FROM_NUMBER:}
+      aws-region: ${AWS_REGION:ap-south-1}
+      max-length: 160
+    delivery:
+      max-retries: 3
+      retry-delay-ms: 1000
+      retry-backoff-multiplier: 2.0
+      async-enabled: true
+      async-pool-size: 10
