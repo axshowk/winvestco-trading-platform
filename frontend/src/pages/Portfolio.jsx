@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     TrendingUp, TrendingDown, RefreshCw, X,
-    Briefcase, AlertCircle, LogIn, Trash2
+    Briefcase, AlertCircle, LogIn, Trash2, Wifi, WifiOff
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import usePortfolioWebSocket from '../hooks/usePortfolioWebSocket';
 import './Portfolio.css';
 
 const Portfolio = () => {
@@ -17,6 +18,8 @@ const Portfolio = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [tradeNotification, setTradeNotification] = useState(null);
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('accessToken');
@@ -25,6 +28,67 @@ const Portfolio = () => {
             'Content-Type': 'application/json'
         };
     };
+
+    // Extract userId from JWT token
+    const extractUserIdFromToken = useCallback(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.userId || payload.sub;
+        } catch (e) {
+            console.error('Failed to parse token:', e);
+            return null;
+        }
+    }, []);
+
+    // Handle WebSocket messages
+    const handleWebSocketMessage = useCallback((data) => {
+        console.log('WebSocket update received:', data);
+
+        switch (data.type) {
+            case 'PRICE_UPDATE':
+                if (data.priceUpdate && data.symbol) {
+                    setMarketPrices(prev => ({
+                        ...prev,
+                        [data.symbol]: {
+                            ltp: data.priceUpdate.lastPrice,
+                            change: data.priceUpdate.change,
+                            pChange: data.priceUpdate.changePercent
+                        }
+                    }));
+                }
+                break;
+
+            case 'TRADE_EXECUTED':
+                // Show trade notification
+                setTradeNotification(data.message);
+                setTimeout(() => setTradeNotification(null), 5000);
+                // Refresh portfolio data
+                fetchPortfolio();
+                break;
+
+            case 'PORTFOLIO_UPDATE':
+            case 'HOLDING_UPDATE':
+                // Refresh portfolio data on updates
+                fetchPortfolio();
+                break;
+
+            case 'ERROR':
+                setError(data.message);
+                break;
+
+            default:
+                console.log('Unhandled WebSocket message type:', data.type);
+        }
+    }, []);
+
+    // WebSocket connection
+    const { isConnected, connectionStatus } = usePortfolioWebSocket(
+        userId,
+        handleWebSocketMessage,
+        isAuthenticated
+    );
 
     const fetchPortfolio = useCallback(async () => {
         try {
@@ -79,6 +143,7 @@ const Portfolio = () => {
         const token = localStorage.getItem('accessToken');
         if (!token) {
             setIsAuthenticated(false);
+            setUserId(null);
             setLoading(false);
             return;
         }
@@ -86,9 +151,13 @@ const Portfolio = () => {
         setIsAuthenticated(true);
         setError(null);
 
+        // Extract and set userId for WebSocket
+        const extractedUserId = extractUserIdFromToken();
+        setUserId(extractedUserId);
+
         await fetchPortfolio();
         setLoading(false);
-    }, [fetchPortfolio]);
+    }, [fetchPortfolio, extractUserIdFromToken]);
 
     useEffect(() => {
         loadData();
@@ -224,6 +293,12 @@ const Portfolio = () => {
                             Holdings
                             <span className="holdings-count">({holdings.length})</span>
                         </h1>
+                        {/* WebSocket Connection Status */}
+                        <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}
+                            title={`Real-time updates: ${connectionStatus}`}>
+                            {isConnected ? <Wifi size={14} /> : <WifiOff size={14} />}
+                            <span>{isConnected ? 'Live' : 'Offline'}</span>
+                        </div>
                     </div>
                     <div className="header-right">
                         <button
@@ -235,6 +310,15 @@ const Portfolio = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Trade Notification Toast */}
+                {tradeNotification && (
+                    <div className="trade-notification">
+                        <TrendingUp size={18} />
+                        <span>{tradeNotification}</span>
+                        <button onClick={() => setTradeNotification(null)}><X size={14} /></button>
+                    </div>
+                )}
 
                 {/* Error display */}
                 {error && (

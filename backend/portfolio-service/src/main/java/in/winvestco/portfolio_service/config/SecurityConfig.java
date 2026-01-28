@@ -43,7 +43,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/api-docs/**",
-                                "/actuator/**")
+                                "/actuator/**",
+                                "/ws/**") // WebSocket endpoint - auth handled by handshake interceptor
                         .permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated())

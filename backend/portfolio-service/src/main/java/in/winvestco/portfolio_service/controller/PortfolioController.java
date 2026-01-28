@@ -11,6 +11,7 @@ import in.winvestco.portfolio_service.dto.UpdatePortfolioRequest;
 import in.winvestco.portfolio_service.exception.HoldingNotFoundException;
 import in.winvestco.portfolio_service.service.HoldingService;
 import in.winvestco.portfolio_service.service.PortfolioService;
+import in.winvestco.portfolio_service.service.PortfolioWebSocketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,6 +42,7 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final HoldingService holdingService;
+    private final PortfolioWebSocketService webSocketService;
 
     @GetMapping
     @Operation(summary = "Get user's portfolio", description = "Retrieve the current user's portfolio with all holdings")
@@ -189,6 +191,10 @@ public class PortfolioController {
                 holding = holdingService.addHolding(userId, addRequest);
             }
 
+            // Send real-time WebSocket notification
+            webSocketService.sendTradeExecutedNotification(userId, request.getSymbol(),
+                    "Bought", request.getQuantity(), request.getPrice());
+
             return ResponseEntity.ok(TradeResponse.success(
                     String.format("Successfully bought %s shares of %s",
                             request.getQuantity(), request.getSymbol()),
@@ -218,10 +224,18 @@ public class PortfolioController {
 
             if (holding == null) {
                 // All shares sold
+                webSocketService.sendTradeExecutedNotification(userId, request.getSymbol(),
+                        "Sold all", request.getQuantity(),
+                        request.getPrice() != null ? request.getPrice() : java.math.BigDecimal.ZERO);
                 return ResponseEntity.ok(TradeResponse.success(
                         String.format("Successfully sold all shares of %s", request.getSymbol()),
                         null));
             }
+
+            // Send real-time WebSocket notification
+            webSocketService.sendTradeExecutedNotification(userId, request.getSymbol(),
+                    "Sold", request.getQuantity(),
+                    request.getPrice() != null ? request.getPrice() : java.math.BigDecimal.ZERO);
 
             return ResponseEntity.ok(TradeResponse.success(
                     String.format("Successfully sold %s shares of %s",

@@ -68,6 +68,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         
+        <!-- WebSocket for real-time portfolio updates -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        
         <!-- Spring Cloud Dependencies -->
         <!-- Eureka Client for Service Discovery -->
         <dependency>
