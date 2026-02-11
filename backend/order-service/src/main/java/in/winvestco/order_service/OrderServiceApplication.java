@@ -15,16 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableScheduling
-@EnableJpaRepositories(basePackages = {
-                "in.winvestco.order_service.repository",
-                "in.winvestco.common.messaging.idempotency",
-                "in.winvestco.common.messaging.outbox"
-})
-@EntityScan(basePackages = {
-                "in.winvestco.order_service.model",
-                "in.winvestco.common.messaging.idempotency",
-                "in.winvestco.common.messaging.outbox"
-})
 public class OrderServiceApplication {
 
         public static void main(String[] args) {

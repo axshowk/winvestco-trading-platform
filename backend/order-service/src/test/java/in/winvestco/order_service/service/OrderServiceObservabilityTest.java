@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Spy;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -36,8 +37,8 @@ class OrderServiceObservabilityTest {
     private OrderEventPublisher eventPublisher;
     @Mock
     private MeterRegistry meterRegistry;
-    @Mock
-    private ObservationRegistry observationRegistry;
+    @Spy
+    private ObservationRegistry observationRegistry = ObservationRegistry.create();
 
     @InjectMocks
     private OrderService orderService;

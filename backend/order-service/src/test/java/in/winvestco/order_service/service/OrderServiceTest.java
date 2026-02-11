@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -134,4 +135,55 @@ class OrderServiceTest {
         assertEquals(OrderStatus.PARTIALLY_FILLED, newOrder.getStatus());
         verify(eventPublisher).publishOrderFilled(newOrder);
     }
+    @Test
+    void handleFundsLocked_ShouldUpdateStatus() {
+        newOrder.setStatus(OrderStatus.VALIDATED);
+        when(orderRepository.findByOrderId(anyString())).thenReturn(Optional.of(newOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(newOrder);
+
+        orderService.handleFundsLocked(newOrder.getOrderId(), "lock-123");
+
+        assertEquals(OrderStatus.PENDING, newOrder.getStatus());
+        verify(eventPublisher).publishOrderUpdated(newOrder);
+    }
+
+    @Test
+    void handleOrderRejected_ShouldUpdateStatus() {
+        newOrder.setStatus(OrderStatus.NEW);
+        when(orderRepository.findByOrderId(anyString())).thenReturn(Optional.of(newOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(newOrder);
+
+        orderService.handleOrderRejected(newOrder.getOrderId(), "Insufficient funds");
+
+        assertEquals(OrderStatus.REJECTED, newOrder.getStatus());
+        verify(eventPublisher).publishOrderUpdated(newOrder);
+    }
+
+    @Test
+    void handleTradeExecuted_PartialFill_ShouldUpdateStatus() {
+        newOrder.setStatus(OrderStatus.PENDING);
+        newOrder.setFilledQuantity(BigDecimal.ZERO);
+        when(orderRepository.findByOrderId(anyString())).thenReturn(Optional.of(newOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(newOrder);
+
+        orderService.handleTradeExecuted(newOrder.getOrderId(), new BigDecimal("2"), new BigDecimal("150.00"), true);
+
+        assertEquals(new BigDecimal("2"), newOrder.getFilledQuantity());
+        assertEquals(OrderStatus.PARTIALLY_FILLED, newOrder.getStatus());
+        verify(eventPublisher).publishOrderFilled(newOrder);
+    }
+
+    @Test
+    void expireOrders_ShouldExpireEligibleOrders() {
+        newOrder.setStatus(OrderStatus.PENDING);
+        when(orderRepository.findExpiredOrders(anyList(), any())).thenReturn(Collections.singletonList(newOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(newOrder);
+
+        int expiredCount = orderService.expireOrders();
+
+        assertEquals(1, expiredCount);
+        assertEquals(OrderStatus.EXPIRED, newOrder.getStatus());
+        verify(eventPublisher).publishOrderExpired(newOrder);
+    }
+
 }

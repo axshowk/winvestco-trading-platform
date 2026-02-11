@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -69,7 +70,7 @@ public class User implements Serializable {
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @NotBlank
+    @NotNull
     @Size(min = 60, max = 100)
     @Column(name = "password_hash", nullable = false, length = 100)
     @ToString.Exclude
