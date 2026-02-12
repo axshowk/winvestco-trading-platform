@@ -1,6 +1,11 @@
 server:
   port: 8084
 
+# gRPC Server Configuration
+grpc:
+  server:
+    port: 9084
+
 spring:
   application:
     name: market-service

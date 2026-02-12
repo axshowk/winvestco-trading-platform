@@ -94,6 +94,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- gRPC Server Spring Boot Starter -->
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <version>${grpc-spring-boot-starter.version}</version>
+        </dependency>
+
         <!-- Caffeine cache for session management -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>

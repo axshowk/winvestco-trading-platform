@@ -1,6 +1,7 @@
 package in.winvestco.marketservice.scheduler;
 
 import in.winvestco.marketservice.client.NseClient;
+import in.winvestco.marketservice.grpc.MarketDataGrpcService;
 import in.winvestco.marketservice.messaging.MarketDataPublisher;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class MarketDataScheduler {
     private final NseClient nseClient;
     private final MarketDataPublisher marketDataPublisher;
     private final in.winvestco.marketservice.service.MarketDataService marketDataService;
+    private final MarketDataGrpcService marketDataGrpcService;
 
     /**
      * Fetch and publish market data - triggered via RabbitMQ
@@ -40,6 +42,10 @@ public class MarketDataScheduler {
                 if (jsonData != null) {
                     marketDataPublisher.publishMarketData(jsonData);
                     marketDataService.saveMarketData(indexName, jsonData);
+
+                    // Push real-time updates to gRPC subscribers
+                    marketDataGrpcService.pushUpdatesForIndex(indexName, jsonData);
+
                     log.info("Successfully fetched and published full data for: {}", indexName);
                 } else {
                     log.warn("No data received for index: {}", indexName);

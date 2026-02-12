@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package winvestco.market;
+
+option java_package = "in.winvestco.common.grpc.market";
+option java_outer_classname = "MarketDataProto";
+option java_multiple_files = true;
+
+// Market Data gRPC Service
+// Provides real-time market data streaming and fast quote lookups.
+service MarketDataService {
+  // Unary RPC: Get current quote for a stock symbol.
+  // Replaces REST /api/v1/market/stocks/{symbol} for inter-service calls.
+  rpc GetQuote (QuoteRequest) returns (QuoteResponse);
+
+  // Server-streaming RPC: Subscribe to live price updates for symbols.
+  // Server pushes MarketDataUpdate messages whenever new data arrives from NSE.
+  rpc SubscribeMarketData (MarketDataSubscription) returns (stream MarketDataUpdate);
+}
+
+// Request for a single stock quote
+message QuoteRequest {
+  string symbol = 1;
+}
+
+// Response with stock quote data
+message QuoteResponse {
+  MarketDataUpdate quote = 1;
+  bool found = 2;
+}
+
+// Subscription request for streaming market data
+message MarketDataSubscription {
+  repeated string symbols = 1;  // List of symbols to subscribe to (e.g., ["RELIANCE", "TCS"])
+  bool subscribe_all = 2;       // If true, subscribe to all available symbols
+}
+
+// A single market data update message
+message MarketDataUpdate {
+  string symbol = 1;
+  double last_price = 2;
+  double open = 3;
+  double high = 4;
+  double low = 5;
+  double close = 6;
+  double change = 7;
+  double change_percent = 8;
+  int64 volume = 9;
+  int64 timestamp = 10;         // Epoch milliseconds
+  string exchange = 11;
+}

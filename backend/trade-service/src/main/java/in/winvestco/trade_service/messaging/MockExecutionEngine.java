@@ -1,12 +1,10 @@
 package in.winvestco.trade_service.messaging;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import in.winvestco.common.config.RabbitMQConfig;
 import in.winvestco.common.enums.OrderSide;
 import in.winvestco.common.event.TradePlacedEvent;
-import in.winvestco.trade_service.client.MarketServiceClient;
+import in.winvestco.trade_service.client.MarketDataGrpcClient;
 import in.winvestco.trade_service.config.MockExecutionProperties;
 import in.winvestco.trade_service.service.TradeService;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +37,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MockExecutionEngine {
 
     private final TradeService tradeService;
-    private final MarketServiceClient marketServiceClient;
+    private final MarketDataGrpcClient marketDataGrpcClient;
     private final MockExecutionProperties properties;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Random random = new Random();
 
     /**
@@ -198,33 +195,10 @@ public class MockExecutionEngine {
     }
 
     /**
-     * Fetch current market price from market-service.
+     * Fetch current market price from market-service via gRPC.
      */
     private BigDecimal fetchMarketPrice(String symbol) {
-        try {
-            String quoteJson = marketServiceClient.getStockQuote(symbol);
-            if (quoteJson == null || quoteJson.isEmpty()) {
-                return null;
-            }
-
-            JsonNode quote = objectMapper.readTree(quoteJson);
-            JsonNode lastPriceNode = quote.path("lastPrice");
-
-            if (!lastPriceNode.isMissingNode() && !lastPriceNode.isNull()) {
-                return new BigDecimal(lastPriceNode.asText().replace(",", ""));
-            }
-
-            // Try alternative field names
-            JsonNode ltpNode = quote.path("ltp");
-            if (!ltpNode.isMissingNode() && !ltpNode.isNull()) {
-                return new BigDecimal(ltpNode.asText().replace(",", ""));
-            }
-
-            return null;
-        } catch (Exception e) {
-            log.warn("Failed to fetch market price for {}: {}", symbol, e.getMessage());
-            return null;
-        }
+        return marketDataGrpcClient.getQuote(symbol);
     }
 
     /**

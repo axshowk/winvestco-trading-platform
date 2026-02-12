@@ -40,6 +40,10 @@
         <micrometer-tracing.version>1.2.2</micrometer-tracing.version>
         <!-- Resilience4j -->
         <resilience4j.version>2.2.0</resilience4j.version>
+        <!-- gRPC -->
+        <grpc.version>1.60.1</grpc.version>
+        <protobuf.version>3.25.1</protobuf.version>
+        <grpc-spring-boot-starter.version>3.0.0.RELEASE</grpc-spring-boot-starter.version>
     </properties>
 
     <modules>

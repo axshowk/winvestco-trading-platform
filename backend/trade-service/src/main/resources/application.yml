@@ -52,6 +52,14 @@ spring:
 server:
   port: 8092
 
+# gRPC Client Configuration
+grpc:
+  client:
+    market-service:
+      negotiation-type: plaintext
+      enable-keep-alive: true
+      keep-alive-time: 30s
+
 eureka:
   client:
     service-url:
