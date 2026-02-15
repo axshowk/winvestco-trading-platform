@@ -56,11 +56,19 @@ $env:Path += ";$ToolsDir" # Add tools dir to path so wmic.bat is found
 $env:RABBITMQ_NODENAME = "rabbit@localhost"
 Start-Process -FilePath "$ToolsDir\rabbitmq_server-4.2.3\sbin\rabbitmq-server.bat" -NoNewWindow
 
-# 4. Start Kafka (Zookeeper + Kafka)
-Write-Host "[4/4] Starting Kafka Stack..." -ForegroundColor Yellow
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -NoNewWindow
-Start-Sleep -Seconds 5 # Wait for zookeeper
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\kafka-server-start.bat .\config\server-zookeeper.properties" -NoNewWindow
+# 4. Start Kafka (KRaft mode)
+Write-Host "[4/4] Starting Kafka (KRaft)..." -ForegroundColor Yellow
+$KafkaDir = "$ToolsDir\kafka_2.13-4.1.1"
+$KraftLogsDir = "$KafkaDir\kraft-combined-logs"
+
+if (-not (Test-Path $KraftLogsDir)) {
+    Write-Host "Formatting Kafka storage for KRaft..." -ForegroundColor Cyan
+    # Generate a random UUID and format
+    $randomUuid = (& "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat random-uuid" | Select-Object -Last 1).Trim()
+    & "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat format --standalone -t $randomUuid -c .\config\server.properties"
+}
+
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $KafkaDir && .\bin\windows\kafka-server-start.bat .\config\server.properties" -NoNewWindow
 
 Write-Host "`nWaiting for services to be ready..." -ForegroundColor Cyan
 $allOk = $true
