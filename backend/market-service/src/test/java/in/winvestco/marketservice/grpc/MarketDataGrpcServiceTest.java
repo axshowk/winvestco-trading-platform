@@ -197,13 +197,13 @@ class MarketDataGrpcServiceTest {
     }
 
     @Nested
-    @DisplayName("PushUpdatesForIndex Tests")
-    class PushUpdatesForIndexTests {
+    @DisplayName("PushUpdatesFromParsedIndex Tests")
+    class PushUpdatesFromParsedIndexTests {
 
         @Test
-        @DisplayName("Should parse index JSON and push updates for each stock")
+        @DisplayName("Should push updates for each stock from pre-parsed index JsonNode")
         @SuppressWarnings("unchecked")
-        void pushUpdatesForIndex_ShouldParsAndPush() {
+        void pushUpdatesFromParsedIndex_ShouldPushToSubscribers() throws Exception {
             // Subscribe to RELIANCE
             when(marketDataService.getStockQuote("RELIANCE")).thenReturn(null);
 
@@ -213,7 +213,7 @@ class MarketDataGrpcServiceTest {
                     .build();
             grpcService.subscribeMarketData(request, observer);
 
-            // Push index data containing RELIANCE
+            // Pre-parse index data (simulates what scheduler now does)
             String indexJson = "{\"data\":[" +
                     "{\"symbol\":\"NIFTY 50\",\"lastPrice\":22000}," +
                     "{\"symbol\":\"RELIANCE\",\"lastPrice\":2500.50,\"open\":2450,\"dayHigh\":2520," +
@@ -221,8 +221,9 @@ class MarketDataGrpcServiceTest {
                     "\"totalTradedVolume\":5000000}," +
                     "{\"symbol\":\"TCS\",\"lastPrice\":3500}" +
                     "]}";
+            JsonNode parsedRoot = objectMapper.readTree(indexJson);
 
-            grpcService.pushUpdatesForIndex("NIFTY 50", indexJson);
+            grpcService.pushUpdatesFromParsedIndex("NIFTY 50", parsedRoot);
 
             // Verify RELIANCE update was delivered
             ArgumentCaptor<MarketDataUpdate> captor = ArgumentCaptor.forClass(MarketDataUpdate.class);
@@ -234,11 +235,12 @@ class MarketDataGrpcServiceTest {
         }
 
         @Test
-        @DisplayName("Should handle invalid index JSON gracefully")
+        @DisplayName("Should handle empty data array gracefully")
         @SuppressWarnings("unchecked")
-        void pushUpdatesForIndex_InvalidJson_ShouldNotThrow() {
+        void pushUpdatesFromParsedIndex_EmptyData_ShouldNotThrow() throws Exception {
+            JsonNode emptyRoot = objectMapper.readTree("{\"data\":[]}");
             // Should not throw
-            grpcService.pushUpdatesForIndex("NIFTY 50", "invalid json");
+            grpcService.pushUpdatesFromParsedIndex("NIFTY 50", emptyRoot);
         }
     }
 

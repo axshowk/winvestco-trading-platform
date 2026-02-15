@@ -1,9 +1,9 @@
 name: Docker Build & Push
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:  # Docker build disabled — was: push to main
+  # push:
+  #   branches: [main]
 
 env:
   DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}

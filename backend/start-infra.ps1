@@ -43,24 +43,24 @@ if (-not (Test-Path "$ToolsDir\pgsql\data")) {
     Start-Process -FilePath "$ToolsDir\pgsql\bin\initdb.exe" -ArgumentList "-D $ToolsDir\pgsql\data -U postgres" -Wait -NoNewWindow
 }
 
-Start-Process -FilePath "$ToolsDir\pgsql\bin\pg_ctl.exe" -ArgumentList "start -D $ToolsDir\pgsql\data -l $ToolsDir\pgsql\logfile"
+Start-Process -FilePath "$ToolsDir\pgsql\bin\pg_ctl.exe" -ArgumentList "start -D $ToolsDir\pgsql\data -l $ToolsDir\pgsql\logfile" -NoNewWindow
 
 # 2. Start Redis
 Write-Host "[2/4] Starting Redis..." -ForegroundColor Yellow
-Start-Process -FilePath "$ToolsDir\Redis\redis-server.exe"
+Start-Process -FilePath "$ToolsDir\Redis\redis-server.exe" -NoNewWindow
 
 # 3. Start RabbitMQ
 Write-Host "[3/4] Starting RabbitMQ..." -ForegroundColor Yellow
 $env:ERLANG_HOME = "$ToolsDir\otp_win64"
 $env:Path += ";$ToolsDir" # Add tools dir to path so wmic.bat is found
 $env:RABBITMQ_NODENAME = "rabbit@localhost"
-Start-Process -FilePath "$ToolsDir\rabbitmq_server-4.2.3\sbin\rabbitmq-server.bat"
+Start-Process -FilePath "$ToolsDir\rabbitmq_server-4.2.3\sbin\rabbitmq-server.bat" -NoNewWindow
 
 # 4. Start Kafka (Zookeeper + Kafka)
 Write-Host "[4/4] Starting Kafka Stack..." -ForegroundColor Yellow
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties"
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -NoNewWindow
 Start-Sleep -Seconds 5 # Wait for zookeeper
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\kafka-server-start.bat .\config\server-zookeeper.properties"
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $ToolsDir\kafka_2.13-4.1.1 && .\bin\windows\kafka-server-start.bat .\config\server-zookeeper.properties" -NoNewWindow
 
 Write-Host "`nWaiting for services to be ready..." -ForegroundColor Cyan
 $allOk = $true

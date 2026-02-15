@@ -17,4 +17,4 @@ description: Automatically handles code commits using enterprise-grade branch ma
    - Run `git push -u origin <current-branch>` to push the new branch to the remote repository.
 7. **Next Steps**:
    - Inform the user about the new branch, the commit, and that it has been pushed.
-   - Provide a link to create a Pull Request (if the URL can be determined from the remote origin).
+   - Provide a link to the source code (if the URL can be determined from the remote origin).

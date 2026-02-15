@@ -9,21 +9,25 @@ import in.winvestco.common.grpc.market.QuoteRequest;
 import in.winvestco.common.grpc.market.QuoteResponse;
 import in.winvestco.marketservice.service.MarketDataService;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * gRPC server implementation for market data streaming.
- * 
+ *
  * Provides:
- * - GetQuote: Fast unary RPC for fetching current stock price (replaces
- * REST/Feign)
+ * - GetQuote: Fast unary RPC for fetching current stock price
  * - SubscribeMarketData: Server-streaming RPC for real-time price updates
+ * - Uses ConcurrentHashMap.newKeySet() instead of CopyOnWriteArraySet for O(1)
+ * add/remove
+ * - Proactive subscriber cleanup via
+ * ServerCallStreamObserver.setOnCancelHandler()
+ * - Accepts pre-parsed JsonNode to avoid redundant JSON parsing in the hot path
  */
 @GrpcService
 @Slf4j
@@ -32,11 +36,10 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
     private final MarketDataService marketDataService;
     private final ObjectMapper objectMapper;
 
-    // Symbol → Set of active stream observers
+    // ConcurrentHashMap.newKeySet() — O(1) add/remove, no array copies on mutation
     private final ConcurrentHashMap<String, Set<StreamObserver<MarketDataUpdate>>> symbolSubscribers = new ConcurrentHashMap<>();
 
-    // Observers subscribed to ALL symbols
-    private final Set<StreamObserver<MarketDataUpdate>> allSymbolSubscribers = new CopyOnWriteArraySet<>();
+    private final Set<StreamObserver<MarketDataUpdate>> allSymbolSubscribers = ConcurrentHashMap.newKeySet();
 
     public MarketDataGrpcService(MarketDataService marketDataService) {
         this.marketDataService = marketDataService;
@@ -85,6 +88,17 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
     @Override
     public void subscribeMarketData(MarketDataSubscription request,
             StreamObserver<MarketDataUpdate> responseObserver) {
+
+        // Register proactive cleanup when client disconnects or cancels
+        if (responseObserver instanceof ServerCallStreamObserver) {
+            ServerCallStreamObserver<MarketDataUpdate> serverObserver = (ServerCallStreamObserver<MarketDataUpdate>) responseObserver;
+
+            serverObserver.setOnCancelHandler(() -> {
+                log.info("gRPC client cancelled subscription, cleaning up observer");
+                removeObserverFromAll(responseObserver);
+            });
+        }
+
         if (request.getSubscribeAll()) {
             log.info("gRPC client subscribed to ALL market data updates");
             allSymbolSubscribers.add(responseObserver);
@@ -93,7 +107,7 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
                 String upperSymbol = symbol.toUpperCase();
                 log.info("gRPC client subscribed to market data for: {}", upperSymbol);
                 symbolSubscribers
-                        .computeIfAbsent(upperSymbol, k -> new CopyOnWriteArraySet<>())
+                        .computeIfAbsent(upperSymbol, k -> ConcurrentHashMap.newKeySet())
                         .add(responseObserver);
             }
         }
@@ -104,10 +118,6 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
                 sendCurrentQuote(symbol.toUpperCase(), responseObserver);
             }
         }
-
-        // Note: Stream stays open. The observer will be removed when the client
-        // disconnects
-        // or when pushUpdate detects a broken stream.
     }
 
     // ==================== Push Updates (called by scheduler) ====================
@@ -132,35 +142,28 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
     }
 
     /**
-     * Push updates for all stocks in an index response.
-     * Parses the index JSON and creates MarketDataUpdate for each constituent
-     * stock.
+     * Push updates from a pre-parsed JsonNode to avoid re-parsing JSON.
+     * The scheduler parses JSON once and passes the JsonNode directly.
      */
-    public void pushUpdatesForIndex(String indexName, String indexJson) {
-        try {
-            JsonNode root = objectMapper.readTree(indexJson);
-            JsonNode dataArray = root.path("data");
+    public void pushUpdatesFromParsedIndex(String indexName, JsonNode root) {
+        JsonNode dataArray = root.path("data");
 
-            if (!dataArray.isArray()) {
-                return;
+        if (!dataArray.isArray()) {
+            return;
+        }
+
+        int pushedCount = 0;
+        for (JsonNode stockNode : dataArray) {
+            String symbol = stockNode.path("symbol").asText();
+            if (symbol != null && !symbol.isEmpty() && !symbol.startsWith("NIFTY")) {
+                MarketDataUpdate update = jsonNodeToUpdate(stockNode, symbol);
+                pushUpdate(symbol, update);
+                pushedCount++;
             }
+        }
 
-            int pushedCount = 0;
-            for (JsonNode stockNode : dataArray) {
-                String symbol = stockNode.path("symbol").asText();
-                if (symbol != null && !symbol.isEmpty() && !symbol.startsWith("NIFTY")) {
-                    MarketDataUpdate update = jsonNodeToUpdate(stockNode, symbol);
-                    pushUpdate(symbol, update);
-                    pushedCount++;
-                }
-            }
-
-            if (pushedCount > 0) {
-                log.debug("Pushed gRPC updates for {} stocks from index: {}", pushedCount, indexName);
-            }
-
-        } catch (Exception e) {
-            log.warn("Error pushing gRPC updates for index {}: {}", indexName, e.getMessage());
+        if (pushedCount > 0) {
+            log.debug("Pushed gRPC updates for {} stocks from index: {}", pushedCount, indexName);
         }
     }
 
@@ -177,6 +180,17 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
 
     // ==================== Helper Methods ====================
 
+    /**
+     * Remove an observer from ALL subscriber sets.
+     * Called by the onCancel handler when a client disconnects.
+     */
+    private void removeObserverFromAll(StreamObserver<MarketDataUpdate> observer) {
+        allSymbolSubscribers.remove(observer);
+        for (Set<StreamObserver<MarketDataUpdate>> observers : symbolSubscribers.values()) {
+            observers.remove(observer);
+        }
+    }
+
     private void pushToObservers(Set<StreamObserver<MarketDataUpdate>> observers,
             MarketDataUpdate update, String symbol) {
         for (StreamObserver<MarketDataUpdate> observer : observers) {
@@ -185,7 +199,6 @@ public class MarketDataGrpcService extends MarketDataServiceGrpc.MarketDataServi
             } catch (Exception e) {
                 log.debug("Removing disconnected gRPC subscriber for symbol: {}", symbol);
                 observers.remove(observer);
-                // Also remove from allSymbolSubscribers if present
                 allSymbolSubscribers.remove(observer);
             }
         }

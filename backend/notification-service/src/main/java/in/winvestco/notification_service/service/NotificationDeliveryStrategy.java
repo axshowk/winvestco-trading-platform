@@ -13,11 +13,13 @@ import in.winvestco.notification_service.service.channel.PushNotificationService
 import in.winvestco.notification_service.service.channel.SmsNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * Notification delivery strategy service.
@@ -36,6 +38,7 @@ public class NotificationDeliveryStrategy {
     private final EmailNotificationService emailService;
     private final SmsNotificationService smsService;
     private final NotificationDeliveryTracker deliveryTracker;
+    private final Executor taskExecutor;
 
     // Default priority mapping for notification types
     private static final Map<NotificationType, NotificationPriority> TYPE_PRIORITY_MAP = Map.ofEntries(
@@ -102,7 +105,7 @@ public class NotificationDeliveryStrategy {
     /**
      * Asynchronous delivery to all enabled channels.
      */
-    @Async("notificationDeliveryExecutor")
+    @Async
     public void deliverAsync(Long userId, NotificationDTO notification, NotificationPriority priority) {
         Set<DeliveryChannel> channels = determineChannels(userId, notification.getType(), priority);
 
@@ -110,6 +113,8 @@ public class NotificationDeliveryStrategy {
 
         for (DeliveryChannel channel : channels) {
             CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
+                log.info("Delivery thread: {} (Virtual: {})", Thread.currentThread().getName(),
+                        Thread.currentThread().isVirtual());
                 try {
                     return deliverToChannel(userId, notification, channel);
                 } catch (Exception e) {
@@ -117,7 +122,7 @@ public class NotificationDeliveryStrategy {
                             channel, userId, e.getMessage());
                     return false;
                 }
-            });
+            }, taskExecutor);
             futures.add(future);
         }
 
