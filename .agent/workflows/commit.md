@@ -13,6 +13,8 @@ description: Automatically handles code commits using enterprise-grade branch ma
    - Generate a commit message following the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g., `feat: add user auth`, `fix: resolve memory leak`).
    - Ensure the message describes *what* and *why*.
 5. **Commit**: Run `git commit -m "<conventional-message>"`.
-6. **Next Steps**:
-   - Inform the user about the new branch and the commit.
-   - Ask if they want to push the branch or create a pull request.
+6. **Push to Remote**:
+   - Run `git push -u origin <current-branch>` to push the new branch to the remote repository.
+7. **Next Steps**:
+   - Inform the user about the new branch, the commit, and that it has been pushed.
+   - Provide a link to create a Pull Request (if the URL can be determined from the remote origin).
