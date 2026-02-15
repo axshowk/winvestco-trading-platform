@@ -157,10 +157,5 @@ public class NotificationChannelConfig {
          * Enable async delivery (recommended for production).
          */
         private boolean asyncEnabled = true;
-
-        /**
-         * Thread pool size for async delivery.
-         */
-        private int asyncPoolSize = 10;
     }
 }

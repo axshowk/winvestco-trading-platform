@@ -1,5 +1,7 @@
 package in.winvestco.marketservice.scheduler;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import in.winvestco.marketservice.client.NseClient;
 import in.winvestco.marketservice.grpc.MarketDataGrpcService;
 import in.winvestco.marketservice.messaging.MarketDataPublisher;
@@ -18,6 +20,7 @@ public class MarketDataScheduler {
     private final MarketDataPublisher marketDataPublisher;
     private final in.winvestco.marketservice.service.MarketDataService marketDataService;
     private final MarketDataGrpcService marketDataGrpcService;
+    private final ObjectMapper objectMapper;
 
     /**
      * Fetch and publish market data - triggered via RabbitMQ
@@ -43,8 +46,14 @@ public class MarketDataScheduler {
                     marketDataPublisher.publishMarketData(jsonData);
                     marketDataService.saveMarketData(indexName, jsonData);
 
-                    // Push real-time updates to gRPC subscribers
-                    marketDataGrpcService.pushUpdatesForIndex(indexName, jsonData);
+                    // Parse JSON once, pass parsed tree to gRPC service
+                    // Avoids redundant objectMapper.readTree() inside pushUpdatesForIndex
+                    try {
+                        JsonNode parsedRoot = objectMapper.readTree(jsonData);
+                        marketDataGrpcService.pushUpdatesFromParsedIndex(indexName, parsedRoot);
+                    } catch (Exception e) {
+                        log.warn("Failed to push gRPC updates for index {}: {}", indexName, e.getMessage());
+                    }
 
                     log.info("Successfully fetched and published full data for: {}", indexName);
                 } else {
