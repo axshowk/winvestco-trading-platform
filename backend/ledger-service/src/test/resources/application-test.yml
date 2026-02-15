@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: ledger-service-test
+
+  # Test Database Configuration (H2 for faster tests)
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+
+  # JPA/Hibernate properties for tests
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Jackson Configuration
+  jackson:
+    time-zone: UTC
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  # RabbitMQ Configuration (mock for tests)
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
+  # Flyway configuration (disabled for tests)
+  flyway:
+    enabled: false
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+server:
+  port: 0  # Random port for tests
+
+# Eureka Client Configuration (disabled for tests)
+eureka:
+  client:
+    enabled: false
+
+# Actuator endpoints (minimal for tests)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# Logging for tests
+logging:
+  level:
+    in.winvestco.ledger_service: DEBUG
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    com.zaxxer.hikari: WARN
+
+# JWT Configuration (test values)
+jwt:
+  secret: test-secret-key-for-testing-only-minimum-256-bits-please
+  expiration: 3600000  # 1 hour for tests
+
+# Test-specific properties
+test:
+  cleanup:
+    enabled: true
+  data:
+    wallet-count: 10
+    entries-per-wallet: 50

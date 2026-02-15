@@ -15,7 +15,7 @@ const Footer = () => {
                             <span className="logo-text-sm">Winvestco</span>
                         </div>
                         <p className="footer-desc">
-                            The world's most trusted investment platform. Build and manage your portfolio with 500+ investment options securely.
+                            Pay Good Money, Get Best Service — that's the Winvestco promise. A trusted platform for investors who value transparency and quality.
                         </p>
                         <div className="social-links">
                             <a href="#" className="social-link"><Twitter size={20} /></a>
@@ -51,7 +51,7 @@ const Footer = () => {
                 </div>
 
                 <div className="footer-bottom">
-                    <p>&copy; 2025 Winvestco. All rights reserved.</p>
+                    <p>&copy; 2026 Winvestco. All rights reserved.</p>
                     <div className="footer-legal">
                         <a href="#">Privacy Policy</a>
                         <a href="#">Terms of Service</a>

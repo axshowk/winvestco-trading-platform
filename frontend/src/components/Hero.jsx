@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Activity } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import './Hero.css';
 
 const Hero = ({ onStart }) => {
@@ -14,8 +14,8 @@ const Hero = ({ onStart }) => {
                         transition={{ duration: 0.5 }}
                         className="badge-wrapper"
                     >
-                        <span className="badge-new">New</span>
-                        <span className="badge-text">Smart investing is now live</span>
+                        <span className="badge-new">✦</span>
+                        <span className="badge-text">Our Promise to You</span>
                         <ArrowRight size={14} className="badge-icon" />
                     </motion.div>
 
@@ -25,8 +25,8 @@ const Hero = ({ onStart }) => {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="hero-title"
                     >
-                        Invest in the Future <br />
-                        <span className="text-gradient">With Confidence</span>
+                        Pay Good Money <br />
+                        <span className="text-gradient">Get Best Service</span>
                     </motion.h1>
 
                     <motion.p
@@ -35,8 +35,7 @@ const Hero = ({ onStart }) => {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="hero-subtitle"
                     >
-                        Experience lightning-fast execution, zero fees, and advanced analytics.
-
+                        At Winvestco, we believe your money deserves the best. Transparent pricing, honest execution, and service that earns your trust — every single trade.
                     </motion.p>
 
                     <motion.div
@@ -46,7 +45,7 @@ const Hero = ({ onStart }) => {
                         className="hero-actions"
                     >
                         <button type="button" className="btn-primary btn-lg" onClick={onStart}>
-                            Start Investing Now
+                            Start Trading Today
                         </button>
                     </motion.div>
 
