@@ -99,27 +99,140 @@ The system's financial integrity rests on the **Ledger Service**:
 </details>
 
 <details>
-<summary><b>3. Event-Driven Workflows</b></summary>
-The platform orchestrates complex sequences using an event-driven model:
-1.  **User Service** triggers `UserLoginEvent`.
-2.  **Order Service** validates against `Funds Service` (Funds Locked).
-3.  **Trade Service** matches orders and emits `TradeExecutedEvent`.
+<summary><b>3. Event-Driven Workflows & Domain Events</b></summary>
+The platform orchestrates complex sequences using an event-driven model with **26 distinct Domain Events** across 6 categories:
+
+#### 👤 User Events
+- `UserCreatedEvent`, `UserUpdatedEvent`, `UserLoginEvent`
+- `UserStatusChangedEvent`, `UserRoleChangedEvent`, `UserPasswordChangedEvent`
+
+#### 📦 Order Events
+- `OrderCreatedEvent`, `OrderValidatedEvent`, `OrderFilledEvent`
+- `OrderCancelledEvent`, `OrderExpiredEvent`, `OrderRejectedEvent`
+
+#### 💰 Funds Events
+- `FundsDepositedEvent`, `FundsWithdrawnEvent`
+- `FundsLockedEvent`, `FundsReleasedEvent`
+
+#### 📈 Trade Events
+- `TradeCreatedEvent`, `TradePlacedEvent`, `TradeExecutedEvent`
+- `TradeClosedEvent`, `TradeCancelledEvent`, `TradeFailedEvent`
+
+#### 💳 Payment Events
+- `PaymentCreatedEvent`, `PaymentSuccessEvent`
+- `PaymentFailedEvent`, `PaymentExpiredEvent`
+
+#### 📊 Report Events
+- `ReportRequestedEvent`, `ReportCompletedEvent`
+
+**Workflow Example:**
+1.  **Order Service** validates an order and emits `OrderCreatedEvent`.
+2.  **Funds Service** consumes the event and emits `FundsLockedEvent`.
+3.  **Trade Service** matches the order and emits `TradeExecutedEvent`.
 4.  **Ledger Service** records entries and notifies **Notification Service**.
 </details>
 
 ---
 
-## 🛠 Technology Stack
+---
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Language** | Java 21 LTS, TypeScript (Frontend) |
-| **Frameworks** | Spring Boot 3.4.x, Spring Cloud, Vite + React |
-| **Infrastructure** | Docker, Docker Compose, Eureka Discovery |
-| **Communication** | gRPC (Market Data), REST (Admin API), WebSocket (Push) |
-| **Persistence** | PostgreSQL 16 (Relational), Redis 7 (Caching & Streaming) |
-| **Messaging** | Apache Kafka (High Throughput), RabbitMQ (Reliability) |
-| **Monitoring** | Prometheus, Grafana, Loki, Jaeger, Micrometer Tracing |
+## 🎨 Frontend Application: Winvestco Terminal
+
+The Winvestco Frontend is a modern, high-performance web terminal built for traders who demand speed and clarity. It provides a real-time, interactive environment for market analysis and execution.
+
+### ✨ Key Interface Features
+- **Advanced Charting**: Integrated **TradingView Lightweight Charts** for professional-grade technical analysis and real-time price action.
+- **Dynamic Portfolio Dashboard**: Live tracking of holdings, realized/unrealized P&L, and asset allocation visualizations.
+- **Institutional Order Management**: Comprehensive order entry system with support for Market, Limit, and Stop orders.
+- **Real-time Ticker & Data**: Low-latency streaming of top-movers, indices, and watchlists via optimized WebSocket/Redis pipelines.
+- **Financial Command Center**: Unified wallet management for instant deposits, withdrawals, and detailed transaction history.
+- **Smart Notifications**: Multi-channel alert system featuring an in-app **Notification Bell** and proactive **Toast Overlays**.
+- **Interactive Reports**: Deep-dive analytics, tax-ready transaction reports, and performance history.
+
+### 💻 Frontend Tech Stack
+- **Framework**: **React 19** for lightning-fast rendering and state management.
+- **Build Engine**: **Vite 7** for near-instant hot module replacement (HMR).
+- **Animations**: **Framer Motion** for premium micro-interactions and smooth layout transitions.
+- **Data Visualization**: **Lightweight Charts** & **Lucide React** for crisp, intuitive data representation.
+- **Routing**: **React Router Dom 7** for secure, multi-layered client-side navigation.
+- **Testing**: **Vitest & React Testing Library** for 100% component reliability.
+
+### 🏃 Running the Terminal
+1.  Navigate to the directory: `cd frontend`
+2.  Install dependencies: `npm install`
+3.  Start development server: `npm run dev`
+4.  Access the terminal at: `http://localhost:5173`
+
+---
+
+## 🛠 Detailed Technical Stack
+
+### 🚀 Core Platform & Runtime
+- **Java 21 LTS**: Utilizing **Virtual Threads** (Project Loom) for lightweight concurrency, **Pattern Matching**, and **Sequenced Collections** to write clean, high-performance code.
+- **Spring Boot 3.4.x**: The backbone of our services, providing auto-configuration, robust dependency injection, and production-ready features.
+- **Maven**: Multi-module project management for version consistency across 12+ services.
+
+### 🌐 Microservices Orchestration
+- **Spring Cloud 2023**: 
+  - **API Gateway**: Centralized entry point with global filters for authentication, rate limiting, and request transformation.
+  - **Eureka Server**: Netlix-based service discovery allowing dynamic scaling and load balancing.
+  - **OpenFeign**: Declarative REST client for simplified inter-service communication.
+- **Resilience4j**: Implementing **Circuit Breakers**, **Rate Limiters**, and **Retries** to prevent cascading failures in the distributed system.
+
+### 💾 Data Persistence & Caching
+- **PostgreSQL 16**: Primary relational engine for transactional data, utilizing **Flyway** for automated database migrations.
+- **Redis 7**: Dual-purpose deployment:
+  - **Caching**: Storing session data and frequent metadata.
+  - **Streaming**: Delivering ultra-fast market data snapshots to frontend subscribers.
+- **MapStruct**: High-performance, type-safe bean mapping between Entities and DTOs.
+
+### 📡 Communication & Messaging
+- **gRPC & Protocol Buffers**: Used for high-speed, binary internal streaming of Market Data from `Market-Service` to `Trade-Service`.
+- **Apache Kafka**: High-throughput distributed log for market data ingestion and real-time candle (OHLC) generation.
+- **RabbitMQ**: Message broker for mission-critical domain events using **Topic Exchanges** and **Dead Letter Queues (DLQ)**.
+
+### 🧪 Quality Assurance
+- **JUnit 5 & AssertJ**: Standardized unit testing with fluent assertions.
+- **Mockito**: Mocking framework for isolated service testing.
+- **Vitest & React Testing Library**: Modern component testing and snapshot verification for the frontend.
+- **JaCoCo**: Automated code coverage reporting integrated into the build pipeline.
+
+---
+
+## 🌐 Network Port Reference
+
+The platform requires the following ports to be available on the host machine for local development:
+
+### Application Services
+| Service | Port | Description |
+| :--- | :--- | :--- |
+| **API Gateway** | `8090` | Main entry point for all client requests |
+| **Eureka Server** | `8761` | Service discovery dashboard |
+| **User Service** | `8088` | Identity and RBAC management |
+| **Market Service** | `8084` | Market data and gRPC streaming |
+| **Portfolio Service** | `8085` | User holdings and P&L |
+| **Funds Service** | `8086` | Wallet and balance management |
+| **Ledger Service** | `8087` | Immutable financial ledger |
+| **Order Service** | `8089` | Order lifecycle and matching logic |
+| **Trade Service** | `8092` | Trade execution engine |
+| **Notification Svc**| `8091` | Virtual-thread driven alerts |
+| **Payment Service** | `8093` | Payment gateway integration |
+| **Report Service** | `8094` | Async report generation |
+| **Frontend** | `5173` | React development server (Vite) |
+
+### Infrastructure & Operations
+| Component | Port | Interface |
+| :--- | :--- | :--- |
+| **PostgreSQL** | `5432` | Primary database |
+| **Redis** | `6379` | Cache and streaming snapshots |
+| **RabbitMQ** | `5672` | AMQP messaging protocol |
+| **RabbitMQ UI** | `15672` | Management dashboard |
+| **Kafka (Ext)** | `9092` | Market data ingestion (Broadcasting) |
+| **Zookeeper** | `2181` | Kafka coordination |
+| **Grafana** | `3000` | Central observability dashboard |
+| **Prometheus** | `9090` | Metrics engine dashboard |
+| **Jaeger UI** | `16686` | Distributed tracing explorer |
+| **Loki** | `3100` | Log aggregation endpoint |
 
 ---
 
@@ -148,19 +261,14 @@ The system is instrumented for "Real-world Production" readiness:
 - **Docker Desktop**
 
 ### Setup Sequence
-1.  **Infrastructure Initialization**:
-    ```powershell
-    cd backend
-    .\start-infra.ps1
-    ```
-    *This runs localized PostgreSQL, Redis, RabbitMQ, and Kafka instances.*
-
-2.  **Monitoring Stack**:
+1.  **Infrastructure & Observability**:
     ```bash
-    docker-compose -f observability/docker-compose.yml up -d
+    cd backend
+    docker-compose -f docker-compose-services.yml up -d
     ```
+    *This orchestrates PostgreSQL, Redis, RabbitMQ, Kafka, and the full PLG+J monitoring stack in one command.*
 
-3.  **Bootstrapping Services**:
+2.  **Bootstrapping Services**:
     ```bash
     ./mvnw clean install
     ./mvnw spring-boot:run -pl api-gateway,eureka-server,user-service
@@ -179,4 +287,4 @@ The system is instrumented for "Real-world Production" readiness:
 This platform is released under the **MIT License**. See `LICENSE` for the full text.
 
 ---
-*Built with ❤️ by the Winvestco Engineering Team.*
+*Built with ❤️ by the Me & My Agents*
