@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpStatus;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.lang.NonNull;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
 @ConditionalOnBean(RateLimitService.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final RateLimitService rateLimitService;

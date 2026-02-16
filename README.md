@@ -1,7 +1,7 @@
 # 🏦 Winvestco: Institutional Grade Multi-Asset Trading Platform
 
 [![Java Version](https://img.shields.io/badge/Java-21-orange.svg?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4%2B-6DB33F?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-6DB33F?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![Microservices](https://img.shields.io/badge/Architecture-Microservices-blue?style=for-the-badge)](./docs/adr/0002-microservices-architecture.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
@@ -22,7 +22,7 @@ The platform is built on five core architectural pillars:
 
 ## 🏗 System Architecture
 
-Winvestco utilizes a sophisticated distributed system composed of 12 specialized services, each owning its domain and persistence layer.
+Winvestco utilizes a sophisticated distributed system composed of **14 specialized services**, each owning its domain and persistence layer.
 
 ### Core Ecosystem
 ```mermaid
@@ -54,6 +54,8 @@ graph TD
         Gateway --> FundSvc[Wallet & Funds]
         Gateway --> NotifySvc[Notification Engine]
         Gateway --> ReportSvc[Analytics & Tax]
+        Gateway --> RiskSvc[Risk Engines]
+        Gateway --> ScheduleSvc[Job Scheduler]
     end
 
     subgraph "Observability Layer"
@@ -169,13 +171,13 @@ The Winvestco Frontend is a modern, high-performance web terminal built for trad
 
 ### 🚀 Core Platform & Runtime
 - **Java 21 LTS**: Utilizing **Virtual Threads** (Project Loom) for lightweight concurrency, **Pattern Matching**, and **Sequenced Collections** to write clean, high-performance code.
-- **Spring Boot 3.4.x**: The backbone of our services, providing auto-configuration, robust dependency injection, and production-ready features.
-- **Maven**: Multi-module project management for version consistency across 12+ services.
+- **Spring Boot 3.2.x**: The backbone of our services, providing auto-configuration, robust dependency injection, and production-ready features.
+- **Maven**: Multi-module project management for version consistency across services.
 
 ### 🌐 Microservices Orchestration
 - **Spring Cloud 2023**: 
   - **API Gateway**: Centralized entry point with global filters for authentication, rate limiting, and request transformation.
-  - **Eureka Server**: Netlix-based service discovery allowing dynamic scaling and load balancing.
+  - **Eureka Server**: Netflix-based service discovery allowing dynamic scaling and load balancing.
   - **OpenFeign**: Declarative REST client for simplified inter-service communication.
 - **Resilience4j**: Implementing **Circuit Breakers**, **Rate Limiters**, and **Retries** to prevent cascading failures in the distributed system.
 
@@ -188,7 +190,7 @@ The Winvestco Frontend is a modern, high-performance web terminal built for trad
 
 ### 📡 Communication & Messaging
 - **gRPC & Protocol Buffers**: Used for high-speed, binary internal streaming of Market Data from `Market-Service` to `Trade-Service`.
-- **Apache Kafka**: High-throughput distributed log for market data ingestion and real-time candle (OHLC) generation.
+- **Apache Kafka**: High-throughput distributed log (KRaft mode) for market data ingestion and real-time candle (OHLC) generation.
 - **RabbitMQ**: Message broker for mission-critical domain events using **Topic Exchanges** and **Dead Letter Queues (DLQ)**.
 
 ### 🧪 Quality Assurance
@@ -210,14 +212,16 @@ The platform requires the following ports to be available on the host machine fo
 | **Eureka Server** | `8761` | Service discovery dashboard |
 | **User Service** | `8088` | Identity and RBAC management |
 | **Market Service** | `8084` | Market data and gRPC streaming |
-| **Portfolio Service** | `8085` | User holdings and P&L |
-| **Funds Service** | `8086` | Wallet and balance management |
-| **Ledger Service** | `8087` | Immutable financial ledger |
-| **Order Service** | `8089` | Order lifecycle and matching logic |
-| **Trade Service** | `8092` | Trade execution engine |
-| **Notification Svc**| `8091` | Virtual-thread driven alerts |
-| **Payment Service** | `8093` | Payment gateway integration |
-| **Report Service** | `8094` | Async report generation |
+| **Portfolio Service** | `8086` | User holdings and P&L |
+| **Funds Service** | `8085` | Wallet and balance management |
+| **Ledger Service** | `8082` | Immutable financial ledger |
+| **Order Service** | `8081` | Order lifecycle and matching logic |
+| **Trade Service** | `8083` | Trade execution engine (Matching Engine) |
+| **Notification Svc**| `8089` | Virtual-thread driven alerts |
+| **Payment Service** | `8087` | Payment gateway integration |
+| **Report Service** | `8091` | Async report generation |
+| **Risk Service** | `8092` | Real-time risk management |
+| **Schedule Service** | `8095` | Distributed job scheduling |
 | **Frontend** | `5173` | React development server (Vite) |
 
 ### Infrastructure & Operations
@@ -227,8 +231,7 @@ The platform requires the following ports to be available on the host machine fo
 | **Redis** | `6379` | Cache and streaming snapshots |
 | **RabbitMQ** | `5672` | AMQP messaging protocol |
 | **RabbitMQ UI** | `15672` | Management dashboard |
-| **Kafka (Ext)** | `9092` | Market data ingestion (Broadcasting) |
-| **Zookeeper** | `2181` | Kafka coordination |
+| **Kafka (KRaft)** | `9092` | Market data ingestion (Broadcasting) |
 | **Grafana** | `3000` | Central observability dashboard |
 | **Prometheus** | `9090` | Metrics engine dashboard |
 | **Jaeger UI** | `16686` | Distributed tracing explorer |
@@ -239,13 +242,13 @@ The platform requires the following ports to be available on the host machine fo
 ## 📈 Observability & Monitoring
 
 The system is instrumented for "Real-world Production" readiness:
-- **Distributed Tracing**: Follow a single user request across 12 services via Jaeger.
+- **Distributed Tracing**: Follow a single user request across services via Jaeger.
 - **Log Aggregation**: Filter production logs by `service`, `traceID`, or `correlationID` in Loki.
 - **System Metrics**: Real-time JVM, CPU, and Memory usage dashboards in Grafana.
 
 | Tool | Default Port | Access URL |
 | :--- | :--- | :--- |
-| **Grafana** | 3000 | [http://localhost:3000](http://localhost:3000) |
+| **Grafana** | 3000 | [http://localhost:3000](http://localhost:3000) (admin/winvestco) |
 | **Prometheus** | 9090 | [http://localhost:9090](http://localhost:9090) |
 | **Jaeger** | 16686 | [http://localhost:16686](http://localhost:16686) |
 | **Eureka** | 8761 | [http://localhost:8761](http://localhost:8761) |
@@ -258,26 +261,43 @@ The system is instrumented for "Real-world Production" readiness:
 - **JDK 21** (MANDATORY for Virtual Threads)
 - **PowerShell 7+** (For setup scripts)
 - **Node.js 20+**
-- **Docker Desktop**
+- **Maven 3.9+**
 
-### Setup Sequence
-1.  **Infrastructure & Observability**:
-    ```bash
-    cd backend
-    docker-compose -f docker-compose-services.yml up -d
-    ```
-    *This orchestrates PostgreSQL, Redis, RabbitMQ, Kafka, and the full PLG+J monitoring stack in one command.*
+### 🚀 One-Click Startup (Recommended for Windows)
 
-2.  **Bootstrapping Services**:
-    ```bash
-    ./mvnw clean install
-    ./mvnw spring-boot:run -pl api-gateway,eureka-server,user-service
-    ```
+We provide a comprehensive PowerShell automation script that handles infrastructure, service discovery, gateway, and all microservices in the correct order.
+
+```powershell
+cd backend
+.\start-all.ps1
+```
+
+**What this does:**
+1.  Checks and starts **Infrastructure** (Postgres, Redis, RabbitMQ, Kafka, Observability Stack) via `start-infra.ps1`.
+2.  Starts **Eureka Server** and waits for health check.
+3.  Starts **API Gateway** and waits for health check.
+4.  Launches all **Backend Microservices** in parallel windows.
+
+### 🐳 Docker Setup (Alternative)
+
+If you prefer running infrastructure via Docker:
+
+```bash
+cd backend
+docker-compose -f docker-compose-services.yml up -d
+```
+
+Then manually start the services:
+```bash
+./mvnw clean install
+./mvnw spring-boot:run -pl api-gateway,eureka-server,user-service
+# ... repeat for other services
+```
 
 ---
 
 ## 📂 Documentation Inventory
-- **[ADR Catalog](./docs/adr/)**: Comprehensive list of 11+ Architectural Decision Records.
+- **[ADR Catalog](./docs/adr/)**: Comprehensive list of Architectural Decision Records.
 - **[Observability Guide](./docs/observability-guide.md)**: Deep dive into monitoring setup.
 - **[Project Context](./context/)**: Domain-specific improvement plans and roadmaps.
 
@@ -287,4 +307,4 @@ The system is instrumented for "Real-world Production" readiness:
 This platform is released under the **MIT License**. See `LICENSE` for the full text.
 
 ---
-*Built with ❤️ by the Me & My Agents*
+*Built with ❤️ by Me & My Agents*

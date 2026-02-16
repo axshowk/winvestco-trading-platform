@@ -94,6 +94,9 @@ public class User implements Serializable {
         if (clientId == null) {
             clientId = "WIN-" + UUID.randomUUID().toString().substring(0, 10);
         }
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
     }
 
     @Column(name = "phone_number", length = 20)

@@ -23,6 +23,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Configuration("commonJpaAuditingConfig")
 @EnableJpaAuditing
 @ConditionalOnProperty(name = "jpa.auditing.enabled", havingValue = "true", matchIfMissing = true)
-@org.springframework.boot.autoconfigure.condition.ConditionalOnBean(javax.sql.DataSource.class)
 public class JpaAuditingConfig {
 }

@@ -2,6 +2,8 @@ package in.winvestco.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -17,8 +19,13 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 @Configuration
 @ConditionalOnClass(name = "org.springframework.data.redis.core.RedisTemplate")
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800) // 30 minutes session timeout
 public class RedisConfig {
+
+    @Configuration
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800)
+    public static class RedisHttpSessionConfig {
+    }
 
     @Value("${spring.redis.host:localhost}")
     private String redisHost;
@@ -30,6 +37,7 @@ public class RedisConfig {
     private String redisPassword;
 
     @Bean
+    @ConditionalOnMissingBean(RedisConnectionFactory.class)
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
 
@@ -41,6 +49,7 @@ public class RedisConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "redisTemplate")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
