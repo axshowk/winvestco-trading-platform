@@ -1,5 +1,5 @@
 ---
-description: Automatically handles code commits using enterprise-grade branch management and conventional commit standards.
+description: "Automatically handles code commits using enterprise-grade branch management and conventional commit standards."
 ---
 
 // turbo-all

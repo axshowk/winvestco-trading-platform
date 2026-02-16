@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
+@org.springframework.boot.autoconfigure.condition.ConditionalOnBean(javax.sql.DataSource.class)
 public class FlywayConfig {
 
     @Value("${spring.flyway.enabled:true}")

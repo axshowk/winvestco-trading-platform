@@ -4,4 +4,3 @@ logs/
 .vscode/
 *.rdb
 *.dump
-.agent/

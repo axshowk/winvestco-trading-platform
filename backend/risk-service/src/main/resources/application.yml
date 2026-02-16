@@ -1,0 +1,37 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: risk-service
+  main:
+    allow-bean-definition-overriding: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    in.winvestco.risk_service: DEBUG
+    dev.langchain4j: DEBUG
+
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: AIzaSyAOMYqPYnJvAd1VSbtcoKgHaelJkpbwNvE
+      model-name: gemini-2.5-flash
+      temperature: 0.2
+      log-requests: true
+      log-responses: true

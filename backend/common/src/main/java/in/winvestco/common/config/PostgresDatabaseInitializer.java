@@ -17,12 +17,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * PostgreSQL Database Initializer - Auto-creates the database if it doesn't exist.
+ * PostgreSQL Database Initializer - Auto-creates the database if it doesn't
+ * exist.
  * 
- * <p>This configuration runs before the main DataSource is initialized and ensures
- * that the required database exists. If not, it creates the database automatically.</p>
+ * <p>
+ * This configuration runs before the main DataSource is initialized and ensures
+ * that the required database exists. If not, it creates the database
+ * automatically.
+ * </p>
  * 
- * <p>Enable this by setting: {@code spring.datasource.auto-create-database=true}</p>
+ * <p>
+ * Enable this by setting: {@code spring.datasource.auto-create-database=true}
+ * </p>
  * 
  * @author WinVestCo
  * @since 1.0.0
@@ -33,19 +39,19 @@ import java.util.regex.Pattern;
 public class PostgresDatabaseInitializer implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(PostgresDatabaseInitializer.class);
-    
+
     private static final Pattern JDBC_URL_PATTERN = Pattern.compile(
             "jdbc:postgresql://([^:/]+)(?::(\\d+))?/([^?]+)(?:\\?.*)?");
-    
+
     @Value("${spring.datasource.url:}")
     private String datasourceUrl;
-    
+
     @Value("${spring.datasource.username:postgres}")
     private String username;
-    
+
     @Value("${spring.datasource.password:postgres}")
     private String password;
-    
+
     @Value("${spring.application.name:unknown-service}")
     private String applicationName;
 
@@ -55,7 +61,7 @@ public class PostgresDatabaseInitializer implements InitializingBean {
             log.debug("[{}] Skipping database auto-creation - not a PostgreSQL datasource", applicationName);
             return;
         }
-        
+
         try {
             createDatabaseIfNotExists();
         } catch (Exception e) {
@@ -64,25 +70,25 @@ public class PostgresDatabaseInitializer implements InitializingBean {
                     applicationName, e.getMessage());
         }
     }
-    
+
     private void createDatabaseIfNotExists() {
         Matcher matcher = JDBC_URL_PATTERN.matcher(datasourceUrl);
-        
+
         if (!matcher.matches()) {
             log.warn("[{}] Could not parse PostgreSQL JDBC URL: {}", applicationName, datasourceUrl);
             return;
         }
-        
+
         String host = matcher.group(1);
         String port = matcher.group(2) != null ? matcher.group(2) : "5432";
         String databaseName = matcher.group(3);
-        
+
         // Connect to the 'postgres' default database to create our target database
         String adminUrl = String.format("jdbc:postgresql://%s:%s/postgres", host, port);
-        
-        log.info("[{}] Checking if database '{}' exists on {}:{}...", 
+
+        log.info("[{}] Checking if database '{}' exists on {}:{}...",
                 applicationName, databaseName, host, port);
-        
+
         try (Connection connection = DriverManager.getConnection(adminUrl, username, password)) {
             if (!databaseExists(connection, databaseName)) {
                 createDatabase(connection, databaseName);
@@ -94,21 +100,21 @@ public class PostgresDatabaseInitializer implements InitializingBean {
             throw new RuntimeException("Failed to create database: " + e.getMessage(), e);
         }
     }
-    
+
     private boolean databaseExists(Connection connection, String databaseName) throws Exception {
         String sql = "SELECT 1 FROM pg_database WHERE datname = '" + databaseName + "'";
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
             return rs.next();
         }
     }
-    
+
     private void createDatabase(Connection connection, String databaseName) throws Exception {
         // Validate database name to prevent SQL injection
         if (!databaseName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$")) {
             throw new IllegalArgumentException("Invalid database name: " + databaseName);
         }
-        
+
         String sql = "CREATE DATABASE " + databaseName;
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql);

@@ -15,7 +15,8 @@ Foremost you have to analyse the exsisting README.md and compare what has been c
    - Identify versions of Java, Spring Boot, Node.js.
    - List databases (PostgreSQL, Redis) and messaging (Kafka, RabbitMQ) from `start-infra.ps1` or configs.
 3. **Update README**:
-
+***Very Important***
+Foremost you have to analyse the exsisting README.md and compare what has been changed 
    - Update `README.md` with:
      - Project Overview
      - Tech Stack (with versions)

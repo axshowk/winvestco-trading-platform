@@ -1,0 +1,7 @@
+---
+description: "TOOLS NEEDED TO RUN SERVICES"
+---
+
+**ALL TOOLS NEEDED TO RUN PROJECT ARE AVAILABLE IN**
+
+*** C:\TOOLS ****
