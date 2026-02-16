@@ -4,3 +4,7 @@ logs/
 .vscode/
 *.rdb
 *.dump
+agent/
+backend/data/
+
+
