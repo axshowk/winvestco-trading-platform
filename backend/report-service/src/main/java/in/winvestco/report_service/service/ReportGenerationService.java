@@ -3,6 +3,7 @@ package in.winvestco.report_service.service;
 import in.winvestco.common.enums.ReportFormat;
 import in.winvestco.common.event.ReportCompletedEvent;
 import in.winvestco.common.event.ReportFailedEvent;
+import in.winvestco.common.messaging.outbox.OutboxService;
 import in.winvestco.report_service.dto.PnLReportData;
 import in.winvestco.report_service.dto.TaxReportData;
 import in.winvestco.report_service.generator.CsvReportGenerator;
@@ -15,7 +16,6 @@ import in.winvestco.report_service.model.projection.TradeProjection;
 import in.winvestco.report_service.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,6 +40,7 @@ import static in.winvestco.common.config.RabbitMQConfig.*;
 /**
  * Service responsible for generating reports asynchronously.
  * Reads from local projection tables (Event Sourcing pattern).
+ * Uses outbox pattern for event publishing to ensure transactional safety.
  */
 @Service
 @RequiredArgsConstructor
@@ -55,7 +56,7 @@ public class ReportGenerationService {
     private final ExcelReportGenerator excelGenerator;
     private final CsvReportGenerator csvGenerator;
 
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxService outboxService;
 
     @Value("${report.storage.path:./reports}")
     private String storagePath;
@@ -337,9 +338,11 @@ public class ReportGenerationService {
                     .completedAt(report.getCompletedAt())
                     .build();
 
-            rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "report.completed", event);
+            log.info("Capturing ReportCompletedEvent in outbox for report: {}", report.getReportId());
+            outboxService.captureEvent("Report", report.getReportId().toString(),
+                    NOTIFICATION_EXCHANGE, "report.completed", event);
         } catch (Exception e) {
-            log.warn("Failed to publish report completion event: {}", e.getMessage());
+            log.warn("Failed to capture report completion event in outbox: {}", e.getMessage());
         }
     }
 
@@ -353,9 +356,11 @@ public class ReportGenerationService {
                     .failedAt(Instant.now())
                     .build();
 
-            rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "report.failed", event);
+            log.info("Capturing ReportFailedEvent in outbox for report: {}", report.getReportId());
+            outboxService.captureEvent("Report", report.getReportId().toString(),
+                    NOTIFICATION_EXCHANGE, "report.failed", event);
         } catch (Exception e) {
-            log.warn("Failed to publish report failure event: {}", e.getMessage());
+            log.warn("Failed to capture report failure event in outbox: {}", e.getMessage());
         }
     }
 

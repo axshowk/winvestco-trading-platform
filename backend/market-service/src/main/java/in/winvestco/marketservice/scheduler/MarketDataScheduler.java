@@ -43,7 +43,7 @@ public class MarketDataScheduler {
                 // Get full NSE response with all constituent stocks
                 String jsonData = nseClient.getFullIndexData(indexName);
                 if (jsonData != null) {
-                    marketDataPublisher.publishMarketData(jsonData);
+                    marketDataPublisher.publishMarketData(indexName, jsonData);
                     marketDataService.saveMarketData(indexName, jsonData);
 
                     // Parse JSON once, pass parsed tree to gRPC service

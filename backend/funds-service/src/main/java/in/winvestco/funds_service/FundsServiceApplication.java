@@ -6,6 +6,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Funds Service Application
@@ -22,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EnableDiscoveryClient
 @EnableFeignClients
+@EnableScheduling
 @EnableJpaRepositories(basePackages = {
         "in.winvestco.funds_service.repository",
         "in.winvestco.common.messaging.idempotency",

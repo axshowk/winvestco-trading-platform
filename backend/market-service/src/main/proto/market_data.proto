@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+option java_package = "in.winvestco.marketservice.proto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+message MarketDataEvent {
+  string event_id = 1;
+  string symbol = 2;
+  string exchange = 3;
+  string trading_symbol = 4;
+  
+  // Price data
+  double last_traded_price = 5;
+  double open = 6;
+  double high = 7;
+  double low = 8;
+  double close = 9;
+  
+  // Change metrics
+  double change_value = 10;
+  double change_percentage = 11;
+  
+  // Volume
+  int64 volume = 12;
+  int64 total_buy_quantity = 13;
+  int64 total_sell_quantity = 14;
+  
+  // Circuit limits
+  double upper_circuit_limit = 15;
+  double lower_circuit_limit = 16;
+  
+  // Timestamp
+  google.protobuf.Timestamp timestamp = 17;
+  
+  // Index constituents (for index data)
+  repeated StockData constituents = 18;
+  
+  // Metadata
+  string index_name = 19;
+  string data_source = 20;  // e.g., "NSE", "BSE"
+}
+
+message StockData {
+  string symbol = 1;
+  string trading_symbol = 2;
+  string company_name = 3;
+  string series = 4;  // EQ, BE, etc.
+  
+  // Prices
+  double last_price = 5;
+  double open = 6;
+  double high = 7;
+  double low = 8;
+  double previous_close = 9;
+  
+  // Change
+  double change = 10;
+  double percent_change = 11;
+  
+  // Volume
+  int64 volume = 12;
+  double value = 13;  // Turnover in lakhs/crores
+  
+  // Additional NSE fields
+  double year_high = 14;
+  double year_low = 15;
+  int64 total_traded_value = 16;
+  
+  // Index specific weightage
+  double index_weightage = 17;
+}

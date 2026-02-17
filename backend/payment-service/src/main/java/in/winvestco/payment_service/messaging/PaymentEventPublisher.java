@@ -6,26 +6,28 @@ import in.winvestco.common.event.PaymentCreatedEvent;
 import in.winvestco.common.event.PaymentExpiredEvent;
 import in.winvestco.common.event.PaymentFailedEvent;
 import in.winvestco.common.event.PaymentSuccessEvent;
+import in.winvestco.common.messaging.outbox.OutboxService;
 import in.winvestco.payment_service.model.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
 /**
- * Publisher for payment events
+ * Event publisher for payment events using the outbox pattern.
+ * Events are captured in the outbox table within the same transaction
+ * as the data changes, ensuring atomicity and guaranteed delivery.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxService outboxService;
 
     /**
-     * Publish payment created event
+     * Publish payment created event using outbox pattern
      */
     public void publishPaymentCreated(Payment payment) {
         PaymentCreatedEvent event = PaymentCreatedEvent.builder()
@@ -40,17 +42,13 @@ public class PaymentEventPublisher {
             .createdAt(payment.getCreatedAt())
             .build();
 
-        rabbitTemplate.convertAndSend(
-            RabbitMQConfig.PAYMENT_EXCHANGE,
-            RabbitMQConfig.PAYMENT_CREATED_ROUTING_KEY,
-            event
-        );
-
-        log.info("Published PaymentCreatedEvent for payment: {}", payment.getId());
+        log.info("Capturing PaymentCreatedEvent in outbox for payment: {}", payment.getId());
+        outboxService.captureEvent("Payment", payment.getId().toString(),
+                RabbitMQConfig.PAYMENT_EXCHANGE, RabbitMQConfig.PAYMENT_CREATED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish payment success event - triggers wallet credit
+     * Publish payment success event using outbox pattern - triggers wallet credit
      */
     public void publishPaymentSuccess(Payment payment) {
         PaymentSuccessEvent event = PaymentSuccessEvent.builder()
@@ -67,18 +65,14 @@ public class PaymentEventPublisher {
             .completedAt(Instant.now())
             .build();
 
-        rabbitTemplate.convertAndSend(
-            RabbitMQConfig.PAYMENT_EXCHANGE,
-            RabbitMQConfig.PAYMENT_SUCCESS_ROUTING_KEY,
-            event
-        );
-
-        log.info("Published PaymentSuccessEvent for payment: {}, amount: {}", 
+        log.info("Capturing PaymentSuccessEvent in outbox for payment: {}, amount: {}", 
             payment.getId(), payment.getAmount());
+        outboxService.captureEvent("Payment", payment.getId().toString(),
+                RabbitMQConfig.PAYMENT_EXCHANGE, RabbitMQConfig.PAYMENT_SUCCESS_ROUTING_KEY, event);
     }
 
     /**
-     * Publish payment failed event
+     * Publish payment failed event using outbox pattern
      */
     public void publishPaymentFailed(Payment payment) {
         PaymentFailedEvent event = PaymentFailedEvent.builder()
@@ -93,17 +87,13 @@ public class PaymentEventPublisher {
             .failedAt(Instant.now())
             .build();
 
-        rabbitTemplate.convertAndSend(
-            RabbitMQConfig.PAYMENT_EXCHANGE,
-            RabbitMQConfig.PAYMENT_FAILED_ROUTING_KEY,
-            event
-        );
-
-        log.info("Published PaymentFailedEvent for payment: {}", payment.getId());
+        log.info("Capturing PaymentFailedEvent in outbox for payment: {}", payment.getId());
+        outboxService.captureEvent("Payment", payment.getId().toString(),
+                RabbitMQConfig.PAYMENT_EXCHANGE, RabbitMQConfig.PAYMENT_FAILED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish payment expired event
+     * Publish payment expired event using outbox pattern
      */
     public void publishPaymentExpired(Payment payment) {
         PaymentExpiredEvent event = PaymentExpiredEvent.builder()
@@ -116,12 +106,8 @@ public class PaymentEventPublisher {
             .expiredAt(Instant.now())
             .build();
 
-        rabbitTemplate.convertAndSend(
-            RabbitMQConfig.PAYMENT_EXCHANGE,
-            RabbitMQConfig.PAYMENT_EXPIRED_ROUTING_KEY,
-            event
-        );
-
-        log.info("Published PaymentExpiredEvent for payment: {}", payment.getId());
+        log.info("Capturing PaymentExpiredEvent in outbox for payment: {}", payment.getId());
+        outboxService.captureEvent("Payment", payment.getId().toString(),
+                RabbitMQConfig.PAYMENT_EXCHANGE, RabbitMQConfig.PAYMENT_EXPIRED_ROUTING_KEY, event);
     }
 }

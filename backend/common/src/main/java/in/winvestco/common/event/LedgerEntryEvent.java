@@ -2,9 +2,10 @@ package in.winvestco.common.event;
 
 import in.winvestco.common.enums.LedgerEntryType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,10 +15,11 @@ import java.time.Instant;
  * Source of truth for all financial movements.
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LedgerEntryEvent {
+@EqualsAndHashCode(callSuper = false)
+public class LedgerEntryEvent extends BaseEvent {
     private Long id;
     private Long walletId;
     private LedgerEntryType entryType;

@@ -2,26 +2,28 @@ package in.winvestco.trade_service.service;
 
 import in.winvestco.common.config.RabbitMQConfig;
 import in.winvestco.common.event.*;
+import in.winvestco.common.messaging.outbox.OutboxService;
 import in.winvestco.trade_service.model.Trade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 /**
- * Service for publishing trade events to RabbitMQ.
+ * Service for publishing trade events using the outbox pattern.
+ * Events are captured in the outbox table within the same transaction
+ * as the data changes, ensuring atomicity and guaranteed delivery.
  */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TradeEventPublisher {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxService outboxService;
 
     /**
-     * Publish TradeCreatedEvent when a new trade is created.
+     * Publish TradeCreatedEvent using outbox pattern
      */
     public void publishTradeCreated(Trade trade) {
         TradeCreatedEvent event = TradeCreatedEvent.builder()
@@ -37,17 +39,14 @@ public class TradeEventPublisher {
                 .createdAt(trade.getCreatedAt())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_CREATED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradeCreatedEvent for trade: {}, order: {}", 
+        log.info("Capturing TradeCreatedEvent in outbox for trade: {}, order: {}", 
                 trade.getTradeId(), trade.getOrderId());
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_CREATED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish TradePlacedEvent when trade is sent to execution.
+     * Publish TradePlacedEvent using outbox pattern
      */
     public void publishTradePlaced(Trade trade) {
         TradePlacedEvent event = TradePlacedEvent.builder()
@@ -62,16 +61,13 @@ public class TradeEventPublisher {
                 .placedAt(trade.getPlacedAt())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_PLACED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradePlacedEvent for trade: {}", trade.getTradeId());
+        log.info("Capturing TradePlacedEvent in outbox for trade: {}", trade.getTradeId());
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_PLACED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish TradeExecutedEvent when trade is executed.
+     * Publish TradeExecutedEvent using outbox pattern
      */
     public void publishTradeExecuted(Trade trade, boolean isPartialFill) {
         TradeExecutedEvent event = TradeExecutedEvent.builder()
@@ -87,17 +83,14 @@ public class TradeEventPublisher {
                 .executedAt(trade.getExecutedAt())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_EXECUTED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradeExecutedEvent for trade: {}, partial: {}", 
+        log.info("Capturing TradeExecutedEvent in outbox for trade: {}, partial: {}", 
                 trade.getTradeId(), isPartialFill);
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_EXECUTED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish TradeClosedEvent when trade is settled and closed.
+     * Publish TradeClosedEvent using outbox pattern
      */
     public void publishTradeClosed(Trade trade) {
         TradeClosedEvent event = TradeClosedEvent.builder()
@@ -113,16 +106,13 @@ public class TradeEventPublisher {
                 .closedAt(trade.getClosedAt())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_CLOSED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradeClosedEvent for trade: {}", trade.getTradeId());
+        log.info("Capturing TradeClosedEvent in outbox for trade: {}", trade.getTradeId());
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_CLOSED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish TradeCancelledEvent when trade is cancelled.
+     * Publish TradeCancelledEvent using outbox pattern
      */
     public void publishTradeCancelled(Trade trade, String cancelledBy, String reason) {
         TradeCancelledEvent event = TradeCancelledEvent.builder()
@@ -139,17 +129,14 @@ public class TradeEventPublisher {
                 .cancelledAt(Instant.now())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_CANCELLED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradeCancelledEvent for trade: {}, reason: {}", 
+        log.info("Capturing TradeCancelledEvent in outbox for trade: {}, reason: {}", 
                 trade.getTradeId(), reason);
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_CANCELLED_ROUTING_KEY, event);
     }
 
     /**
-     * Publish TradeFailedEvent when trade fails.
+     * Publish TradeFailedEvent using outbox pattern
      */
     public void publishTradeFailed(Trade trade, String errorCode) {
         TradeFailedEvent event = TradeFailedEvent.builder()
@@ -165,12 +152,9 @@ public class TradeEventPublisher {
                 .failedAt(Instant.now())
                 .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TRADE_EXCHANGE,
-                RabbitMQConfig.TRADE_FAILED_ROUTING_KEY,
-                event);
-
-        log.info("Published TradeFailedEvent for trade: {}, error: {}", 
+        log.info("Capturing TradeFailedEvent in outbox for trade: {}, error: {}", 
                 trade.getTradeId(), errorCode);
+        outboxService.captureEvent("Trade", trade.getTradeId(),
+                RabbitMQConfig.TRADE_EXCHANGE, RabbitMQConfig.TRADE_FAILED_ROUTING_KEY, event);
     }
 }

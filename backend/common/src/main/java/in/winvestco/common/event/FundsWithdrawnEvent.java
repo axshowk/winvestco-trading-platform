@@ -1,11 +1,11 @@
 package in.winvestco.common.event;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -13,10 +13,11 @@ import java.time.Instant;
  * Event emitted when funds are withdrawn/debited from a wallet.
  */
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class FundsWithdrawnEvent implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class FundsWithdrawnEvent extends BaseEvent {
     private static final long serialVersionUID = 1L;
 
     private Long userId;

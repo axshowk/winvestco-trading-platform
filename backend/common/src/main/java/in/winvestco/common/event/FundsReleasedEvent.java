@@ -1,11 +1,11 @@
 package in.winvestco.common.event;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -14,10 +14,11 @@ import java.time.Instant;
  * cancelled/expired/rejected).
  */
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class FundsReleasedEvent implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class FundsReleasedEvent extends BaseEvent {
     private static final long serialVersionUID = 1L;
 
     private Long userId;
