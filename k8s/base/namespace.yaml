@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: winvestco
+  labels:
+    name: winvestco
+    environment: production
+    app.kubernetes.io/name: winvestco
+    app.kubernetes.io/part-of: trading-platform
+    app.kubernetes.io/managed-by: kubectl
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: winvestco-staging
+  labels:
+    name: winvestco-staging
+    environment: staging
+    app.kubernetes.io/name: winvestco
+    app.kubernetes.io/part-of: trading-platform
+    app.kubernetes.io/managed-by: kubectl
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: winvestco-dev
+  labels:
+    name: winvestco-dev
+    environment: development
+    app.kubernetes.io/name: winvestco
+    app.kubernetes.io/part-of: trading-platform
+    app.kubernetes.io/managed-by: kubectl

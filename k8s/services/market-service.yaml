@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-service
+  namespace: winvestco
+  labels:
+    app: market-service
+    component: service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: market-service
+  template:
+    metadata:
+      labels:
+        app: market-service
+        component: service
+    spec:
+      containers:
+        - name: market-service
+          image: ${DOCKERHUB_NAMESPACE}/market-service:latest
+          ports:
+            - containerPort: 8084
+              name: http
+            - containerPort: 9090
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "market-service"
+            - name: POSTGRES_DB_NAME
+              value: "market_service"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8084
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: market-service
+  namespace: winvestco
+  labels:
+    app: market-service
+spec:
+  selector:
+    app: market-service
+  ports:
+    - port: 8084
+      targetPort: 8084
+      name: http
+    - port: 9090
+      targetPort: 9090
+      name: grpc
+  type: ClusterIP

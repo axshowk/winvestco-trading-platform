@@ -294,6 +294,56 @@ Then manually start the services:
 # ... repeat for other services
 ```
 
+### ☸️ Kubernetes Deployment (Production-Ready)
+
+For production deployments, we provide comprehensive Kubernetes manifests with Kustomize support for environment-specific configurations.
+
+#### Prerequisites
+- Kubernetes cluster (v1.25+)
+- kubectl configured
+- Kustomize (v5.0+)
+- NGINX Ingress Controller
+- cert-manager (for TLS)
+
+#### Quick Deploy
+
+```bash
+# Deploy to Development (1 replica per service)
+kubectl apply -k k8s/overlays/dev/
+
+# Deploy to Staging (2 replicas per service)
+kubectl apply -k k8s/overlays/staging/
+
+# Deploy to Production (3 replicas, high resources)
+kubectl apply -k k8s/overlays/production/
+```
+
+#### Kubernetes Architecture
+
+| Component | Type | Purpose |
+|-----------|------|---------|
+| **PostgreSQL** | StatefulSet | Primary database with persistence |
+| **Redis** | Deployment | Distributed cache & session store |
+| **RabbitMQ** | Deployment | Message broker with management UI |
+| **Kafka + Zookeeper** | Deployment | Event streaming platform |
+| **14 Microservices** | Deployment | Spring Boot services with HPA ready |
+| **Prometheus** | Deployment | Metrics collection |
+| **Grafana** | Deployment | Visualization dashboards |
+| **Jaeger** | Deployment | Distributed tracing |
+| **Loki** | Deployment | Log aggregation |
+
+#### Features
+
+- **Kustomize Overlays**: Environment-specific configs (dev/staging/prod)
+- **Health Checks**: Liveness and readiness probes on all services
+- **Resource Limits**: CPU/memory requests and limits defined
+- **ConfigMaps & Secrets**: Centralized configuration management
+- **Persistent Volumes**: Data persistence for databases
+- **Ingress**: NGINX ingress with TLS support
+- **Observability**: Full PLG+J stack integrated
+
+See [k8s/README.md](./k8s/README.md) for detailed deployment guide.
+
 ---
 
 ## 📂 Documentation Inventory
