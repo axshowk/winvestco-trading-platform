@@ -2,6 +2,7 @@ package in.winvestco.ledger_service.performance;
 
 import in.winvestco.common.enums.LedgerEntryType;
 import in.winvestco.ledger_service.dto.CreateLedgerEntryRequest;
+import in.winvestco.ledger_service.dto.LedgerEntryDTO;
 import in.winvestco.ledger_service.model.LedgerEntry;
 import in.winvestco.ledger_service.repository.LedgerEntryRepository;
 import in.winvestco.ledger_service.service.LedgerService;
@@ -144,7 +145,6 @@ class LedgerPerformanceTest {
                         (long) w, LedgerEntryType.DEPOSIT, amount,
                         balance.subtract(amount), balance
                 );
-                entry.setCreatedAt(Instant.now().minusSeconds((walletCount - w) * 60 + e));
                 testEntries.add(entry);
             }
         }
@@ -212,7 +212,7 @@ class LedgerPerformanceTest {
     void largeDatasetPagination_ShouldMaintainPerformance() {
         // Given
         int totalEntries = 10000;
-        int walletId = 1L;
+        int walletId = 1;
         
         // Create large dataset
         List<LedgerEntry> entries = new ArrayList<>();
@@ -223,10 +223,9 @@ class LedgerPerformanceTest {
             balance = balance.add(amount);
             
             LedgerEntry entry = LedgerTestDataFactory.createTestEntry(
-                    walletId, LedgerEntryType.DEPOSIT, amount,
+                    (long) walletId, LedgerEntryType.DEPOSIT, amount,
                     balance.subtract(amount), balance
             );
-            entry.setCreatedAt(Instant.now().minusSeconds(totalEntries - i));
             entries.add(entry);
         }
         
@@ -239,11 +238,11 @@ class LedgerPerformanceTest {
         int totalPages = (int) Math.ceil((double) totalEntries / pageSize);
         
         startTime = System.currentTimeMillis();
-        List<Page<LedgerEntry>> pages = new ArrayList<>();
+        List<Page<LedgerEntryDTO>> pages = new ArrayList<>();
         
         for (int page = 0; page < totalPages && page < 50; page++) { // Limit to first 50 pages for test performance
             PageRequest pageRequest = PageRequest.of(page, pageSize);
-            Page<LedgerEntry> result = ledgerService.getEntriesForWallet(walletId, pageRequest);
+            Page<LedgerEntryDTO> result = ledgerService.getEntriesForWallet((long) walletId, pageRequest);
             pages.add(result);
         }
         
@@ -260,7 +259,7 @@ class LedgerPerformanceTest {
         
         // Verify ordering (newest first)
         if (!pages.isEmpty()) {
-            List<LedgerEntry> firstPage = pages.get(0).getContent();
+            List<LedgerEntryDTO> firstPage = pages.get(0).getContent();
             for (int i = 0; i < firstPage.size() - 1; i++) {
                 assertTrue(firstPage.get(i).getCreatedAt().isAfter(firstPage.get(i + 1).getCreatedAt()));
             }
@@ -356,7 +355,7 @@ class LedgerPerformanceTest {
             ledgerEntryRepository.saveAll(entries);
             
             // Query and process entries
-            Page<LedgerEntry> page = ledgerService.getEntriesForWallet(
+            Page<LedgerEntryDTO> page = ledgerService.getEntriesForWallet(
                     (long) iter, PageRequest.of(0, 100));
             
             // Rebuild state

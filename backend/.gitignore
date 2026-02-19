@@ -22,3 +22,7 @@ dist/
 
 # Scripts
 .start-infra.ps1
+
+# Windsurf workflow
+.windsurf.workflow/
+
