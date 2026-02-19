@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: funds-service
+  namespace: winvestco
+  labels:
+    app: funds-service
+    component: service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: funds-service
+  template:
+    metadata:
+      labels:
+        app: funds-service
+        component: service
+    spec:
+      containers:
+        - name: funds-service
+          image: ${DOCKERHUB_NAMESPACE}/funds-service:latest
+          ports:
+            - containerPort: 8085
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "funds-service"
+            - name: POSTGRES_DB_NAME
+              value: "funds_service"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: funds-service
+  namespace: winvestco
+  labels:
+    app: funds-service
+spec:
+  selector:
+    app: funds-service
+  ports:
+    - port: 8085
+      targetPort: 8085
+      name: http
+  type: ClusterIP

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: winvestco
+  labels:
+    app: user-service
+    component: service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        component: service
+    spec:
+      containers:
+        - name: user-service
+          image: ${DOCKERHUB_NAMESPACE}/user-service:latest
+          ports:
+            - containerPort: 8088
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "user-service"
+            - name: POSTGRES_DB_NAME
+              value: "user_service"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8088
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: winvestco
+  labels:
+    app: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8088
+      targetPort: 8088
+      name: http
+  type: ClusterIP

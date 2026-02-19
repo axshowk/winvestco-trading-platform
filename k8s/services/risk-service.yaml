@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-service
+  namespace: winvestco
+  labels:
+    app: risk-service
+    component: service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: risk-service
+  template:
+    metadata:
+      labels:
+        app: risk-service
+        component: service
+    spec:
+      containers:
+        - name: risk-service
+          image: ${DOCKERHUB_NAMESPACE}/risk-service:latest
+          ports:
+            - containerPort: 8092
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "risk-service"
+            - name: POSTGRES_DB_NAME
+              value: "risk_service"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8092
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8092
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-service
+  namespace: winvestco
+  labels:
+    app: risk-service
+spec:
+  selector:
+    app: risk-service
+  ports:
+    - port: 8092
+      targetPort: 8092
+      name: http
+  type: ClusterIP

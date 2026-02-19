@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: winvestco
+
+resources:
+  - namespace.yaml
+  - configmaps.yaml
+  - secrets.yaml
+  - pvc.yaml
+  - ingress.yaml
+  - ../infrastructure/postgres.yaml
+  - ../infrastructure/redis.yaml
+  - ../infrastructure/rabbitmq.yaml
+  - ../infrastructure/kafka.yaml
+  - ../infrastructure/zookeeper.yaml
+  - ../services/eureka-server.yaml
+  - ../services/api-gateway.yaml
+  - ../services/user-service.yaml
+  - ../services/market-service.yaml
+  - ../services/portfolio-service.yaml
+  - ../services/funds-service.yaml
+  - ../services/ledger-service.yaml
+  - ../services/order-service.yaml
+  - ../services/trade-service.yaml
+  - ../services/notification-service.yaml
+  - ../services/payment-service.yaml
+  - ../services/report-service.yaml
+  - ../services/risk-service.yaml
+  - ../services/schedule-service.yaml
+  - ../services/frontend.yaml
+  - ../observability/prometheus-config.yaml
+  - ../observability/prometheus.yaml
+  - ../observability/grafana-secret.yaml
+  - ../observability/grafana.yaml
+  - ../observability/jaeger.yaml
+  - ../observability/loki.yaml

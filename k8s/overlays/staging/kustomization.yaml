@@ -1,0 +1,75 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namePrefix: staging-
+namespace: winvestco-staging
+
+resources:
+  - ../../base
+
+replicas:
+  - name: eureka-server
+    count: 2
+  - name: api-gateway
+    count: 2
+  - name: user-service
+    count: 2
+  - name: market-service
+    count: 2
+  - name: portfolio-service
+    count: 2
+  - name: funds-service
+    count: 2
+  - name: ledger-service
+    count: 2
+  - name: order-service
+    count: 2
+  - name: trade-service
+    count: 2
+  - name: notification-service
+    count: 2
+  - name: payment-service
+    count: 2
+  - name: report-service
+    count: 2
+  - name: risk-service
+    count: 2
+  - name: schedule-service
+    count: 1
+  - name: frontend
+    count: 2
+
+images:
+  - name: ${DOCKERHUB_NAMESPACE}/eureka-server
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/api-gateway
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/user-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/market-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/portfolio-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/funds-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/ledger-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/order-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/trade-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/notification-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/payment-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/report-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/risk-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/schedule-service
+    newTag: staging
+  - name: ${DOCKERHUB_NAMESPACE}/frontend
+    newTag: staging
+
+patchesStrategicMerge:
+  - config-patch.yaml
