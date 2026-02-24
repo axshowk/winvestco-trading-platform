@@ -110,6 +110,11 @@
             <artifactId>spring-rabbit-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Redis for WebSocket Session Management & Pub/Sub -->
         <dependency>
@@ -117,6 +122,11 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
     </dependencies>
+
+    <properties>
+        <!-- Fallback so mvn test works without JaCoCo prepare-agent running first -->
+        <argLine></argLine>
+    </properties>
 
     <build>
         <plugins>

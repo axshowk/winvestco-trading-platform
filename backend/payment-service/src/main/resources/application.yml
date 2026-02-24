@@ -126,3 +126,86 @@ logging:
     in.winvestco.payment_service: DEBUG
     org.springframework.amqp: INFO
     com.razorpay: DEBUG
+
+# Resilience4j Configuration
+resilience4j:
+  # Circuit Breaker - Fail-fast for Razorpay API and ledger-service
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 2s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - com.razorpay.RazorpayException
+          - feign.FeignException$ServiceUnavailable
+          - feign.FeignException$InternalServerError
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      razorpayApi:
+        baseConfig: default
+        failureRateThreshold: 30  # Stricter for payment gateway
+        waitDurationInOpenState: 60s  # Longer cooldown for payment failures
+      ledgerService:
+        baseConfig: default
+
+  # Retry - Exponential Backoff with Jitter for payment operations
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - com.razorpay.RazorpayException
+          - feign.RetryableException
+        ignoreExceptions:
+          - feign.FeignException$BadRequest
+          - feign.FeignException$NotFound
+          - feign.FeignException$Unauthorized
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      razorpayApi:
+        baseConfig: default
+        maxAttempts: 2  # Fewer retries for payment operations
+      ledgerService:
+        baseConfig: default
+
+  # Bulkhead - Resource Isolation for payment operations
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 100ms
+    instances:
+      razorpayApi:
+        maxConcurrentCalls: 5  # Limit concurrent payment API calls
+        maxWaitDuration: 200ms
+      ledgerService:
+        baseConfig: default
+
+  # TimeLimiter - Timeout Control
+  timelimiter:
+    instances:
+      razorpayApi:
+        timeoutDuration: 10s  # Longer timeout for payment gateway
+        cancelRunningFuture: true
+      ledgerService:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
