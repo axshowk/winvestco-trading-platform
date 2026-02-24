@@ -16,7 +16,7 @@ The platform is built on five core architectural pillars:
 1. **Extreme Concurrency**: Optimized for millions of concurrent I/O operations using Virtual Threads.
 2. **Strict Auditability**: An immutable, double-entry ledger serves as the authoritative source of truth.
 3. **Event-Driven Resilience**: Asynchronous domain events decouple critical business logic across a dual-broker infrastructure.
-4. **Real-Time Streaming**: Low-latency market data delivery via gRPC and high-throughput Kafka pipelines.
+4. **Real-Time Streaming**: Versioned Kafka market events with local Redis projections and gRPC/REST fallback for resilient low-latency reads.
 5. **Observability First**: Comprehensive PLG+J stack integration for zero-blindspot monitoring.
 
 ---
@@ -49,6 +49,11 @@ graph TD
         MarketSvc --> Kafka{Apache Kafka}
         MarketSvc --> Redis[(Redis Cluster)]
         Kafka --> TradeSvc
+        Kafka --> OrderSvc
+        Kafka --> PortfolioSvc
+        TradeSvc -. Fallback Quote Reads .-> MarketSvc
+        OrderSvc -. Fallback Quote Reads .-> MarketSvc
+        PortfolioSvc -. Fallback Quote Reads .-> MarketSvc
     end
 
     subgraph "Support Services"
@@ -90,7 +95,7 @@ Operating on a standard platform hardware, Winvestco demonstrates massive scalab
 <details>
 <summary><b>1. Dual Message Broker Strategy (Kafka + RabbitMQ)</b></summary>
 We separate high-throughput telemetry from high-reliability business events:
-- **Apache Kafka (3-Broker Cluster)**: Handles NSE India market data streaming with a 12-partition, 3x replicated high-throughput pipeline.
+- **Apache Kafka**: Canonical market data backbone with versioned topics (`market.quote.v1`, `market.index.v1`) and protobuf contracts.
 - **RabbitMQ**: Manages 26+ distinct Domain Events (e.g., `OrderFilledEvent`, `FundsLockedEvent`) with guaranteed delivery and dead-letter routing.
 </details>
 
@@ -143,6 +148,46 @@ The platform orchestrates complex sequences using an event-driven model with **2
 4. **Ledger Service** records entries and notifies **Notification Service**.
 
 </details>
+
+---
+
+## 📡 Market Data Backbone (Option A)
+
+Kafka is now the primary inter-service market-data distribution path, with phased rollout:
+
+- **Phase 1 complete**: Shared protobuf contracts and versioned topics (`market.quote.v1`, `market.index.v1`) are defined.
+- **Phase 2 complete**: `market-service` publishes canonical quote/index events to versioned Kafka topics (legacy topic retained for migration).
+- **Phase 3 complete**: `trade-service`, `order-service`, and `portfolio-service` consume `market.quote.v1` and maintain local Redis quote projections.
+- **Phase 4 complete**: Read paths are projection-first with fallback to existing gRPC/REST calls when projection data is missing.
+- **Phase 5 complete**: Consumer resilience is enabled with retry/backoff, per-service DLT topics, poison-message handling, startup replay controls, and stale-quote rejection guardrails for order/trade flows.
+- **Phase 6 complete**: Operational metrics are instrumented for projection freshness/access, DLT rate, consumer success/failure, and consumer lag recording.
+
+### Operational Defaults
+
+- **Canonical Topics**: `market.quote.v1`, `market.index.v1`
+- **DLT Topics**:
+  - `market.quote.v1.dlt.trade-service`
+  - `market.quote.v1.dlt.order-service`
+  - `market.quote.v1.dlt.portfolio-service`
+- **Quote Staleness SLA**:
+  - `trading.quote.staleness-sla-seconds` (default `30`) in `trade-service` and `order-service`
+- **Startup Replay Control**:
+  - `trading.kafka.market-quote.startup-replay-offset` = `committed|earliest|latest`
+- **Retry Controls**:
+  - `trading.kafka.market-quote.retry.max-attempts`
+  - `trading.kafka.market-quote.retry.initial-interval-ms`
+  - `trading.kafka.market-quote.retry.multiplier`
+  - `trading.kafka.market-quote.retry.max-interval-ms`
+
+### Key Market Data Metrics
+
+- `projection_update_delay_seconds`
+- `projection_access_total`
+- `market_quote_dlt_total`
+- `market_quote_consumed_total`
+- `market_quote_consumer_lag_records`
+
+Contract reference: [docs/market-kafka-contract-v1.md](./docs/market-kafka-contract-v1.md)
 
 ---
 
@@ -206,8 +251,8 @@ The Winvestco Frontend is a modern, high-performance web terminal built for trad
 
 ### 📡 Communication & Messaging
 
-- **gRPC & Protocol Buffers**: Used for high-speed, binary internal streaming of Market Data from `Market-Service` to `Trade-Service`.
-- **Apache Kafka (3-Broker Cluster)**: High-throughput distributed log for market data ingestion and real-time candle (OHLC) generation. Featuring 12-partition topics, idempotent production, and manual offset management for extreme reliability.
+- **gRPC & Protocol Buffers**: Used for high-speed fallback quote reads and internal RPC where synchronous lookup is required.
+- **Apache Kafka**: Primary market-data event backbone with versioned topics (`market.quote.v1`, `market.index.v1`), protobuf payloads, idempotent production, manual offset management, per-service DLT, and retry/backoff-based recovery.
 - **RabbitMQ**: Message broker for mission-critical domain events using **Topic Exchanges** and **Dead Letter Queues (DLQ)**.
 
 ### 🧪 Quality Assurance
@@ -251,9 +296,7 @@ The platform requires the following ports to be available on the host machine fo
 | **Redis** | `6379` | Cache and streaming snapshots |
 | **RabbitMQ** | `5672` | AMQP messaging protocol |
 | **RabbitMQ UI** | `15672` | Management dashboard |
-| **Kafka Broker 1** | `9092` | Primary market data broker |
-| **Kafka Broker 2** | `9094` | High-availability replica broker |
-| **Kafka Broker 3** | `9096` | High-availability replica broker |
+| **Kafka Broker** | `9092` | Local development broker (single-node default) |
 | **Grafana** | `3000` | Central observability dashboard |
 | **Prometheus** | `9090` | Metrics engine dashboard |
 | **Jaeger UI** | `16686` | Distributed tracing explorer |
@@ -386,6 +429,7 @@ See [k8s/README.md](./k8s/README.md) for detailed deployment guide.
 
 - **[ADR Catalog](./docs/adr/)**: Comprehensive list of Architectural Decision Records
 - **[Observability Guide](./docs/observability.md)**: Complete PLG+J stack setup, configuration, and troubleshooting
+- **[Market Kafka Contract v1](./docs/market-kafka-contract-v1.md)**: Versioned topic definitions, event schema, and compatibility rules
 - **[Project Context](./context/)**: Domain-specific improvement plans and roadmaps
 
 ---

@@ -45,6 +45,24 @@ spring:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:order-service-market-quote-consumer}
+      auto-offset-reset: ${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:earliest}
+    topics:
+      market-quote:
+        name: ${MARKET_QUOTE_TOPIC:market.quote.v1}
+        dlt-name: ${MARKET_QUOTE_DLT_TOPIC:market.quote.v1.dlt.order-service}
+        partitions: ${MARKET_QUOTE_TOPIC_PARTITIONS:12}
+        replicas: ${MARKET_QUOTE_TOPIC_REPLICAS:1}
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      timeout: 2000ms
+
 server:
   port: 8089
 
@@ -121,6 +139,16 @@ trading:
   market-close-hour: 15
   market-close-minute: 30
   timezone: Asia/Kolkata
+  quote:
+    staleness-sla-seconds: ${QUOTE_STALENESS_SLA_SECONDS:30}
+  kafka:
+    market-quote:
+      startup-replay-offset: ${MARKET_QUOTE_STARTUP_REPLAY_OFFSET:committed}
+      retry:
+        max-attempts: ${MARKET_QUOTE_RETRY_MAX_ATTEMPTS:4}
+        initial-interval-ms: ${MARKET_QUOTE_RETRY_INITIAL_INTERVAL_MS:500}
+        multiplier: ${MARKET_QUOTE_RETRY_MULTIPLIER:2.0}
+        max-interval-ms: ${MARKET_QUOTE_RETRY_MAX_INTERVAL_MS:5000}
 
 # Feign client configuration
 feign:

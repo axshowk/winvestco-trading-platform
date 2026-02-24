@@ -41,6 +41,25 @@ function Wait-ForPort {
     return $false
 }
 
+# Function to quickly test if a port is reachable
+function Test-PortOpen {
+    param([int]$Port, [int]$TimeoutMs = 1000)
+    $tcp = New-Object System.Net.Sockets.TcpClient
+    try {
+        $connect = $tcp.BeginConnect("127.0.0.1", $Port, $null, $null)
+        if ($connect.AsyncWaitHandle.WaitOne($TimeoutMs, $false) -and $tcp.Connected) {
+            return $true
+        }
+    }
+    catch {
+        # no-op; handled by false return
+    }
+    finally {
+        $tcp.Close()
+    }
+    return $false
+}
+
 # 1. Start PostgreSQL
 # ... skipped for brevity if needed but I'll write the full block for clarity ...
 Write-Host "[1/8] Starting PostgreSQL..." -ForegroundColor Yellow
@@ -64,13 +83,50 @@ Start-Process -FilePath "$ToolsDir\rabbitmq_server-4.2.3\sbin\rabbitmq-server.ba
 # 4. Start Kafka (KRaft mode)
 Write-Host "[4/8] Starting Kafka (KRaft)..." -ForegroundColor Yellow
 $KafkaDir = "$ToolsDir\kafka_2.13-4.1.1"
+$KafkaConfigPath = "$KafkaDir\config\server.properties"
+$KafkaConfigPathReset = "$KafkaDir\config\server-local-reset.properties"
+$KafkaConfigArg = ".\config\server.properties"
+$KafkaConfigArgReset = ".\config\server-local-reset.properties"
 $KraftLogsDir = "$KafkaDir\kraft-combined-logs"
+$KraftLogsDirReset = "$KafkaDir\kraft-combined-logs-reset"
 if (-not (Test-Path $KraftLogsDir)) {
     Write-Host "Formatting Kafka storage for KRaft..." -ForegroundColor Cyan
     $randomUuid = (& "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat random-uuid" | Select-Object -Last 1).Trim()
-    & "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat format --standalone -t $randomUuid -c .\config\server.properties"
+    & "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat format --standalone -t $randomUuid -c $KafkaConfigArg"
 }
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $KafkaDir && .\bin\windows\kafka-server-start.bat .\config\server.properties" -NoNewWindow
+$kafkaProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $KafkaDir && .\bin\windows\kafka-server-start.bat $KafkaConfigArg" -NoNewWindow -PassThru
+Start-Sleep -Seconds 8
+
+if (-not (Test-PortOpen -Port 9092)) {
+    Write-Host "Kafka failed initial startup. Attempting local KRaft log reset..." -ForegroundColor Yellow
+    if ($kafkaProcess -and -not $kafkaProcess.HasExited) {
+        Stop-Process -Id $kafkaProcess.Id -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 1
+    }
+
+    if (Test-Path $KraftLogsDirReset) {
+        Remove-Item -Path $KraftLogsDirReset -Recurse -Force
+    }
+
+    $resetLogDirForConfig = $KraftLogsDirReset -replace "\\", "/"
+    (Get-Content $KafkaConfigPath) `
+        -replace "^log\.dirs=.*$", "log.dirs=$resetLogDirForConfig" `
+        | Set-Content -Path $KafkaConfigPathReset -Encoding ascii
+
+    Write-Host "Formatting Kafka reset storage for KRaft..." -ForegroundColor Cyan
+    $resetUuid = (& "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat random-uuid" | Select-Object -Last 1).Trim()
+    & "cmd.exe" /c "cd /d $KafkaDir && .\bin\windows\kafka-storage.bat format --standalone -t $resetUuid -c $KafkaConfigArgReset"
+
+    $kafkaProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d $KafkaDir && .\bin\windows\kafka-server-start.bat $KafkaConfigArgReset" -NoNewWindow -PassThru
+    Start-Sleep -Seconds 8
+
+    if (Test-PortOpen -Port 9092) {
+        Write-Host "Kafka recovery startup succeeded (port 9092)." -ForegroundColor Green
+    }
+    else {
+        Write-Host "Kafka recovery startup did not bind port 9092 yet." -ForegroundColor Yellow
+    }
+}
 
 # 5. Start Prometheus
 Write-Host "[5/8] Starting Prometheus..." -ForegroundColor Yellow

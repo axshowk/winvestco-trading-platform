@@ -18,6 +18,15 @@ spring:
   # Kafka Configuration
   kafka:
     bootstrap-servers: localhost:9092
+    topics:
+      market-quote:
+        name: market.quote.v1
+        partitions: 12
+        replicas: 1
+      market-index:
+        name: market.index.v1
+        partitions: 6
+        replicas: 1
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

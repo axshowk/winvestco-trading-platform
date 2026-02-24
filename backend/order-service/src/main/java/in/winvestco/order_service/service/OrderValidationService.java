@@ -6,7 +6,11 @@ import in.winvestco.order_service.dto.CreateOrderRequest;
 import in.winvestco.order_service.exception.OrderValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Service for validating orders before processing
@@ -17,12 +21,17 @@ import org.springframework.stereotype.Service;
 public class OrderValidationService {
 
     private final MarketServiceClient marketServiceClient;
+    private final MarketQuoteProjectionService marketQuoteProjectionService;
+
+    @Value("${trading.quote.staleness-sla-seconds:30}")
+    private long quoteStalenessSlaSeconds;
 
     /**
      * Validate order request
      */
     public void validate(CreateOrderRequest request) {
         validateSymbol(request.getSymbol());
+        validateQuoteFreshness(request.getSymbol());
         validatePriceForOrderType(request);
         validateStopPrice(request);
     }
@@ -31,6 +40,10 @@ public class OrderValidationService {
      * Validate symbol exists in market-service
      */
     private void validateSymbol(String symbol) {
+        if (marketQuoteProjectionService.getQuote(symbol).isPresent()) {
+            return;
+        }
+
         try {
             Boolean exists = marketServiceClient.symbolExists(symbol);
             if (exists == null || !exists) {
@@ -42,6 +55,44 @@ public class OrderValidationService {
             log.warn("Failed to validate symbol against market-service, allowing order: {}", symbol, e);
             // Allow order to proceed when market-service is unavailable
         }
+    }
+
+    private void validateQuoteFreshness(String symbol) {
+        Duration allowedAge = Duration.ofSeconds(quoteStalenessSlaSeconds);
+        var snapshotOptional = marketQuoteProjectionService.getQuote(symbol);
+
+        if (snapshotOptional.isPresent()) {
+            MarketQuoteProjectionService.QuoteSnapshot snapshot = snapshotOptional.get();
+            long quoteEpochSeconds = snapshot.eventTimeSeconds() > 0
+                    ? snapshot.eventTimeSeconds()
+                    : snapshot.projectionUpdatedAtMs() / 1000;
+
+            Duration quoteAge = Duration.between(Instant.ofEpochSecond(quoteEpochSeconds), Instant.now());
+            if (quoteAge.isNegative()) {
+                quoteAge = Duration.ZERO;
+            }
+
+            if (quoteAge.compareTo(allowedAge) <= 0) {
+                return;
+            }
+
+            log.warn("Projection quote for symbol {} is stale (age={}s, sla={}s), falling back to market-service",
+                    symbol, quoteAge.getSeconds(), allowedAge.getSeconds());
+        }
+
+        try {
+            MarketServiceClient.MarketPriceResponse fallbackPrice = marketServiceClient.getMarketPrice(symbol);
+            if (fallbackPrice != null && fallbackPrice.lastPrice() != null) {
+                return;
+            }
+        } catch (Exception e) {
+            log.warn("Fallback market-service price lookup failed for symbol {}", symbol, e);
+        }
+
+        throw new OrderValidationException(String.format(
+                "Cannot place order without a fresh quote for symbol %s (sla=%ss)",
+                symbol,
+                allowedAge.getSeconds()));
     }
 
     /**

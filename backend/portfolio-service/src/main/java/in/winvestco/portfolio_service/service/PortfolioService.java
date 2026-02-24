@@ -20,9 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +39,7 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final PortfolioMapper portfolioMapper;
     private final MarketServiceClient marketServiceClient;
+    private final MarketQuoteProjectionService marketQuoteProjectionService;
 
     /**
      * Create a demo portfolio for a new user.
@@ -285,17 +288,29 @@ public class PortfolioService {
                 return portfolio;
             }
 
-            // Fetch bulk quotes from market service
-            List<StockQuoteDTO> quotes = marketServiceClient.getBulkQuotes(symbols);
+            Map<String, StockQuoteDTO> quoteMap = new HashMap<>();
+            List<String> missingSymbols = symbols.stream()
+                    .filter(symbol -> {
+                        var projection = marketQuoteProjectionService.getQuote(symbol);
+                        if (projection.isPresent()) {
+                            quoteMap.put(symbol.toUpperCase(), toStockQuoteDTO(projection.get()));
+                            return false;
+                        }
+                        return true;
+                    })
+                    .toList();
 
-            Map<String, StockQuoteDTO> quoteMap = quotes.stream()
-                    .filter(q -> q.getLastPrice() != null)
-                    .collect(Collectors.toMap(StockQuoteDTO::getSymbol, q -> q, (a, b) -> a));
+            if (!missingSymbols.isEmpty()) {
+                List<StockQuoteDTO> fallbackQuotes = marketServiceClient.getBulkQuotes(missingSymbols);
+                fallbackQuotes.stream()
+                        .filter(q -> q.getLastPrice() != null && q.getSymbol() != null)
+                        .forEach(q -> quoteMap.put(q.getSymbol().toUpperCase(), q));
+            }
 
             BigDecimal totalCurrentValue = BigDecimal.ZERO;
 
             for (HoldingDTO holding : portfolio.getHoldings()) {
-                StockQuoteDTO quote = quoteMap.get(holding.getSymbol());
+                StockQuoteDTO quote = quoteMap.get(holding.getSymbol().toUpperCase());
                 if (quote != null) {
                     holding.setCurrentPrice(quote.getLastPrice());
                     holding.setDayChange(quote.getChange());
@@ -331,6 +346,21 @@ public class PortfolioService {
         }
 
         return portfolio;
+    }
+
+    private StockQuoteDTO toStockQuoteDTO(MarketQuoteProjectionService.QuoteSnapshot snapshot) {
+        return StockQuoteDTO.builder()
+                .symbol(snapshot.symbol())
+                .lastPrice(BigDecimal.valueOf(snapshot.lastPrice()))
+                .open(BigDecimal.valueOf(snapshot.open()))
+                .high(BigDecimal.valueOf(snapshot.high()))
+                .low(BigDecimal.valueOf(snapshot.low()))
+                .close(BigDecimal.valueOf(snapshot.close()))
+                .change(BigDecimal.valueOf(snapshot.change()))
+                .pChange(BigDecimal.valueOf(snapshot.changePercent()))
+                .volume(BigDecimal.valueOf(snapshot.volume()))
+                .lastUpdateTime(Instant.ofEpochSecond(snapshot.eventTimeSeconds()))
+                .build();
     }
 
     /**

@@ -185,3 +185,75 @@ groups:
           description: "JVM heap at {{ $value | printf \"%.1f\" }}%"
         labels:
           severity: warning
+
+      - uid: market-quote-lag-sustained-alert
+        title: Sustained Market Quote Lag
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: sum(kafka_consumergroup_lag{group=~".*market-quote-consumer.*"}) by (group, topic) > 2000
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "Sustained consumer lag on {{ $labels.group }}"
+          description: "Lag on {{ $labels.group }} / {{ $labels.topic }} has exceeded 2000 for 5 minutes."
+        labels:
+          severity: critical
+
+      - uid: stale-projection-ratio-alert
+        title: High Stale Projection Ratio
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: (sum(rate(projection_access_total{result="stale"}[5m])) by (application) / clamp_min(sum(rate(projection_access_total{result=~"hit|stale"}[5m])) by (application), 0.0001)) > 0.20
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "Stale projection ratio high on {{ $labels.application }}"
+          description: "Stale projection ratio exceeded 20% for 10 minutes."
+        labels:
+          severity: warning
+
+      - uid: market-quote-dlt-spike-alert
+        title: Market Quote DLT Spike
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: sum(increase(market_quote_dlt_total[5m])) by (consumer_group) > 10
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "DLT spike for {{ $labels.consumer_group }}"
+          description: "More than 10 market quote messages moved to DLT within 5 minutes."
+        labels:
+          severity: critical

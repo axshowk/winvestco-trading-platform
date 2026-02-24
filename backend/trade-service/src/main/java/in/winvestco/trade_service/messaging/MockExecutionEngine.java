@@ -6,6 +6,7 @@ import in.winvestco.common.enums.OrderSide;
 import in.winvestco.common.event.TradePlacedEvent;
 import in.winvestco.trade_service.client.MarketDataGrpcClient;
 import in.winvestco.trade_service.config.MockExecutionProperties;
+import in.winvestco.trade_service.service.MarketQuoteProjectionService;
 import in.winvestco.trade_service.service.TradeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +15,12 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -38,8 +41,12 @@ public class MockExecutionEngine {
 
     private final TradeService tradeService;
     private final MarketDataGrpcClient marketDataGrpcClient;
+    private final MarketQuoteProjectionService marketQuoteProjectionService;
     private final MockExecutionProperties properties;
     private final Random random = new Random();
+
+    @Value("${trading.quote.staleness-sla-seconds:30}")
+    private long quoteStalenessSlaSeconds;
 
     /**
      * Listen for TradePlacedEvent and trigger async execution.
@@ -195,10 +202,34 @@ public class MockExecutionEngine {
     }
 
     /**
-     * Fetch current market price from market-service via gRPC.
+     * Fetch current market price from local projection first, then fallback to gRPC.
+     * Rejects execution if no fresh quote is available within SLA.
      */
     private BigDecimal fetchMarketPrice(String symbol) {
-        return marketDataGrpcClient.getQuote(symbol);
+        var projection = marketQuoteProjectionService.getQuote(symbol);
+        if (projection.isPresent()) {
+            var snapshot = projection.get();
+            long quoteEpochSeconds = snapshot.eventTimeSeconds() > 0
+                    ? snapshot.eventTimeSeconds()
+                    : snapshot.projectionUpdatedAtMs() / 1000;
+            long quoteAgeSeconds = Math.max(0, Instant.now().getEpochSecond() - quoteEpochSeconds);
+
+            if (quoteAgeSeconds <= quoteStalenessSlaSeconds) {
+                return BigDecimal.valueOf(snapshot.lastPrice());
+            }
+
+            log.warn("Projection quote for symbol {} is stale (age={}s, sla={}s), falling back to gRPC",
+                    symbol, quoteAgeSeconds, quoteStalenessSlaSeconds);
+        }
+
+        BigDecimal grpcQuote = marketDataGrpcClient.getQuote(symbol);
+        if (grpcQuote != null) {
+            return grpcQuote;
+        }
+
+        throw new IllegalStateException(String.format(
+                "No fresh market quote available for symbol %s (sla=%ss)",
+                symbol, quoteStalenessSlaSeconds));
     }
 
     /**

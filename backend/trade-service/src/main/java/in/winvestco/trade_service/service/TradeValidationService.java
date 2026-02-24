@@ -2,12 +2,18 @@ package in.winvestco.trade_service.service;
 
 import in.winvestco.trade_service.dto.CreateTradeRequest;
 import in.winvestco.trade_service.exception.TradeValidationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 
 /**
  * Service for validating trade business rules.
@@ -20,7 +26,10 @@ import java.time.*;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TradeValidationService {
+
+    private final MarketQuoteProjectionService marketQuoteProjectionService;
 
     @Value("${trading.market-open-hour:9}")
     private int marketOpenHour;
@@ -46,6 +55,9 @@ public class TradeValidationService {
     @Value("${trading.max-quantity-per-order:100000}")
     private BigDecimal maxQuantityPerOrder;
 
+    @Value("${trading.quote.staleness-sla-seconds:30}")
+    private long quoteStalenessSlaSeconds;
+
     /**
      * Validate a trade request.
      * 
@@ -56,6 +68,7 @@ public class TradeValidationService {
         log.debug("Validating trade request for order: {}", request.getOrderId());
 
         validateSymbol(request.getSymbol());
+        validateQuoteFreshness(request.getSymbol());
         validateQuantity(request.getQuantity());
         validatePrice(request.getPrice(), request.getQuantity());
         // Market hours validation is optional - can be enabled for paper trading
@@ -90,6 +103,31 @@ public class TradeValidationService {
             throw new TradeValidationException(
                     String.format("Quantity %s exceeds maximum allowed %s", quantity, maxQuantityPerOrder),
                     "QUANTITY_EXCEEDED");
+        }
+    }
+
+    private void validateQuoteFreshness(String symbol) {
+        MarketQuoteProjectionService.QuoteSnapshot snapshot = marketQuoteProjectionService.getQuote(symbol)
+                .orElseThrow(() -> new TradeValidationException(
+                        "Cannot place trade without a market quote for symbol: " + symbol,
+                        "QUOTE_UNAVAILABLE"));
+
+        long quoteEpochSeconds = snapshot.eventTimeSeconds() > 0
+                ? snapshot.eventTimeSeconds()
+                : snapshot.projectionUpdatedAtMs() / 1000;
+
+        Duration quoteAge = Duration.between(Instant.ofEpochSecond(quoteEpochSeconds), Instant.now());
+        if (quoteAge.isNegative()) {
+            quoteAge = Duration.ZERO;
+        }
+
+        Duration allowedAge = Duration.ofSeconds(quoteStalenessSlaSeconds);
+        if (quoteAge.compareTo(allowedAge) > 0) {
+            throw new TradeValidationException(String.format(
+                    "Quote for symbol %s is stale (age=%ss, sla=%ss)",
+                    symbol,
+                    quoteAge.getSeconds(),
+                    allowedAge.getSeconds()), "STALE_QUOTE");
         }
     }
 
