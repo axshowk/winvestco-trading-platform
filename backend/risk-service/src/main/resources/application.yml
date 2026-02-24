@@ -35,3 +35,73 @@ langchain4j:
       temperature: 0.2
       log-requests: true
       log-responses: true
+
+# Resilience4j Configuration
+resilience4j:
+  # Circuit Breaker - Fail-fast for AI API and dependencies
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 2s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - dev.langchain4j.exception.LangChainException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      aiService:
+        baseConfig: default
+        failureRateThreshold: 40  # Moderate for AI API calls
+        waitDurationInOpenState: 60s  # Longer cooldown for AI failures
+
+  # Retry - Conservative retry for AI operations
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 1000ms  # Longer wait for AI API
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        enableRandomizedWait: true
+        randomizedWaitFactor: 0.5
+        retryExceptions:
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+          - dev.langchain4j.exception.LangChainException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - in.winvestco.common.exception.NonRetryableException
+    instances:
+      aiService:
+        baseConfig: default
+        maxAttempts: 2  # Fewer retries for AI operations
+
+  # Bulkhead - Resource Isolation for AI operations
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 100ms
+    instances:
+      aiService:
+        maxConcurrentCalls: 3  # Very limited concurrent AI calls
+        maxWaitDuration: 200ms
+
+  # TimeLimiter - Timeout Control
+  timelimiter:
+    instances:
+      aiService:
+        timeoutDuration: 30s  # Longer timeout for AI operations
+        cancelRunningFuture: true
