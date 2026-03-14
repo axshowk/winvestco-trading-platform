@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,6 +38,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final ReportMapper reportMapper;
     private final ReportGenerationService reportGenerationService;
+    private final MeterRegistry meterRegistry;
 
     @Value("${report.storage.path:./reports}")
     private String storagePath;
@@ -70,6 +72,11 @@ public class ReportService {
         reportGenerationService.generateReportAsync(report.getId());
 
         log.info("Report {} queued for generation", report.getReportId());
+
+        meterRegistry.counter("report.requested.count",
+                "type", request.getType().name(),
+                "format", request.getFormat().name()).increment();
+
         return reportMapper.toDTO(report);
     }
 
@@ -180,6 +187,7 @@ public class ReportService {
         }
 
         log.info("Cleanup completed: {} reports expired", deletedCount);
+        meterRegistry.counter("report.cleanup.count").increment(deletedCount);
     }
 
     /**

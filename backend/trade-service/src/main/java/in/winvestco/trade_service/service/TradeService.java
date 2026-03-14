@@ -96,6 +96,11 @@ public class TradeService {
         // Publish trade created event
         eventPublisher.publishTradeCreated(trade);
 
+        // Record business metric
+        meterRegistry.counter("trade.created.count",
+                "symbol", trade.getSymbol(),
+                "side", trade.getSide().name()).increment();
+
         // Immediately transition to VALIDATED (validation passed above)
         trade.setStatus(TradeStatus.VALIDATED);
         trade.setValidatedAt(Instant.now());

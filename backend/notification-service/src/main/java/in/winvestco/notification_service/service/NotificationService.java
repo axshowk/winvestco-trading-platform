@@ -6,6 +6,7 @@ import in.winvestco.notification_service.model.Notification;
 import in.winvestco.notification_service.model.NotificationStatus;
 import in.winvestco.notification_service.model.NotificationType;
 import in.winvestco.notification_service.repository.NotificationRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
     private final NotificationPreferenceService preferenceService;
     private final NotificationDeliveryStrategy deliveryStrategy;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Create and send a notification via all enabled channels.
@@ -36,11 +38,13 @@ public class NotificationService {
     public NotificationDTO createNotification(Long userId, NotificationType type,
             String title, String message,
             Map<String, Object> data) {
+        long startNanos = System.nanoTime();
         log.info("Creating notification for user {}: type={}, title={}", userId, type, title);
 
         // Check if notification is muted
         if (preferenceService.isNotificationMuted(userId, type)) {
             log.debug("Notification muted for user {}: type={}", userId, type);
+            meterRegistry.counter("notification.sent.count", "type", type.name(), "status", "muted").increment();
             return null;
         }
 
@@ -57,6 +61,10 @@ public class NotificationService {
 
         // Send via multi-channel delivery strategy
         deliveryStrategy.deliver(userId, dto);
+
+        meterRegistry.counter("notification.sent.count", "type", type.name(), "status", "sent").increment();
+        meterRegistry.timer("notification.delivery.duration")
+                .record(System.nanoTime() - startNanos, java.util.concurrent.TimeUnit.NANOSECONDS);
 
         log.info("Created notification {} for user {} - delivering via enabled channels",
                 saved.getId(), userId);

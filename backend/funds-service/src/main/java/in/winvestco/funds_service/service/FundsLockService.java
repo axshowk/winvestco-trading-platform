@@ -91,6 +91,7 @@ public class FundsLockService {
                 "Funds locked for order: " + orderId);
 
         log.info("Locked {} for order {}. Lock ID: {}", amount, orderId, saved.getId());
+        meterRegistry.counter("funds.lock.count", "operation", "lock").increment();
         return fundsMapper.toFundsLockDTO(saved);
     }
 

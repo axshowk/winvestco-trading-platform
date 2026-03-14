@@ -81,6 +81,9 @@ public class PaymentService {
         payment.initiate(razorpayOrderId, expiresAt);
         payment = paymentRepository.save(payment);
 
+        meterRegistry.counter("payment.initiated.count",
+                "provider", "RAZORPAY").increment();
+
         // Publish event
         eventPublisher.publishPaymentCreated(payment);
 

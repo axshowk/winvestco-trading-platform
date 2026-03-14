@@ -167,6 +167,10 @@ public class OrderService {
 
         log.info("Order {} cancelled by user {}: {}", orderId, userId, reason);
 
+        meterRegistry.counter("orders.cancelled.count",
+                "symbol", order.getSymbol(),
+                "side", order.getSide().name()).increment();
+
         // Publish cancelled event for notifications
         eventPublisher.publishOrderCancelled(order, reason, "USER");
         eventPublisher.publishOrderUpdated(order);

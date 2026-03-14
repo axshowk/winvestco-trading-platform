@@ -3,6 +3,7 @@ package in.winvestco.schedule_service.scheduler;
 import in.winvestco.common.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 public class CentralScheduler {
 
     private final RabbitTemplate rabbitTemplate;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Trigger Market Data Fetch every 3 minutes
@@ -33,6 +35,7 @@ public class CentralScheduler {
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.MARKET_FETCH_TRIGGER_ROUTING_KEY,
                 "TRIGGER");
+        meterRegistry.counter("scheduler.job.executed.count", "job", "market_data_fetch").increment();
     }
 
     /**
@@ -46,6 +49,7 @@ public class CentralScheduler {
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.ORDER_EXPIRE_TRIGGER_ROUTING_KEY,
                 "TRIGGER");
+        meterRegistry.counter("scheduler.job.executed.count", "job", "order_expiry").increment();
     }
 
     /**
@@ -60,6 +64,7 @@ public class CentralScheduler {
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.ORDER_EXPIRE_TRIGGER_ROUTING_KEY,
                 "MARKET_CLOSE_TRIGGER");
+        meterRegistry.counter("scheduler.job.executed.count", "job", "market_close_expiry").increment();
     }
 
     /**
@@ -73,6 +78,7 @@ public class CentralScheduler {
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.PAYMENT_EXPIRE_TRIGGER_ROUTING_KEY,
                 "TRIGGER");
+        meterRegistry.counter("scheduler.job.executed.count", "job", "payment_expiry").increment();
     }
 
     /**
@@ -86,5 +92,6 @@ public class CentralScheduler {
                 RabbitMQConfig.SCHEDULE_EXCHANGE,
                 RabbitMQConfig.REPORT_CLEANUP_TRIGGER_ROUTING_KEY,
                 "TRIGGER");
+        meterRegistry.counter("scheduler.job.executed.count", "job", "report_cleanup").increment();
     }
 }

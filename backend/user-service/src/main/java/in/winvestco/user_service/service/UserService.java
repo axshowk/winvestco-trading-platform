@@ -15,7 +15,9 @@ import in.winvestco.user_service.dto.UserResponse;
 import in.winvestco.user_service.exception.UserNotFoundException;
 import in.winvestco.user_service.model.User;
 import in.winvestco.user_service.repository.UserRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +44,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserEventPublisher userEventPublisher;
     private final LoggingUtils loggingUtils;
+    private final MeterRegistry meterRegistry;
+
+    @PostConstruct
+    void registerGauges() {
+        meterRegistry.gauge("user.active.count", userRepository,
+                repo -> repo.countByStatus(AccountStatus.ACTIVE));
+    }
 
     // ===== Read operations =====
     @Cacheable(value = "users", key = "'id:' + #id")
@@ -292,13 +302,14 @@ public class UserService {
     @Transactional
     @Auditable(action = "USER_REGISTER", context = "User registration process")
     public User register(String email, String firstName, String lastName, String rawPassword, String phoneNumber) {
-        long startTime = System.currentTimeMillis();
+        Instant startTime = Instant.now();
 
         loggingUtils.setServiceName("UserService");
         loggingUtils.logServiceStart("UserService", "register", "email=" + email);
 
         try {
             if (existsByEmail(email)) {
+                meterRegistry.counter("user.registration.count", "status", "failure").increment();
                 loggingUtils.logError("UserService", "register", new IllegalArgumentException("Email already exists"),
                         email);
                 throw new IllegalArgumentException("Email already in use");
@@ -318,8 +329,9 @@ public class UserService {
             loggingUtils.logServiceEnd("UserService", "register", "registeredUserId=" + saved.getId(),
                     "email=" + saved.getEmail());
 
-            long endTime = System.currentTimeMillis();
-            loggingUtils.logPerformance("register", startTime, endTime);
+            meterRegistry.counter("user.registration.count", "status", "success").increment();
+            meterRegistry.timer("user.registration.duration").record(Duration.between(startTime, Instant.now()));
+            loggingUtils.logPerformance("register", startTime.toEpochMilli(), Instant.now().toEpochMilli());
 
             userEventPublisher.publishUserCreated(
                     UserCreatedEvent.builder()
@@ -583,6 +595,8 @@ public class UserService {
             User user = require(id);
             user.setLastLoginAt(Instant.now());
             User saved = userRepository.save(user);
+
+            meterRegistry.counter("user.login.count").increment();
 
             loggingUtils.logServiceEnd("UserService", "markLastLogin", "userId=" + id, "lastLoginUpdated=true");
 

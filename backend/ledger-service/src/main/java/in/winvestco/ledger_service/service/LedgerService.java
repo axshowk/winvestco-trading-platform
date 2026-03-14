@@ -8,6 +8,7 @@ import in.winvestco.ledger_service.model.LedgerEntry;
 import in.winvestco.ledger_service.repository.LedgerEntryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class LedgerService {
     private final LedgerEntryRepository ledgerEntryRepository;
     private final LedgerMapper ledgerMapper;
     private final in.winvestco.ledger_service.messaging.LedgerEventPublisher ledgerEventPublisher;
+    private final MeterRegistry meterRegistry;
 
     // ==============================================
     // WRITE OPERATION - INSERT ONLY
@@ -46,6 +48,7 @@ public class LedgerService {
      */
     @Transactional
     public LedgerEntryDTO recordEntry(CreateLedgerEntryRequest request) {
+        long startNanos = System.nanoTime();
         log.info("Recording ledger entry: wallet={}, type={}, amount={}, ref={}",
                 request.getWalletId(), request.getEntryType(), request.getAmount(), request.getReferenceId());
 
@@ -65,6 +68,11 @@ public class LedgerService {
 
         // Publish event for CQRS projections
         ledgerEventPublisher.publishLedgerEntryRecorded(saved);
+
+        // Record metrics
+        meterRegistry.counter("ledger.entries.count", "type", request.getEntryType().name()).increment();
+        meterRegistry.timer("ledger.entry.duration")
+                .record(System.nanoTime() - startNanos, java.util.concurrent.TimeUnit.NANOSECONDS);
 
         return ledgerMapper.toDTO(saved);
     }

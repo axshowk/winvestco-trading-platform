@@ -16,6 +16,7 @@ import in.winvestco.report_service.model.projection.TradeProjection;
 import in.winvestco.report_service.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ public class ReportGenerationService {
     private final CsvReportGenerator csvGenerator;
 
     private final OutboxService outboxService;
+    private final MeterRegistry meterRegistry;
 
     @Value("${report.storage.path:./reports}")
     private String storagePath;
@@ -67,6 +69,7 @@ public class ReportGenerationService {
     @Async
     @Transactional
     public void generateReportAsync(Long reportId) {
+        long startNanos = System.nanoTime();
         log.info("Starting async report generation for ID: {}", reportId);
 
         Report report = reportRepository.findById(reportId)
@@ -96,6 +99,10 @@ public class ReportGenerationService {
             // Publish completion event
             publishCompletionEvent(report);
 
+            meterRegistry.counter("report.generation.count", "type", report.getReportType().name(), "status", "success").increment();
+            meterRegistry.timer("report.generation.duration", "type", report.getReportType().name())
+                    .record(System.nanoTime() - startNanos, java.util.concurrent.TimeUnit.NANOSECONDS);
+
             log.info("Report {} generated successfully: {}", report.getReportId(), fileName);
 
         } catch (Exception e) {
@@ -103,6 +110,7 @@ public class ReportGenerationService {
             report.fail(e.getMessage());
             reportRepository.save(report);
             publishFailureEvent(report, e.getMessage());
+            meterRegistry.counter("report.generation.count", "type", report.getReportType().name(), "status", "failure").increment();
         }
     }
 
